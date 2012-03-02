@@ -147,7 +147,6 @@ main(int argc,
   }
 
   smap.setUpForData();
-  const Sensors &sensors(smap.allSensors());
 
   *osp << smap.allSensors();
 

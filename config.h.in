@@ -32,6 +32,9 @@
 /* Define to 1 if you have the <ndir.h> header file, and it defines `DIR'. */
 #undef HAVE_NDIR_H
 
+/* Define to 1 if you have the <netcdf> header file. */
+#undef HAVE_NETCDF
+
 /* Define to 1 if you have the `realpath' function. */
 #undef HAVE_REALPATH
 
@@ -82,6 +85,9 @@
 
 /* Define to 1 if you have the <unistd.h> header file. */
 #undef HAVE_UNISTD_H
+
+/* Define to 1 if you have the <unistd.h,> header file. */
+#undef HAVE_UNISTD_H_
 
 /* Define to 1 if the system has the type `_Bool'. */
 #undef HAVE__BOOL

@@ -183,7 +183,6 @@ main(int argc,
     }
     const Header hdr(is);             // Load up header
     smap.insert(is, hdr, true); // Since will move to the right position in the file
-    const Sensors& sensors(smap.find(hdr)); // Sensors for this file
     const KnownBytes kb(is);          // Get little/big endian
     Data data(is, kb, smap.find(hdr));
     data.delim(",");
