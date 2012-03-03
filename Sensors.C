@@ -25,6 +25,8 @@
 #include <iostream>
 #include <cerrno>
 #include <cstdio>
+#include <cstring>
+#include <cstdlib>
 #include <sys/stat.h>
 
 namespace {

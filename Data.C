@@ -40,7 +40,7 @@ Data::load(std::istream& is,
 {
   const size_t nSensors(sensors.size());
   const size_t nHeader((nSensors + 3) / 4);
-  int8_t *bits((int8_t * ) malloc(nHeader));
+  int8_t *bits(new int8_t[nHeader]);
   const tRow empty(sensors.nToStore(), NAN);
   tRow prevValue(empty);
   tData::size_type nRows(0);
@@ -57,6 +57,7 @@ Data::load(std::istream& is,
   while (true) { // Walk through the file
     int8_t tag;
     if (!is.read((char *) &tag, 1)) {
+      delete bits;
       throw(MyException("Error reading tag byte"));
     }
     if (tag != 'd') {
@@ -70,15 +71,15 @@ Data::load(std::istream& is,
           << " '" << (char) (tag & 0xff)
           << "' should be either 'd' or 'X' at offset "
           << is.tellg();
-      free(bits);
+      delete bits;
       throw(MyException(oss.str()));
     }
 
     if (!is.read((char *) bits, nHeader)) {
       mData.resize(nRows); // Prune off unused rows
       std::ostringstream oss;
-      oss << "Error reading " << sizeof(bits) << " bytes for header bits";
-      free(bits);
+      oss << "Error reading " << nHeader << " bytes for header bits";
+      delete bits;
       throw(MyException(oss.str()));
     }
 
@@ -94,7 +95,7 @@ Data::load(std::istream& is,
         std::ostringstream oss;
         oss << "offIndex issue " << offIndex << " >= " << nHeader
             << " at " << is.tellg();
-        free(bits);
+        delete bits;
         throw(MyException(oss.str()));
       }
       if (code == 1) { // Repeat previous value
@@ -120,9 +121,9 @@ Data::load(std::istream& is,
       ++nRows;
   }
 
-  free(bits);
   mData.resize(nRows); // Prune off unused rows
 
+  delete bits;
 }
 
 std::ostream&

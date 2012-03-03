@@ -23,6 +23,9 @@
 #include <sstream>
 #include <cerrno>
 #include <cmath>
+#include <cstring>
+#include <cstdlib>
+#include <cstdio>
 
 Sensor::Sensor(std::istream& is)
   : mqKeep(true)

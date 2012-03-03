@@ -21,6 +21,7 @@
 #include <Header.H>
 #include <MyException.H>
 #include <iostream>
+#include <cstdio>
 
 const Sensors&
 SensorsMap::find(const Header& hdr)

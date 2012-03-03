@@ -179,7 +179,11 @@ sysconfdir = @sysconfdir@
 target_alias = @target_alias@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-EXTRA_DIST = Data.H DataColumn.H Header.H KnownBytes.H MyException.H Sensor.H Sensors.H SensorsMap.H StackDump.H Version.H
+EXTRA_DIST = Data.H DataColumn.H Header.H KnownBytes.H MyException.H \
+	Sensor.H Sensors.H SensorsMap.H StackDump.H Version.H test.sbd \
+	test.sbd.nc test.sbd.csv test.sbd.sensors test.tbd test.tbd.nc \
+	test.tbd.csv test.tbd.sensors test.both.nc test.both.csv \
+	test.both.sensors
 dbd2netCDF_SOURCES = Data.C DataColumn.C Header.C KnownBytes.C Sensor.C Sensors.C SensorsMap.C StackDump.C dbd2netCDF.C
 dbd2csv_SOURCES = Data.C DataColumn.C Header.C KnownBytes.C Sensor.C Sensors.C SensorsMap.C dbd2csv.C StackDump.C
 dbdSensors_SOURCES = Header.C KnownBytes.C Sensor.C Sensors.C SensorsMap.C dbdSensors.C StackDump.C

@@ -29,6 +29,8 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
+#include <cstring>
+#include <cstdlib>
 #include <cerrno>
 
 namespace {

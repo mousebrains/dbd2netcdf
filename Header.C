@@ -20,6 +20,7 @@
 #include <Header.H>
 #include <MyException.H>
 #include <iostream>
+#include <cstdlib>
 
 namespace {
   std::string tolower(std::string str) {

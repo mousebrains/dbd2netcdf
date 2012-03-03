@@ -254,7 +254,7 @@ main(int argc,
         const size_t n(data.size());
         const size_t kStart(ii == 0 ? 0 : k0);
 
-        double *values((double *) malloc(n * sizeof(double)));
+        double *values(new double[n * sizeof(double)]);
 
         { // Update file info
           const tSize start(1, ii);
@@ -306,7 +306,7 @@ main(int argc,
           }
         }
       
-        free(values);
+        delete values;
 
         indexOffset += data.size() - kStart;
 

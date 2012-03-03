@@ -18,6 +18,7 @@
 */
 
 #include <StackDump.H>
+#include <cstdlib>
 #include <iostream>
 #include <config.h>
 

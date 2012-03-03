@@ -24,6 +24,8 @@
 #include <Version.H>
 #include <iostream>
 #include <fstream>
+#include <cstring>
+#include <cstdlib>
 #include <cerrno>
 
 namespace {

@@ -22,6 +22,8 @@
 #include <iostream>
 #include <cerrno>
 #include <cmath>
+#include <cstring>
+#include <cstdio>
 #include <exception>
 #include <arpa/inet.h>
 

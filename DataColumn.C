@@ -23,6 +23,7 @@
 #include <iostream>
 #include <cerrno>
 #include <cmath>
+#include <cstdio>
 #include <cxxabi.h>
 
 DataColumn::DataColumn(const size_t id,

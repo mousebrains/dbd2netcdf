@@ -5,6 +5,7 @@
 
 #include <iosfwd>
 #include <vector>
+#include <stdint.h>
 
 class KnownBytes;
 
