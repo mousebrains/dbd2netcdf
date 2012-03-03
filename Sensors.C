@@ -171,40 +171,47 @@ Sensors::dump(const std::string& dir) const
   const std::string filename(mkFilename(dir));
 
   if (!isFile(filename)) { // File already exists, so no need to update it
-    char tempfn[2048];
-    snprintf(tempfn, sizeof(tempfn), "%s.XXXXXX", filename.c_str());
-    int fd(mkstemp(tempfn));
-
-    if (fd == -1) {
-      std::cerr << "Error creating temporary filename for '" << tempfn << "', " 
-                << strerror(errno) << std::endl;
-      exit(1);
-    }
-
-    FILE *fp(fdopen(fd, "w"));
-    if (!fp) {
-      std::cerr << "Error creating File poitner from file descriptor for '" << tempfn << "', " 
-                << strerror(errno) << std::endl;
-      close(fd);
-      unlink(tempfn);
-      exit(1);
-    }
-
-    fprintf(fp, "%lu\n", mLength);
-    fprintf(fp, "%lu\n", mnToStore);
-    for (tSensors::const_iterator it(mSensors.begin()), et(mSensors.end()); it != et; ++it) {
+    std::string str;
+    { // Build output string
       std::ostringstream oss;
-      it->dump(oss);
-      fprintf(fp, "%s", oss.str().c_str());
+      oss << mLength << std::endl;
+      oss << mnToStore << std::endl;
+      for (tSensors::const_iterator it(mSensors.begin()), et(mSensors.end()); it != et; ++it) {
+        it->dump(oss);
+      }
+      str = oss.str();
     }
+    { // Now create a temporary file, which we'll move to the final filename, which is atomic
+      char tempfn[2048];
+      snprintf(tempfn, sizeof(tempfn), "%s.XXXXXXXX", filename.c_str());
+      int fd(mkstemp(tempfn));
 
-    fclose(fp);
+      if (fd == -1) {
+        std::cerr << "Error creating temporary filename for '" << tempfn << "', " 
+                  << strerror(errno) << std::endl;
+        exit(1);
+      }
 
-    if (rename(tempfn, filename.c_str())) {
-      std::cerr << "Error renaming '" << tempfn 
-                << "' to '" << filename << "', "
-                << strerror(errno) << std::endl;
-      exit(1);
+      const int n(str.size());
+
+      if (write(fd, str.c_str(), n) != n) {
+        std::cerr << "Error writing " << n << " characters to '" << tempfn << "', "
+                  << strerror(errno) << std::endl;
+        exit(1);
+      }
+
+      if (close(fd)) {
+        std::cerr << "Error closing '" << tempfn << "', "
+                  << strerror(errno) << std::endl;
+        exit(1);
+      }
+
+      if (rename(tempfn, filename.c_str())) {
+        std::cerr << "Error renaming '" << tempfn 
+                  << "' to '" << filename << "', "
+                  << strerror(errno) << std::endl;
+        exit(1);
+      }
     }
   }
  

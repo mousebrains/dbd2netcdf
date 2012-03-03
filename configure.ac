@@ -15,7 +15,7 @@ for opt in -pedantic -Wall; do
   AC_MSG_CHECKING([for $opt])
   SAVED_CXXFLAGS=$CXXFLAGS
   CXXFLAGS="$CXXFLAGS $opt"
-  AC_COMPILE_IFELSE([int main(void){return 0;}], [USE_OPT="yes"], [USE_OPT="no"])
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([], [return 0],)], [USE_OPT="yes"], [USE_OPT="no"])
   CXXFLAGS=$SAVED_CXXFLAGS
   if test "x$USE_OPT" = "xyes"; then
     CXXFLAGS="$CXXFLAGS $opt"
@@ -31,15 +31,25 @@ done
 
 AC_MSG_CHECKING([for libnetcdf_c++4])
 SAVED_LDFLAGS=$LDFLAGS
+SAVED_CXXFLAGS=$CXXFLAGS
 MYLDFLAGS="`$NCCONFIG --libs` -lnetcdf_c++4"
+MYCXXFLAGS="-I`$NCCONFIG --includedir`"
 LDFLAGS="$LDFLAGS $MYLDFLAGS"
-AC_LINK_IFELSE(
-  [AC_LANG_PROGRAM([#include <netcdf>],
-                   [netCDF::NcFile()],)],
-  [LIBS="$LIBS $MYLDFLAGS"],
-  [AC_MSG_ERROR([netcdf_c++4 library not found])])
+CXXFLAGS="$CXXFLAGS $MYCXXFLAGS"
+
+AC_LINK_IFELSE([AC_LANG_PROGRAM([#include <netcdf>], [netCDF::NcFile()],)],
+               [USE_NETCDF=yes], [USE_NETCDF=no])
+
 LDFLAGS=$SAVED_LDFLAGS
-AC_MSG_RESULT([yes])
+CXXFLAGS=$SAVED_CXXFLAGS
+
+if test "x$USE_NETCDF" = "xyes"; then
+  LIBS="$LIBS $MYLDFLAGS"
+  CXXFLAGS="$CXXFLAGS $MYCXXFLAGS"
+  AC_MSG_RESULT([yes])
+else
+  AC_MSG_ERROR([netcdf_c++4 library not found])
+fi
 
 # Check for hdf5 library
 
@@ -51,7 +61,7 @@ for opt in -Wl,-rpath=`$NCCONFIG --prefix`/lib; do
   AC_MSG_CHECKING([for $opt])
   SAVED_LDFLAGS=$LDFLAGS
   LDFLAGS="$LDFLAGS $opt"
-  AC_LINK_IFELSE([int main(void){return 0;}], [USE_OPT="yes"], [USE_OPT="no"])
+  AC_LINK_IFELSE([AC_LANG_PROGRAM([], [return 0],)], [USE_OPT="yes"], [USE_OPT="no"])
   LDFLAGS=$SAVED_LDFLAGS
   if test "x$USE_OPT" = "xyes"; then
     LDFLAGS="$LDFLAGS $opt"
@@ -63,7 +73,7 @@ done
 
 # Checks for header files.
 AC_HEADER_DIRENT
-AC_CHECK_HEADERS([arpa/inet.h unistd.h, netcdf])
+AC_CHECK_HEADERS([arpa/inet.h unistd.h netcdf execinfo.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
@@ -83,6 +93,7 @@ AC_FUNC_ERROR_AT_LINE
 AC_HEADER_STDC
 AC_FUNC_MALLOC
 AC_FUNC_STAT
+AC_CHECK_FUNCS([backtrace], AC_DEFINE([HAVE_BACKTRACE], [1]),[])
 AC_CHECK_FUNCS([floor mkdir realpath regcomp rmdir strdup strerror])
 
 AM_INIT_AUTOMAKE

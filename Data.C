@@ -22,6 +22,7 @@
 #include <Sensors.H>
 #include <MyException.H>
 #include <iostream>
+#include <sstream>
 #include <cmath>
 
 Data::Data(std::istream& is,
@@ -63,19 +64,22 @@ Data::load(std::istream& is,
         break;
       }
       mData.resize(nRows); // Prune off unused rows
-      char buffer[2048];
-      const size_t pos(is.tellg()); // Current position
-      snprintf(buffer, sizeof(buffer), "Unknown data tag(%x '%c') should be either 'd' or 'X' at offset %lu", 
-               tag & 0xff, tag, pos);
+      std::ostringstream oss;
+      oss << "Unknown data tag(0x"
+          << std::hex << (tag & 0xff) << std::dec
+          << " '" << (char) (tag & 0xff)
+          << "' should be either 'd' or 'X' at offset "
+          << is.tellg();
       free(bits);
-      throw(MyException(buffer));
+      throw(MyException(oss.str()));
     }
 
     if (!is.read((char *) bits, nHeader)) {
       mData.resize(nRows); // Prune off unused rows
-      char buffer[2048];
-      snprintf(buffer, sizeof(buffer), "Error reading %lu bytes for header bits", sizeof(bits));
-      throw(MyException(buffer));
+      std::ostringstream oss;
+      oss << "Error reading " << sizeof(bits) << " bytes for header bits";
+      free(bits);
+      throw(MyException(oss.str()));
     }
 
     tRow& row(mData[nRows]);
@@ -87,10 +91,11 @@ Data::load(std::istream& is,
       const unsigned int code((bits[offIndex] >> offBits) & 0x03);
       if (offIndex >= nHeader) {
         mData.resize(nRows); // Prune off unused rows
-        char buffer[2048];
-        snprintf(buffer, sizeof(buffer), "offIndex issue %lu >= %lu at %lu", 
-                 offIndex, nHeader, (size_t) is.tellg());
-        throw(MyException(buffer));
+        std::ostringstream oss;
+        oss << "offIndex issue " << offIndex << " >= " << nHeader
+            << " at " << is.tellg();
+        free(bits);
+        throw(MyException(oss.str()));
       }
       if (code == 1) { // Repeat previous value
         const Sensor& sensor(sensors[i]);

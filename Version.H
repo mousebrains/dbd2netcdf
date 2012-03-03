@@ -1,7 +1,9 @@
 #ifndef INC_Version_H_
 #define INC_Version_H_
 
-const char *versionString("1.0");
-const char *maintainer("<pat@mousebrains.com>");
+#include "config.h"
+
+const char *versionString(PACKAGE_VERSION);
+const char *maintainer(PACKAGE_BUGREPORT);
 
 #endif // INC_Version_H_

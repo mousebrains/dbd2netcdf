@@ -19,7 +19,11 @@
 
 #include <StackDump.H>
 #include <iostream>
+#include <config.h>
+
+#ifdef HAVE_EXECINFO_H
 #include <execinfo.h>
+#endif // HAVE_EXECINFO_H
 
 void
 stackDumpExit(int rc,
@@ -29,6 +33,7 @@ stackDumpExit(int rc,
     std::cerr << msg << std::endl;
   }
 
+#ifdef HAVE_BACKTRACE
   const size_t n(10);
   void *array[n];
   size_t size(backtrace(array, n));
@@ -39,5 +44,7 @@ stackDumpExit(int rc,
     }
     free(messages);
   }
+#endif // HAVE_BACKTRACE
+
   exit(1);
 }
