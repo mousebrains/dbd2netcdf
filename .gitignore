@@ -1,0 +1,12 @@
+*.o
+.DS_Store
+.deps
+autom4te.cache
+Makefile
+config.h
+config.log
+config.status
+dbd2csv
+dbd2netCDF
+dbdSensors
+stamp-h1
