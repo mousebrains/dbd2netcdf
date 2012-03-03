@@ -11,3 +11,5 @@ dbdSensors_SOURCES = Header.C KnownBytes.C Sensor.C Sensors.C SensorsMap.C dbdSe
 dist_man_MANS = dbd2netCDF.1 dbd2csv.1 dbdSensors.1
 
 AM_MAKEINFOFLAGS = --no-split
+
+export COPYFILE_DISABLE=true
