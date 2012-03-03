@@ -1,4 +1,5 @@
 *.o
+dbd2netcdf-?.?.tar.gz
 .DS_Store
 .deps
 autom4te.cache
