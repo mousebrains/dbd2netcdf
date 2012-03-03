@@ -2455,10 +2455,12 @@ done
 
 { echo "$as_me:$LINENO: checking for libnetcdf_c++4" >&5
 echo $ECHO_N "checking for libnetcdf_c++4... $ECHO_C" >&6; }
+SAVED_LIBS=$LIBS
 SAVED_LDFLAGS=$LDFLAGS
 SAVED_CXXFLAGS=$CXXFLAGS
 MYLDFLAGS="`$NCCONFIG --libs` -lnetcdf_c++4"
 MYCXXFLAGS="-I`$NCCONFIG --includedir`"
+LIBS="$LIBS $MYLDFLAGS"
 LDFLAGS="$LDFLAGS $MYLDFLAGS"
 CXXFLAGS="$CXXFLAGS $MYCXXFLAGS"
 
@@ -2506,11 +2508,13 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest_ipa8_conftest.oo \
       conftest$ac_exeext conftest.$ac_ext
 
+LIBS=$SAVED_LIBS
 LDFLAGS=$SAVED_LDFLAGS
 CXXFLAGS=$SAVED_CXXFLAGS
 
 if test "x$USE_NETCDF" = "xyes"; then
   LIBS="$LIBS $MYLDFLAGS"
+  LDFLAGS="$LDFLAGS $MYLDFLAGS"
   CXXFLAGS="$CXXFLAGS $MYCXXFLAGS"
   { echo "$as_me:$LINENO: result: yes" >&5
 echo "${ECHO_T}yes" >&6; }
