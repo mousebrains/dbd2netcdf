@@ -26,17 +26,139 @@
 #include <Data.H>
 #include <MyException.H>
 #include <config.h>
-#include <netcdf>
+#include <netcdf.h>
 #include <set>
 #include <iostream>
 #include <fstream>
 #include <cerrno>
 #include <cmath>
 
-using namespace netCDF;
-using namespace netCDF::exceptions;
-
 namespace {
+  void ncBasicOp(int retval, const std::string& label, const std::string& fn) {
+    if (retval) {
+      std::cerr << "Error " << label << " '" << fn << "', " << nc_strerror(retval)
+                << std::endl;
+      exit(2);
+    }
+  }
+
+  int ncOpenFile(const std::string& fn) {
+    int ncid;
+    ncBasicOp(nc_create(fn.c_str(), NC_NETCDF4 | NC_CLOBBER, &ncid),
+              "opening", fn);
+    return ncid;
+  }
+
+  int ncCreateDim(int ncid, const std::string& name, const std::string& fn) {
+    int dimId;
+    const int retval(nc_def_dim(ncid, name.c_str(), NC_UNLIMITED, &dimId));
+    if (retval) {
+      std::cerr << "Error creating dimension '" << name << "' in '" << fn << "', "
+                << nc_strerror(retval) << std::endl;
+      exit(2);
+    }
+    return dimId;
+  }
+
+  int ncCreateVar(int ncid, const std::string& name, 
+                nc_type idType, int idDim, 
+                const std::string& units, const std::string& fn) {
+    int varId;
+    int retval(nc_def_var(ncid, name.c_str(), idType, 1, &idDim, &varId));
+    if (retval) {
+      std::cerr << "Error creating variable '" << name << "' in '" << fn << "', "
+                << nc_strerror(retval) << std::endl;
+      exit(2);
+    }
+
+    const size_t chunkSize(100000);
+
+    if ((retval = nc_def_var_chunking(ncid, varId, NC_CHUNKED, &chunkSize))) {
+      std::cerr << "Error setting chunk size to " << chunkSize
+                << " for '" << name << "' in '" << fn << "', "
+                << nc_strerror(retval) << std::endl;
+      exit(2);
+    }
+
+    const int qShuffle((idType != NC_FLOAT) && (idType != NC_DOUBLE));
+    const int compressionLevel(9);
+    if ((retval = nc_def_var_deflate(ncid, varId, qShuffle, 1, compressionLevel))) {
+      std::cerr << "Error enabling compression and shuffle(" << qShuffle
+                << ") for '" << name << "' in '" << fn << "', "
+                << nc_strerror(retval) << std::endl;
+      exit(2);
+    }
+
+    if (idType == NC_FLOAT) {
+      const float badValue(nan(""));
+      if ((retval = nc_def_var_fill(ncid, varId, NC_FILL, &badValue))) {
+        std::cerr << "Error setting fill value, " << badValue 
+                  << " for '" << name << "' in '" << fn 
+                  << "', " << nc_strerror(retval) << std::endl;
+        exit(2);
+      }
+    } else if (idType == NC_DOUBLE) {
+      const double badValue(nan(""));
+      if ((retval = nc_def_var_fill(ncid, varId, NC_FILL, &badValue))) {
+        std::cerr << "Error setting fill value, " << badValue 
+                  << " for '" << name << "' in '" << fn 
+                  << "', " << nc_strerror(retval) << std::endl;
+        exit(2);
+      }
+    }
+
+    if (!units.empty()) {
+      if ((retval = nc_put_att_text(ncid, varId, "units", 
+                                    units.size(), units.c_str()))) {
+        std::cerr << "Error setting units attribute, '" << units << "' for '"
+                  << name << "' in '" << fn << "', " << nc_strerror(retval)
+                  << std::endl;
+        exit(2);
+      }
+    }
+
+    return varId;
+  }
+
+  void ncPutVars(int ncid, int varId, size_t start, size_t count, 
+                 const double data[], const std::string& fn) {
+    const int retval(nc_put_vara_double(ncid, varId, &start, &count, data));
+    if (retval) {
+      char varName[NC_MAX_NAME + 1];
+      ncBasicOp(nc_inq_varname(ncid, varId, varName), "getting variable name", fn);
+      std::cerr << "Error writing data to '" << varName << "' in '" << fn
+                << "', " << nc_strerror(retval) << std::endl;
+      exit(2);
+    }
+  }
+
+  void ncPutVar(int ncid, int varId, size_t start, 
+                unsigned int value, const std::string& fn) {
+    const size_t count(1);
+    const int retval(nc_put_vara_uint(ncid, varId, &start, &count, &value));
+    if (retval) {
+      char varName[NC_MAX_NAME + 1];
+      ncBasicOp(nc_inq_varname(ncid, varId, varName), "getting variable name", fn);
+      std::cerr << "Error writing data to '" << varName << "' in '" << fn
+                << "', " << nc_strerror(retval) << std::endl;
+      exit(2);
+    }
+  }
+
+  void ncPutVar(int ncid, int varId, size_t start, const std::string& str,
+                const std::string& fn) {
+    const char *cstr(str.c_str());
+    const int retval(nc_put_var1_string(ncid, varId, &start, &cstr));
+    if (retval) {
+      char varName[NC_MAX_NAME + 1];
+      ncBasicOp(nc_inq_varname(ncid, varId, varName), "getting variable name", fn);
+      std::cerr << "Error writing a string, '" << str 
+                << "', to '" << varName << "' in '" << fn
+                << "', " << nc_strerror(retval) << std::endl;
+      exit(2);
+    }
+  }
+
   int usage(const char *argv0, const char *options) {
     std::cerr << argv0 << " Version " << VERSION << std::endl;
     std::cerr << std::endl;
@@ -149,178 +271,166 @@ main(int argc,
   smap.qCriteria(criteria);
   smap.setUpForData(); // Get a common list of sensors
 
-  const double badDouble (nan (""));
-  const float badFloat(badDouble);
-  int rc(0);
+  typedef std::vector<int> tVars;
+  tVars vars(smap.allSensors().nToStore());
 
-  try {
-    typedef std::vector<NcVar> tVars;
-    typedef std::vector<size_t> tSize;
+  const int ncid(ncOpenFile(ofn));
+  const int iDim(ncCreateDim(ncid, "i", ofn));
+  const int jDim(ncCreateDim(ncid, "j", ofn));
 
-    NcFile df(ofn, NcFile::replace, NcFile::nc4);
-    NcDim dim(df.addDim("i")); // Unlimited netCDF dimension for data
-    tVars vars(smap.allSensors().nToStore());
+  { // Setup variables
+    const Sensors& all(smap.allSensors());
 
-    { // Setup variables
-      tSize chunkSize(1, 100000);
-      const int compressionLevel(9);
-
-      const Sensors& all(smap.allSensors());
-
-      for (Sensors::const_iterator it(all.begin()), et(all.end()); it != et; ++it) {
-        const Sensor& sensor(*it);
-        if (sensor.qKeep()) {
-          const size_t index(sensor.index());
-          const std::string& name(sensor.name());
-          const std::string& units(sensor.units());
-          switch (sensor.size()) {
-            case 1: 
-              vars[index] = NcVar(df.addVar(name, ncByte, dim)); 
-              break;
-            case 2: 
-              vars[index] = NcVar(df.addVar(name, ncShort, dim)); 
-              break;
-            case 4: 
-              vars[index] = NcVar(df.addVar(name, ncFloat, dim)); 
-              vars[index].setFill(true, &badFloat);
-              break;
-            case 8: 
-              vars[index] = NcVar(df.addVar(name, ncDouble, dim)); 
-              vars[index].setFill(true, &badDouble);
-              break;
-            default:
-              std::cerr << "Unsupported sensor size " << sensor << std::endl;
-              exit(1);
-          }
-          NcVar& var(vars[index]);
-          var.setChunking(NcVar::nc_CHUNKED, chunkSize);
-          var.setCompression(true, true, compressionLevel);
-          var.putAtt("units", units);
+    for (Sensors::const_iterator it(all.begin()), et(all.end()); it != et; ++it) {
+      const Sensor& sensor(*it);
+      if (sensor.qKeep()) {
+        const size_t index(sensor.index());
+        const std::string& name(sensor.name());
+        const std::string& units(sensor.units());
+        switch (sensor.size()) {
+        case 1: 
+          vars[index] = ncCreateVar(ncid, name, NC_BYTE, iDim, units, ofn);
+          break;
+        case 2: 
+          vars[index] = ncCreateVar(ncid, name, NC_SHORT, iDim, units, ofn);
+          break;
+        case 4: 
+          vars[index] = ncCreateVar(ncid, name, NC_FLOAT, iDim, units, ofn);
+          break;
+        case 8: 
+          vars[index] = ncCreateVar(ncid, name, NC_DOUBLE, iDim, units, ofn);
+          break;
+        default:
+          std::cerr << "Unsupported sensor size " << sensor << std::endl;
+          exit(1);
         }
       }
     }
+  }
 
-    typedef std::vector<std::string> tHdrNames;
-    tHdrNames hdrNames;
-    hdrNames.push_back("full_filename");
-    hdrNames.push_back("encoding_ver");
-    hdrNames.push_back("the8x3_filename");
-    hdrNames.push_back("filename_extension");
-    hdrNames.push_back("mission_name");
-    hdrNames.push_back("fileopen_time");
-    hdrNames.push_back("sensor_list_crc");
+  typedef std::vector<std::string> tHdrNames;
+  tHdrNames hdrNames;
+  hdrNames.push_back("full_filename");
+  hdrNames.push_back("encoding_ver");
+  hdrNames.push_back("the8x3_filename");
+  hdrNames.push_back("filename_extension");
+  hdrNames.push_back("mission_name");
+  hdrNames.push_back("fileopen_time");
+  hdrNames.push_back("sensor_list_crc");
 
-    tVars hdrVars(hdrNames.size());
-    NcDim dimj(df.addDim("j")); // Unlimited netCDF dimension for file header
-    for (tVars::size_type i(0), e(hdrVars.size()); i < e; ++i) {
-      const std::string& name("hdr_" + hdrNames[i]);
-      hdrVars[i] = NcVar(df.addVar(name, ncString, dimj));
+  tVars hdrVars(hdrNames.size());
+
+  for (tVars::size_type i(0), e(hdrVars.size()); i < e; ++i) {
+    const std::string& name("hdr_" + hdrNames[i]);
+    hdrVars[i] = ncCreateVar(ncid, name, NC_STRING, jDim, std::string(), ofn);
+  }
+
+  const int hdrStartIndex(ncCreateVar(ncid, "hdr_start_index", NC_UINT, jDim,
+                                      std::string(), ofn));
+  const int hdrStopIndex(ncCreateVar(ncid, "hdr_stop_index", NC_UINT, jDim,
+                                      std::string(), ofn));
+  const int hdrLength(ncCreateVar(ncid, "hdr_nRecords", NC_UINT, jDim, 
+                                  std::string(), ofn));
+
+  ncBasicOp(nc_enddef(ncid), "ending definitions for", ofn);
+
+  // Go through and grab all the data
+
+  unsigned int indexOffset(0);
+  const size_t k0(qSkipFirstRecord ? 1 : 0);
+
+  for (tFileIndices::size_type ii(0), iie(fileIndices.size()); ii < iie; ++ii) {
+    const int i(fileIndices[ii]);
+    std::ifstream is(argv[i]);
+    if (!is) {
+      std::cerr << "Error opening '" << argv[i] << "', " 
+                << strerror(errno) << std::endl;
+      return(1);
     }
+    const Header hdr(is);             // Load up header
+    try {
+      smap.insert(is, hdr, true);       // will move to the right position in the file
+      const Sensors& sensors(smap.find(hdr));
+      const KnownBytes kb(is);          // Get little/big endian
+      Data data;
 
-    NcVar hdrStartIndex(df.addVar("hdr_start_index", ncUint, dimj));
-    NcVar hdrStopIndex(df.addVar("hdr_stop_index", ncUint, dimj));
-    NcVar hdrLength(df.addVar("hdr_nRecords", ncUint, dimj));
-
-    // Go through and grab all the data
-
-    size_t indexOffset(0);
-    const size_t k0(qSkipFirstRecord ? 1 : 0);
-
-    for (tFileIndices::size_type ii(0), iie(fileIndices.size()); ii < iie; ++ii) {
-      const int i(fileIndices[ii]);
-      std::ifstream is(argv[i]);
-      if (!is) {
-        std::cerr << "Error opening '" << argv[i] << "', " << strerror(errno) << std::endl;
-        return(1);
-      }
-      const Header hdr(is);             // Load up header
       try {
-        smap.insert(is, hdr, true);       // will move to the right position in the file
-        const Sensors& sensors(smap.find(hdr));
-        const KnownBytes kb(is);          // Get little/big endian
-        Data data;
+        data.load(is, kb, sensors);
+      } catch (MyException& e) {
+        std::cerr << "Error processing '" << argv[i] << "', " << e.what() 
+                  << ", retaining " << data.size() << " records" << std::endl;
+      }
 
-        try {
-          data.load(is, kb, sensors);
-        } catch (MyException& e) {
-          std::cerr << "Error processing '" << argv[i] << "', " << e.what() 
-            << ", retaining " << data.size() << " records" << std::endl;
+      if (data.empty()) {
+        continue;
+      }
+
+      const size_t n(data.size());
+      const size_t kStart(ii == 0 ? 0 : k0);
+
+      double *values(new double[n * sizeof(double)]);
+
+      { // Update file info
+        for (tVars::size_type i(0), e(hdrVars.size()); i < e; ++i) {
+          const std::string str(hdr.find(hdrNames[i]));
+          ncPutVar(ncid, hdrVars[i], (size_t) ii, str, ofn);
         }
+        if (n > kStart) {
+          const unsigned int stopIndex(indexOffset + n - kStart - 1);
 
-        if (data.empty()) {
-          continue;
+          ncPutVar(ncid, hdrStartIndex, ii, indexOffset, ofn);
+          ncPutVar(ncid, hdrStopIndex, ii, stopIndex, ofn);
         }
-
-        const size_t n(data.size());
-        const size_t kStart(ii == 0 ? 0 : k0);
-
-        double *values(new double[n * sizeof(double)]);
-
-        { // Update file info
-          const tSize start(1, ii);
-          const tSize count(1, 1);
-          for (tVars::size_type i(0), e(hdrVars.size()); i < e; ++i) {
-             const std::string str(hdr.find(hdrNames[i]));
-             hdrVars[i].putVar(start, count, &str);
-          }
-          if (n > kStart) {
-            const size_t stopIndex(indexOffset + n - kStart - 1);
-
-            hdrStartIndex.putVar(start, count, &indexOffset);
-            hdrStopIndex.putVar(start, count, &stopIndex);
-          }
-          hdrLength.putVar(start, count, &n);
-        }
+        ncPutVar(ncid, hdrLength, ii, (unsigned int) n, ofn);
+      }
       
-        if (n <= kStart) { // No data to be written
-          continue;
-        }
+      if (n <= kStart) { // No data to be written
+        continue;
+      }
 
-        for (tVars::size_type j(0), je(vars.size()); j < je; ++j) {
-          NcVar& var(vars[j]);
-          size_t iFirst(0);
-          bool qLooking(true);
-          for (size_t k(kStart); k < n; ++k) {
-            const double value(data[k][j]);
-            const bool qSkip(std::isnan(value) || std::isinf(value));
-            if (!qSkip) {
-              values[k] = value;
-              if (qLooking) {
-                qLooking = false;
-                iFirst = k;
-              }
-            } else { // isnan
-              if (!qLooking) { // We have some data to write out
-                qLooking = true;
-                const tSize start(1, indexOffset + iFirst);
-                const tSize count(1, k - iFirst);
-                var.putVar(start, count, &values[iFirst]);
-              }
+      for (tVars::size_type j(0), je(vars.size()); j < je; ++j) {
+        const int var(vars[j]);
+        size_t iFirst(0);
+        bool qLooking(true);
+        for (size_t k(kStart); k < n; ++k) {
+          const double value(data[k][j]);
+          const bool qSkip(std::isnan(value) || std::isinf(value));
+          if (!qSkip) {
+            values[k] = value;
+            if (qLooking) {
+              qLooking = false;
+              iFirst = k;
+            }
+          } else { // isnan
+            if (!qLooking) { // We have some data to write out
+              qLooking = true;
+              const size_t start(indexOffset + iFirst);
+              const size_t count(k - iFirst);
+              ncPutVars(ncid, var, start, count, &values[iFirst], ofn);
             }
           }
-
-          if (!qLooking) {
-            const tSize start(1, indexOffset + iFirst);
-            const tSize count(1, n - iFirst);
-            var.putVar(start, count, &values[iFirst]);
-          }
         }
-      
-        delete values;
 
-        indexOffset += data.size() - kStart;
-
-        if (qVerbose) {
-          std::cerr << argv[i] << " " << data.size() - kStart << std::endl;
+        if (!qLooking) {
+          const size_t start(indexOffset + iFirst);
+          const size_t count(n - iFirst);
+          ncPutVars(ncid, var, start, count, &values[iFirst], ofn);
         }
-      } catch (MyException& e) { // Catch my exceptions, where I toss the whole file
-        std::cerr << "Error processing '" << argv[i] << "', " << e.what() << std::endl;
       }
+      
+      delete values;
+
+      indexOffset += data.size() - kStart;
+
+      if (qVerbose) {
+        std::cerr << argv[i] << " " << data.size() - kStart << std::endl;
+      }
+    } catch (MyException& e) { // Catch my exceptions, where I toss the whole file
+      std::cerr << "Error processing '" << argv[i] << "', " << e.what() << std::endl;
     }
-  } catch (NcException& e) { // Catch netCDF exceptions
-    e.what();
-    rc = 2;
   }
-  
-  return(rc);
+ 
+  ncBasicOp(nc_close(ncid), "closing", ofn);
+
+  return(0);
 }

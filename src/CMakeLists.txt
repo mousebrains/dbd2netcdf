@@ -69,6 +69,11 @@ ENDIF("${isSystemDir}" STREQUAL "-1")
 
 include(CheckIncludeFiles)
 check_include_files(execinfo.h HAVE_EXECINFO_H)
+check_include_files(netcdf.h HAVE_NETCDF_H)
+
+if ("${HAVE_NETCDF_H}" STREQUAL "HAVE_NETCDF_H-NOTFOUND")
+  message(FATAL_ERROR "Unable to locate netcdf.h")
+endif ("${HAVE_NETCDF_H}" STREQUAL "HAVE_NETCDF_H-NOTFOUND")
 
 include(CheckFunctionExists)
 check_function_exists(backtrace HAVE_BACKTRACE)
@@ -81,39 +86,10 @@ CHECK_TYPE_SIZE(mode_t HAVE_mode_T)
 CHECK_TYPE_SIZE(off_t HAVE_off_T)
 CHECK_TYPE_SIZE(size_t HAVE_size_T)
 
-# Run nc-config to get information about compiling
-
-find_program(netCDF_NC_CONFIG NAMES nc-config)
-
-if (${netCDF_NC_CONFIG} STREQUAL "netCDF_NC_CONFIG-NOTFOUND")
-  message(FATAL_ERROR "nc-config not found")
-endif (${netCDF_NC_CONFIG} STREQUAL "netCDF_NC_CONFIG-NOTFOUND")
-
-execute_process(COMMAND ${netCDF_NC_CONFIG} --has-c++ --includedir --libs
-                RESULT_VARIABLE ReturnCode OUTPUT_VARIABLE OutputLines)
-
-if ("${ReturnCode}" MATCHES 0)
-  string(REPLACE "\n" ";" LINES ${OutputLines})
-  list(GET LINES 0 HAS_C++)
-  if ("${HAS_C++}" MATCHES "yes")
-    list(GET LINES 1 netCDF_INCLUDE_DIR)
-    list(GET LINES 2 netCDF_LIB_DIR)
-    string(REGEX MATCH "-L.+ " netCDF_LIB_DIR ${netCDF_LIB_DIR})
-    string(REGEX REPLACE "(-L| )" "" netCDF_LIB_DIR ${netCDF_LIB_DIR})
-    include_directories(${netCDF_INCLUDE_DIR})
-  else ("${HAS_C++}" MATCHES "yes")
-    message(FATAL_ERROR "netCDF not installed with c++ support")
-  endif ("${HAS_C++}" MATCHES "yes")
-else ("${ReturnCode}" MATCHES 0)
-  message(FATAL_ERROR "Executing nc-config, ${ReturnCode}")
-endif ("${ReturnCode}" MATCHES 0)
-
-# Find the netcdf_c++4 library, based on the information for nc-config
-
-find_library(netCDF_libnetcdf_cpp4 NAMES netcdf_c++4 PATHS ${netCDF_LIB_DIR})
-if ("${netCDF_libnetcdf_cpp4}" MATCHES "netCDF_libnetcdf_cpp4-NOTFOUND")
-    message(FATAL_ERROR "Unable to locate netcdf_c++4 library")
-endif ("${netCDF_libnetcdf_cpp4}" MATCHES "netCDF_libnetcdf_cpp4-NOTFOUND")
+find_library(netCDF_libnetcdf NAMES netcdf)
+if ("${netCDF_libnetcdf}" MATCHES "netCDF_libnetcdf-NOTFOUND")
+    message(FATAL_ERROR "Unable to locate libnetcdf")
+endif ("${netCDF_libnetcdf}" MATCHES "netCDF_libnetcdf-NOTFOUND")
 
 # Write out config.h as derived from config.h.in
 
@@ -137,7 +113,7 @@ include_directories(${dbd2netcdf_SOURCE_DIR})
 
 # We want netCDF libraries linked in
 
-target_link_libraries(dbd2netCDF -L${netCDF_LIB_DIR} -lnetcdf_c++4 -lnetcdf)
+target_link_libraries(dbd2netCDF netcdf)
 
 # Install locally
 
