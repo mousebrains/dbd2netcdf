@@ -18,14 +18,14 @@ if ! mkdir -p $TMP ; then
   exit 1
 fi
 
-function chkCMD() {
+chkCMD() {
   if ! $* </dev/null >/dev/null 2>&1; then
     echo No $1 command found
     exit 1
   fi
 }
 
-function doCompare() {
+doCompare() {
   tmpfn=$TMP/dbdcsv.out.$$
   tmp1fn=$TMP/dbdcsv.out.1.$$
   tmp2fn=$TMP/dbdcsv.out.2.$$
