@@ -23,7 +23,7 @@ if ! mkdir -p $TMP ; then
   exit 1
 fi
 
-function doCompare() {
+doCompare() {
   tmpfn=$TMP/dbdSensors.out.$$
   ref=$1
   shift
