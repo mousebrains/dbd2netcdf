@@ -32,6 +32,8 @@
 #include <fstream>
 #include <cerrno>
 #include <cmath>
+#include <cstdlib>
+#include <cstring>
 
 namespace {
   void ncBasicOp(int retval, const std::string& label, const std::string& fn) {
