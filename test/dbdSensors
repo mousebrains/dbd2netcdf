@@ -1,0 +1,64 @@
+#! /bin/sh
+#
+# Generate output from dbdSensors and compare to expected output
+#
+# Mar-2012, Pat Welch, pat@mousebrains.com
+#
+
+CMD=../bin/dbdSensors
+TMP=../tmp
+
+if [ ! -x $CMD ] ; then
+  echo $CMD is not executable
+  exit 1
+fi
+
+if ! diff -v >/dev/null ; then
+  echo No diff command found
+  exit 1
+fi
+
+if ! mkdir -p $TMP ; then
+  echo Unable to create $TMP
+  exit 1
+fi
+
+function doCompare() {
+  tmpfn=$TMP/dbdSensors.out.$$
+  ref=$1
+  shift
+
+  if [ ! -e $ref ] ; then
+    echo Reference file $ref does not exist
+    exit 1
+  fi
+
+  for file in $* ; do
+    if [ ! -e $file ] ; then
+      echo Dinkum Binary Data file $file does not exist
+      exit 1
+    fi
+  done
+
+  if ! $CMD -o $tmpfn $* ; then
+    echo Failed to execute $CMD on $*
+    rm -f $tmpfn
+    exit 1
+  fi
+
+  if ! diff -q $tmpfn $ref ; then
+    echo Failed on comparison of $* sensors
+    diff $tmpfn $ref
+    rm -f $tmpfn
+    exit 1
+  fi
+
+  rm -f $tmpfn
+}
+
+doCompare test.sbd.sensors test.sbd
+doCompare test.tbd.sensors test.tbd
+doCompare test.both.sensors test.sbd test.tbd
+
+
+exit 0

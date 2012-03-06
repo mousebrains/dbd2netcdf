@@ -1,0 +1,103 @@
+#! /bin/sh
+#
+# Generate output from dbdSensors and compare to expected output
+#
+# Mar-2012, Pat Welch, pat@mousebrains.com
+#
+
+CMD=../bin/dbd2netCDF
+TMP=../tmp
+
+if [ ! -x $CMD ] ; then
+  echo $CMD is not executable
+  exit 1
+fi
+
+if ! mkdir -p $TMP ; then
+  echo Unable to create $TMP
+  exit 1
+fi
+
+function chkCMD() {
+  if ! $* </dev/null >/dev/null 2>&1; then
+    echo No $1 command found
+    exit 1
+  fi
+}
+
+function doCompare() {
+  tmpfn=$TMP/dbdcsv.out.$$
+  tmp1fn=$TMP/dbdcsv.out.1.$$
+  tmp2fn=$TMP/dbdcsv.out.2.$$
+
+  ref=$1
+  shift
+
+  if [ ! -e $ref ] ; then
+    echo Reference file $ref does not exist
+    exit 1
+  fi
+
+  for file in $* ; do
+    if [ ! -e $file ] ; then
+      echo Dinkum Binary Data file $file does not exist
+      exit 1
+    fi
+  done
+
+  if ! $CMD -o $tmpfn $* ; then
+    echo Failed to execute $CMD on $*
+    rm -f $tmpfn
+    exit 1
+  fi
+
+  if ! ncdump $tmpfn >$tmp1fn ; then
+    echo Failed to execute ncdump on $tmpfn
+    rm -f $tmpfn $tmp1fn $tmp2fn
+    exit 1
+  fi
+
+
+  if ! tail -n +2 $tmp1fn >$tmp2fn ; then
+    echo Failed to execute tail on $tmp1fn
+    rm -f $tmpfn $tmp1fn $tmp2fn
+    exit 1
+  fi
+
+  if  ! grep -v ':_FillValue = ' $tmp2fn >$tmpfn ; then
+    echo Failed to execute grep on $tmp2fn
+    rm -f $tmpfn $tmp1fn $tmp2fn
+    exit 1
+  fi
+  
+  if ! tail -n +2 $ref >$tmp2fn ; then
+    echo Failed to execute tail on $ref
+    rm -f $tmpfn $tmp1fn $tmp2fn
+    exit 1
+  fi
+
+  if  ! grep -v ':_FillValue = ' $tmp2fn >$tmp1fn ; then
+    echo Failed to execute greap on $tmp2fn
+    rm -f $tmpfn $tmp1fn $tmp2fn
+    exit 1
+  fi
+ 
+  if ! diff -q $tmpfn $tmp1fn ; then
+    echo Failed on comparison of $* sensors
+    diff $tmpfn $tmp1fn
+    rm -f $tmpfn $tmp1fn $tmp2fn
+    exit 1
+  fi
+
+  rm -f $tmpfn $tmp1fn $tmp2fn
+}
+
+chkCMD diff -v
+chkCMD grep --version
+chkCMD tail
+
+doCompare test.sbd.netCDF test.sbd
+doCompare test.tbd.netCDF test.tbd
+doCompare test.both.netCDF test.sbd test.tbd
+
+exit 0
