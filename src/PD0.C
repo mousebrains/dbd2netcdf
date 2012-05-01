@@ -112,10 +112,10 @@ PD0::loadBlock(std::istream& is)
     iss.seekg(offsets[i], std::ios::beg);
     const std::streampos npos(iss.tellg());
     const size_t hdr(readUInt16(iss));
-    // std::cout << std::dec << "TPW i " << i << " off " << offsets[i] 
-              // << " len " << ((((i + 1) < nDataTypes) ? offsets[i+1] : (nBytes + 1)) - offsets[i])
-              // << " opos " << opos << " npos " << npos 
-              // << " hdr " << std::hex << hdr << std::dec << std::endl;
+    std::cout << std::dec << "TPW i " << i << " off " << offsets[i] 
+              << " len " << ((((i + 1) < nDataTypes) ? offsets[i+1] : (nBytes + 1)) - offsets[i])
+              << " opos " << opos << " npos " << npos 
+              << " hdr " << std::hex << hdr << std::dec << std::endl;
     switch (hdr) {
       case 0x0000: 
         if (!mFixed.load(iss, *this))
@@ -536,14 +536,11 @@ PD0::Variable::Variable()
   mItems.push_back(Item("error_status", dtUInt32));
   mItems.push_back(Item("var_spare0", dtUInt16));
   mItems.push_back(Item("pressure", dtUInt32, "decapascals"));
+  mItems.push_back(Item("pressure_variance", dtUInt32, "decapascals"));
   mItems.push_back(Item("var_spare1", dtUInt8));
   mItems.push_back(Item("rtc_2k_century", dtUInt8));
   mItems.push_back(Item("rtc_2k_year", dtUInt8));
   mItems.push_back(Item("rtc_2k_month", dtUInt8));
-  mItems.push_back(Item("rtc_2k_day", dtUInt8));
-  mItems.push_back(Item("rtc_2k_hour", dtUInt8));
-  mItems.push_back(Item("rtc_2k_minutes", dtUInt8));
-  mItems.push_back(Item("rtc_2k_seconds", dtUInt8));
 }
 
 bool
