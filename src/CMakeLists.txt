@@ -1,6 +1,9 @@
 add_executable(dbd2netCDF 
                dbd2netCDF.C SensorsMap.C Sensors.C Sensor.C Header.C 
-               Data.C KnownBytes.C)
+               NetCDF.C Data.C KnownBytes.C)
+
+add_executable(pd02netCDF 
+               pd02netCDF.C PD0.C NetCDF.C)
 
 add_executable(dbd2csv 
                dbd2csv.C SensorsMap.C Sensors.C Sensor.C Header.C
@@ -10,7 +13,7 @@ add_executable(dbdSensors
                dbdSensors.C SensorsMap.C Sensors.C Sensor.C Header.C
                KnownBytes.C)
 
-set_target_properties(dbd2netCDF dbd2csv dbdSensors 
+set_target_properties(dbd2netCDF dbd2csv dbdSensors pd02netCDF
                       PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${dbd2netcdf_SOURCE_DIR}/bin)
 
 include_directories(${dbd2netcdf_SOURCE_DIR}/bin ${dbd2netcdf_SOURCE_DIR}/src)
@@ -114,7 +117,8 @@ include_directories(${dbd2netcdf_SOURCE_DIR})
 # We want netCDF libraries linked in
 
 target_link_libraries(dbd2netCDF netcdf)
+target_link_libraries(pd02netCDF netcdf)
 
 # Install locally
 
-install(TARGETS dbd2netCDF dbd2csv dbdSensors DESTINATION bin)
+install(TARGETS dbd2netCDF pd02netCDF dbd2csv dbdSensors DESTINATION bin)

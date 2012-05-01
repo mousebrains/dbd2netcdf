@@ -20,13 +20,13 @@
 // Read in a set of Dinkum Binary Data files, and
 // output them into a netCDF file
 
+#include <NetCDF.H>
 #include <Header.H>
 #include <SensorsMap.H>
 #include <KnownBytes.H>
 #include <Data.H>
 #include <MyException.H>
 #include <config.h>
-#include <netcdf.h>
 #include <set>
 #include <iostream>
 #include <fstream>
@@ -36,131 +36,6 @@
 #include <cstring>
 
 namespace {
-  void ncBasicOp(int retval, const std::string& label, const std::string& fn) {
-    if (retval) {
-      std::cerr << "Error " << label << " '" << fn << "', " << nc_strerror(retval)
-                << std::endl;
-      exit(2);
-    }
-  }
-
-  int ncOpenFile(const std::string& fn) {
-    int ncid;
-    ncBasicOp(nc_create(fn.c_str(), NC_NETCDF4 | NC_CLOBBER, &ncid),
-              "opening", fn);
-    return ncid;
-  }
-
-  int ncCreateDim(int ncid, const std::string& name, const std::string& fn) {
-    int dimId;
-    const int retval(nc_def_dim(ncid, name.c_str(), NC_UNLIMITED, &dimId));
-    if (retval) {
-      std::cerr << "Error creating dimension '" << name << "' in '" << fn << "', "
-                << nc_strerror(retval) << std::endl;
-      exit(2);
-    }
-    return dimId;
-  }
-
-  int ncCreateVar(int ncid, const std::string& name, 
-                nc_type idType, int idDim, 
-                const std::string& units, const std::string& fn) {
-    int varId;
-    int retval(nc_def_var(ncid, name.c_str(), idType, 1, &idDim, &varId));
-    if (retval) {
-      std::cerr << "Error creating variable '" << name << "' in '" << fn << "', "
-                << nc_strerror(retval) << std::endl;
-      exit(2);
-    }
-
-    const size_t chunkSize(100000);
-
-    if ((retval = nc_def_var_chunking(ncid, varId, NC_CHUNKED, &chunkSize))) {
-      std::cerr << "Error setting chunk size to " << chunkSize
-                << " for '" << name << "' in '" << fn << "', "
-                << nc_strerror(retval) << std::endl;
-      exit(2);
-    }
-
-    const int qShuffle((idType != NC_FLOAT) && (idType != NC_DOUBLE));
-    const int compressionLevel(9);
-    if ((retval = nc_def_var_deflate(ncid, varId, qShuffle, 1, compressionLevel))) {
-      std::cerr << "Error enabling compression and shuffle(" << qShuffle
-                << ") for '" << name << "' in '" << fn << "', "
-                << nc_strerror(retval) << std::endl;
-      exit(2);
-    }
-
-    if (idType == NC_FLOAT) {
-      const float badValue(nan(""));
-      if ((retval = nc_def_var_fill(ncid, varId, NC_FILL, &badValue))) {
-        std::cerr << "Error setting fill value, " << badValue 
-                  << " for '" << name << "' in '" << fn 
-                  << "', " << nc_strerror(retval) << std::endl;
-        exit(2);
-      }
-    } else if (idType == NC_DOUBLE) {
-      const double badValue(nan(""));
-      if ((retval = nc_def_var_fill(ncid, varId, NC_FILL, &badValue))) {
-        std::cerr << "Error setting fill value, " << badValue 
-                  << " for '" << name << "' in '" << fn 
-                  << "', " << nc_strerror(retval) << std::endl;
-        exit(2);
-      }
-    }
-
-    if (!units.empty()) {
-      if ((retval = nc_put_att_text(ncid, varId, "units", 
-                                    units.size(), units.c_str()))) {
-        std::cerr << "Error setting units attribute, '" << units << "' for '"
-                  << name << "' in '" << fn << "', " << nc_strerror(retval)
-                  << std::endl;
-        exit(2);
-      }
-    }
-
-    return varId;
-  }
-
-  void ncPutVars(int ncid, int varId, size_t start, size_t count, 
-                 const double data[], const std::string& fn) {
-    const int retval(nc_put_vara_double(ncid, varId, &start, &count, data));
-    if (retval) {
-      char varName[NC_MAX_NAME + 1];
-      ncBasicOp(nc_inq_varname(ncid, varId, varName), "getting variable name", fn);
-      std::cerr << "Error writing data to '" << varName << "' in '" << fn
-                << "', " << nc_strerror(retval) << std::endl;
-      exit(2);
-    }
-  }
-
-  void ncPutVar(int ncid, int varId, size_t start, 
-                unsigned int value, const std::string& fn) {
-    const size_t count(1);
-    const int retval(nc_put_vara_uint(ncid, varId, &start, &count, &value));
-    if (retval) {
-      char varName[NC_MAX_NAME + 1];
-      ncBasicOp(nc_inq_varname(ncid, varId, varName), "getting variable name", fn);
-      std::cerr << "Error writing data to '" << varName << "' in '" << fn
-                << "', " << nc_strerror(retval) << std::endl;
-      exit(2);
-    }
-  }
-
-  void ncPutVar(int ncid, int varId, size_t start, const std::string& str,
-                const std::string& fn) {
-    const char *cstr(str.c_str());
-    const int retval(nc_put_var1_string(ncid, varId, &start, &cstr));
-    if (retval) {
-      char varName[NC_MAX_NAME + 1];
-      ncBasicOp(nc_inq_varname(ncid, varId, varName), "getting variable name", fn);
-      std::cerr << "Error writing a string, '" << str 
-                << "', to '" << varName << "' in '" << fn
-                << "', " << nc_strerror(retval) << std::endl;
-      exit(2);
-    }
-  }
-
   int usage(const char *argv0, const char *options) {
     std::cerr << argv0 << " Version " << VERSION << std::endl;
     std::cerr << std::endl;
@@ -276,9 +151,9 @@ main(int argc,
   typedef std::vector<int> tVars;
   tVars vars(smap.allSensors().nToStore());
 
-  const int ncid(ncOpenFile(ofn));
-  const int iDim(ncCreateDim(ncid, "i", ofn));
-  const int jDim(ncCreateDim(ncid, "j", ofn));
+  NetCDF ncid(ofn);
+  const int iDim(ncid.createDim("i"));
+  const int jDim(ncid.createDim("j"));
 
   { // Setup variables
     const Sensors& all(smap.allSensors());
@@ -291,16 +166,16 @@ main(int argc,
         const std::string& units(sensor.units());
         switch (sensor.size()) {
         case 1: 
-          vars[index] = ncCreateVar(ncid, name, NC_BYTE, iDim, units, ofn);
+          vars[index] = ncid.createVar(name, NC_BYTE, iDim, units);
           break;
         case 2: 
-          vars[index] = ncCreateVar(ncid, name, NC_SHORT, iDim, units, ofn);
+          vars[index] = ncid.createVar(name, NC_SHORT, iDim, units);
           break;
         case 4: 
-          vars[index] = ncCreateVar(ncid, name, NC_FLOAT, iDim, units, ofn);
+          vars[index] = ncid.createVar(name, NC_FLOAT, iDim, units);
           break;
         case 8: 
-          vars[index] = ncCreateVar(ncid, name, NC_DOUBLE, iDim, units, ofn);
+          vars[index] = ncid.createVar(name, NC_DOUBLE, iDim, units);
           break;
         default:
           std::cerr << "Unsupported sensor size " << sensor << std::endl;
@@ -324,17 +199,14 @@ main(int argc,
 
   for (tVars::size_type i(0), e(hdrVars.size()); i < e; ++i) {
     const std::string& name("hdr_" + hdrNames[i]);
-    hdrVars[i] = ncCreateVar(ncid, name, NC_STRING, jDim, std::string(), ofn);
+    hdrVars[i] = ncid.createVar(name, NC_STRING, jDim, std::string());
   }
 
-  const int hdrStartIndex(ncCreateVar(ncid, "hdr_start_index", NC_UINT, jDim,
-                                      std::string(), ofn));
-  const int hdrStopIndex(ncCreateVar(ncid, "hdr_stop_index", NC_UINT, jDim,
-                                      std::string(), ofn));
-  const int hdrLength(ncCreateVar(ncid, "hdr_nRecords", NC_UINT, jDim, 
-                                  std::string(), ofn));
+  const int hdrStartIndex(ncid.createVar("hdr_start_index", NC_UINT, jDim, std::string()));
+  const int hdrStopIndex(ncid.createVar("hdr_stop_index", NC_UINT, jDim, std::string()));
+  const int hdrLength(ncid.createVar("hdr_nRecords", NC_UINT, jDim, std::string()));
 
-  ncBasicOp(nc_enddef(ncid), "ending definitions for", ofn);
+  ncid.enddef();
 
   // Go through and grab all the data
 
@@ -375,15 +247,15 @@ main(int argc,
       { // Update file info
         for (tVars::size_type i(0), e(hdrVars.size()); i < e; ++i) {
           const std::string str(hdr.find(hdrNames[i]));
-          ncPutVar(ncid, hdrVars[i], (size_t) ii, str, ofn);
+          ncid.putVar(hdrVars[i], (size_t) ii, str);
         }
         if (n > kStart) {
           const unsigned int stopIndex(indexOffset + n - kStart - 1);
 
-          ncPutVar(ncid, hdrStartIndex, ii, indexOffset, ofn);
-          ncPutVar(ncid, hdrStopIndex, ii, stopIndex, ofn);
+          ncid.putVar(hdrStartIndex, ii, indexOffset);
+          ncid.putVar(hdrStopIndex, ii, stopIndex);
         }
-        ncPutVar(ncid, hdrLength, ii, (unsigned int) n, ofn);
+        ncid.putVar(hdrLength, ii, (unsigned int) n);
       }
       
       if (n <= kStart) { // No data to be written
@@ -408,7 +280,7 @@ main(int argc,
               qLooking = true;
               const size_t start(indexOffset + iFirst);
               const size_t count(k - iFirst);
-              ncPutVars(ncid, var, start, count, &values[iFirst], ofn);
+              ncid.putVars(var, start, count, &values[iFirst]);
             }
           }
         }
@@ -416,7 +288,7 @@ main(int argc,
         if (!qLooking) {
           const size_t start(indexOffset + iFirst);
           const size_t count(n - iFirst);
-          ncPutVars(ncid, var, start, count, &values[iFirst], ofn);
+          ncid.putVars(var, start, count, &values[iFirst]);
         }
       }
       
@@ -432,7 +304,7 @@ main(int argc,
     }
   }
  
-  ncBasicOp(nc_close(ncid), "closing", ofn);
+  ncid.close();
 
   return(0);
 }
