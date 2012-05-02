@@ -488,10 +488,11 @@ PD0::Fixed::Fixed()
   mItems.push_back(Item("false_target_threshold", dtUInt8));
   mItems.push_back(Item("fixed_spare0", dtUInt8));
   mItems.push_back(Item("transmit_lag_distance", dtUInt16, "cm"));
-  mItems.push_back(Item("cpu_board_serial_number", dtUInt8, 8));
+  mItems.push_back(Item("fixed_spare_1", dtUInt8, 8));
   mItems.push_back(Item("system_bandwidth", dtUInt16));
-  mItems.push_back(Item("fixed_spare1", dtUInt8));
-  mItems.push_back(Item("base_frequency_index", dtUInt8));
+  mItems.push_back(Item("fixed_spare2", dtUInt8));
+  mItems.push_back(Item("fixed_spare3", dtUInt8));
+  mItems.push_back(Item("system_serial_number", dtUInt32));
 }
 
 size_t
@@ -537,10 +538,7 @@ PD0::Variable::Variable()
   mItems.push_back(Item("var_spare0", dtUInt16));
   mItems.push_back(Item("pressure", dtUInt32, "decapascals"));
   mItems.push_back(Item("pressure_variance", dtUInt32, "decapascals"));
-  mItems.push_back(Item("var_spare1", dtUInt8));
-  mItems.push_back(Item("rtc_2k_century", dtUInt8));
-  mItems.push_back(Item("rtc_2k_year", dtUInt8));
-  mItems.push_back(Item("rtc_2k_month", dtUInt8));
+  mItems.push_back(Item("var_spare1", dtUInt32));
 }
 
 bool
