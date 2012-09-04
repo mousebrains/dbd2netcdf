@@ -67,10 +67,13 @@ PD0::loadBlock(std::istream& is)
   is.read(&buffer[4], nBytes - 4);
 
   if (!is) {
+    const std::string reason(is.eof() ? "end-of-file" : (is.fail() ? "fail" : "bad"));
     std::ostringstream oss;
-    oss << "Error reading " << nBytes << " from '" << mFilename << "', " << strerror(errno);
+    oss << "Error reading " << nBytes << " bytes from '" << mFilename << "', " << reason;
     std::cerr << oss.str() << std::endl;
-    throw(MyException(oss.str()));
+    if (!is.eof())
+      throw(MyException(oss.str()));
+    return false;
   }
 
 
