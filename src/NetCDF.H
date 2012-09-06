@@ -20,8 +20,10 @@
     along with dbd2netCDF.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <netcdf>
+#include <netcdf.h>
+#include <ncType.h>
 #include <string>
+#include <map>
 
 class NetCDF {
 private:

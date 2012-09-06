@@ -24,6 +24,7 @@
 #include <PD0.H>
 #include <MyException.H>
 #include <config.h>
+#include <iostream>
 
 namespace {
   int usage(const char *argv0, const char *options) {

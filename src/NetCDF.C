@@ -23,6 +23,7 @@
 #include <NetCDF.H>
 #include <iostream>
 #include <cmath>
+#include <vector>
 
 void 
 NetCDF::basicOp(int retval, 
