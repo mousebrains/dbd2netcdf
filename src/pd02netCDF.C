@@ -25,6 +25,7 @@
 #include <MyException.H>
 #include <config.h>
 #include <iostream>
+#include <cstdlib>
 
 namespace {
   int usage(const char *argv0, const char *options) {

@@ -24,6 +24,7 @@
 #include <iostream>
 #include <cmath>
 #include <vector>
+#include <cstdlib>
 
 void 
 NetCDF::basicOp(int retval, 

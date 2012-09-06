@@ -6,6 +6,8 @@
 #include <sstream>
 #include <cerrno>
 #include <vector>
+#include <cstring>
+#include <cstdlib>
 
 size_t
 PD0::load(const std::string& fn,

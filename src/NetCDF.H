@@ -21,9 +21,9 @@
 */
 
 #include <netcdf.h>
-#include <ncType.h>
 #include <string>
 #include <map>
+#include <stdint.h>
 
 class NetCDF {
 private:

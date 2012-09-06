@@ -34,6 +34,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
+#include <cstdlib>
 
 namespace {
   int usage(const char *argv0, const char *options) {
