@@ -17,9 +17,9 @@
     along with dbd2netCDF.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <SensorsMap.H>
-#include <Header.H>
-#include <MyException.H>
+#include "SensorsMap.H"
+#include "Header.H"
+#include "MyException.H"
 #include <iostream>
 #include <cstdio>
 

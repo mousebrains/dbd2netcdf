@@ -20,12 +20,12 @@
 // Read in a set of Dinkum Binary Data files, and
 // output them into a CSV file
 
-#include <Header.H>
-#include <SensorsMap.H>
-#include <KnownBytes.H>
-#include <Data.H>
-#include <MyException.H>
-#include <config.h>
+#include "Header.H"
+#include "SensorsMap.H"
+#include "KnownBytes.H"
+#include "Data.H"
+#include "MyException.H"
+#include "config.h"
 #include <iostream>
 #include <fstream>
 #include <cmath>

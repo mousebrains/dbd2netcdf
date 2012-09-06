@@ -16,7 +16,7 @@ add_executable(dbdSensors
 set_target_properties(dbd2netCDF dbd2csv dbdSensors pd02netCDF
                       PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${dbd2netcdf_SOURCE_DIR}/bin)
 
-include_directories(${dbd2netcdf_SOURCE_DIR}/bin ${dbd2netcdf_SOURCE_DIR}/src)
+include_directories(${dbd2netcdf_SOURCE_DIR}/bin) #  ${dbd2netcdf_SOURCE_DIR}/src)
 
 if(APPLE) # Define some settings for the Bundle
   # set(MACOSX_BUNDLE_BUNDLE_NAME dbd2netcdf)
@@ -112,7 +112,7 @@ endforeach (compilerFlag "-g;-O2;-Wall;-pedantic")
 
 # Pick up some includes from the source directory
 
-include_directories(${dbd2netcdf_SOURCE_DIR})
+# include_directories(${dbd2netcdf_SOURCE_DIR})
 
 # We want netCDF libraries linked in
 

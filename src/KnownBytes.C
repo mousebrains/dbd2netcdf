@@ -17,8 +17,8 @@
     along with dbd2netCDF.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <KnownBytes.H>
-#include <MyException.H>
+#include "KnownBytes.H"
+#include "MyException.H"
 #include <iostream>
 #include <cerrno>
 #include <cmath>

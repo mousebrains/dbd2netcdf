@@ -3,7 +3,7 @@
 
 // Jan-2012, Pat Welch, pat@mousebrains.com
 
-#include <Sensors.H>
+#include "Sensors.H"
 #include <iosfwd>
 #include <map>
 

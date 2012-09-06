@@ -17,8 +17,8 @@
     along with dbd2netCDF.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Sensor.H>
-#include <KnownBytes.H>
+#include "Sensor.H"
+#include "KnownBytes.H"
 #include <iostream>
 #include <sstream>
 #include <cerrno>

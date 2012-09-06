@@ -17,10 +17,10 @@
     along with dbd2netCDF.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <StackDump.H>
+#include "StackDump.H"
+#include "config.h"
 #include <cstdlib>
 #include <iostream>
-#include <config.h>
 
 #ifdef HAVE_EXECINFO_H
 #include <execinfo.h>

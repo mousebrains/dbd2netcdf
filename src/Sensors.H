@@ -3,7 +3,7 @@
 
 // Jan-2012, Pat Welch, pat@mousebrains.com
 
-#include <Sensor.H>
+#include "Sensor.H"
 #include <iosfwd>
 #include <set>
 #include <vector>

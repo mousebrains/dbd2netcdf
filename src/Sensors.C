@@ -17,9 +17,9 @@
     along with dbd2netCDF.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Sensors.H>
-#include <Header.H>
-#include <StackDump.H>
+#include "Sensors.H"
+#include "Header.H"
+#include "StackDump.H"
 #include <fstream>
 #include <sstream>
 #include <iostream>

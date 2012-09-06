@@ -17,8 +17,8 @@
     along with dbd2netCDF.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Header.H>
-#include <MyException.H>
+#include "Header.H"
+#include "MyException.H"
 #include <iostream>
 #include <cstdlib>
 

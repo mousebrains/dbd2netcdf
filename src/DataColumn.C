@@ -17,9 +17,9 @@
     along with dbd2netCDF.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <DataColumn.H>
-#include <KnownBytes.H>
-#include <StackDump.H>
+#include "DataColumn.H"
+#include "KnownBytes.H"
+#include "StackDump.H"
 #include <iostream>
 #include <cerrno>
 #include <cmath>

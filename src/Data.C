@@ -17,10 +17,10 @@
     along with dbd2netCDF.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Data.H>
-#include <KnownBytes.H>
-#include <Sensors.H>
-#include <MyException.H>
+#include "Data.H"
+#include "KnownBytes.H"
+#include "Sensors.H"
+#include "MyException.H"
 #include <iostream>
 #include <sstream>
 #include <cmath>

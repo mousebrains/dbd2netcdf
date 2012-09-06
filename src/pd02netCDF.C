@@ -20,10 +20,10 @@
 // Read in a set of PD0 files, and
 // output them into a netCDF file
 
-#include <NetCDF.H>
-#include <PD0.H>
-#include <MyException.H>
-#include <config.h>
+#include "NetCDF.H"
+#include "PD0.H"
+#include "MyException.H"
+#include "config.h"
 #include <iostream>
 #include <cstdlib>
 
