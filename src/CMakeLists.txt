@@ -9,11 +9,14 @@ add_executable(dbd2csv
                dbd2csv.C SensorsMap.C Sensors.C Sensor.C Header.C
                Data.C KnownBytes.C)
 
+add_executable(sg2netCDF 
+               sg2netCDF.C NetCDF.C)
+
 add_executable(dbdSensors
                dbdSensors.C SensorsMap.C Sensors.C Sensor.C Header.C
                KnownBytes.C)
 
-set_target_properties(dbd2netCDF dbd2csv dbdSensors pd02netCDF
+set_target_properties(dbd2netCDF dbd2csv dbdSensors pd02netCDF sg2netCDF
                       PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${dbd2netcdf_SOURCE_DIR}/bin)
 
 include_directories(${dbd2netcdf_SOURCE_DIR}/bin) #  ${dbd2netcdf_SOURCE_DIR}/src)
@@ -118,7 +121,8 @@ endforeach (compilerFlag "-g;-O2;-Wall;-pedantic")
 
 target_link_libraries(dbd2netCDF netcdf)
 target_link_libraries(pd02netCDF netcdf)
+target_link_libraries(sg2netCDF  netcdf)
 
 # Install locally
 
-install(TARGETS dbd2netCDF pd02netCDF dbd2csv dbdSensors DESTINATION bin)
+install(TARGETS dbd2netCDF pd02netCDF sg2netCDF dbd2csv dbdSensors DESTINATION bin)
