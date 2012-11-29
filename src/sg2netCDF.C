@@ -191,7 +191,7 @@ main(int argc,
       std::string name, dataType, units;
       if ((iss >> name >> dataType)) {
         iss >> units; // Optional third argument
-        tTypeUnits tu(std::make_pair(NC_DOUBLE, units));
+        tTypeUnits tu(std::make_pair(NC_FLOAT, units));
         if (dataType == "double") {
           tu.first = NC_DOUBLE;
         } else if (dataType == "float") {
@@ -226,12 +226,12 @@ main(int argc,
   const int hdrFilename(nc.createVar("hdr_filename", NC_STRING, hDim, std::string()));
   const int hdrStartIndex(nc.createVar("hdr_start_index", NC_UINT, hDim, std::string()));
   const int hdrStopIndex(nc.createVar("hdr_stop_index", NC_UINT, hDim, std::string()));
-  const int hdrVersion(nc.createVar("hdr_version", NC_DOUBLE, hDim, std::string()));
+  const int hdrVersion(nc.createVar("hdr_version", NC_FLOAT, hDim, std::string()));
   const int hdrGlider(nc.createVar("hdr_glider", NC_INT, hDim, std::string()));
   const int hdrMission(nc.createVar("hdr_mission", NC_INT, hDim, std::string()));
   const int hdrDive(nc.createVar("hdr_dive", NC_INT, hDim, std::string()));
-  const int hdrBaseStationVersion(nc.createVar("hdr_basestation_version", NC_DOUBLE, hDim, std::string()));
-  const int hdrStart(nc.createVar("hdr_start_time", NC_DOUBLE, hDim, std::string()));
+  const int hdrBaseStationVersion(nc.createVar("hdr_basestation_version", NC_FLOAT, hDim, std::string()));
+  const int hdrStart(nc.createVar("hdr_start_time", NC_FLOAT, hDim, std::string()));
 
   typedef std::vector<int> tVars;
   tVars vars(sensors.size(), -1);
@@ -240,7 +240,7 @@ main(int argc,
     const std::string& name(it->first);
     tTypeUnitsMap::const_iterator jt(typeUnitsMap.find(name));
     if (jt == typeUnitsMap.end()) {
-      vars[it->second] = nc.createVar(name, NC_DOUBLE, iDim, std::string());
+      vars[it->second] = nc.createVar(name, NC_FLOAT, iDim, std::string());
     } else {
       vars[it->second] = nc.createVar(name, jt->second.first, iDim, jt->second.second);
     }
