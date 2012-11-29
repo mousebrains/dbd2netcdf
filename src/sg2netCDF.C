@@ -343,6 +343,8 @@ main(int argc,
       }
     }
 
+    size_t preCount(count);
+
     for (std::string line; getline(is, line); ++count) { // Read actual data
       std::istringstream iss(line);
       for (tDataIndices::size_type j(0), je(dataIndices.size()); j < je; ++j) {
@@ -354,6 +356,11 @@ main(int argc,
     }
 
     nc.putVar(hdrStopIndex, i, (int) count);
+
+    if (qVerbose) {
+      std::cout << "Processed " << (count - preCount) << " records in " << files[i] << std::endl;
+    }
+
   }
 
   nc.close();
