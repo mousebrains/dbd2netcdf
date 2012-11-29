@@ -191,7 +191,7 @@ main(int argc,
       std::string name, dataType, units;
       if ((iss >> name >> dataType)) {
         iss >> units; // Optional third argument
-        tTypeUnits tu(std::make_pair(NC_DOUBLE units));
+        tTypeUnits tu(std::make_pair(NC_DOUBLE, units));
         if (dataType == "double") {
           tu.first = NC_DOUBLE;
         } else if (dataType == "float") {
