@@ -139,6 +139,7 @@ main(int argc,
   
   typedef std::map<std::string, size_t> tSensors;
   tSensors sensors;
+  tSensors headers;
 
   typedef std::vector<std::string> tFiles;
   tFiles files;
@@ -167,11 +168,13 @@ main(int argc,
 	           it != et; ++it) {
 	        tSensors::const_iterator jt(sensors.find(*it));
 	        if (jt == sensors.end()) {
-	          sensors.insert(std::make_pair(*it, sensors.size() + 1));
+	          sensors.insert(std::make_pair(*it, sensors.size()));
 	        }
 	      }
         files.push_back(argv[i]);
 	      break; // No need to do anything else
+      } else {
+        headers.insert(std::make_pair(key, headers.size()));
       }
     }
   }
@@ -226,15 +229,20 @@ main(int argc,
   const int hdrFilename(nc.createVar("hdr_filename", NC_STRING, hDim, std::string()));
   const int hdrStartIndex(nc.createVar("hdr_start_index", NC_UINT, hDim, std::string()));
   const int hdrStopIndex(nc.createVar("hdr_stop_index", NC_UINT, hDim, std::string()));
-  const int hdrVersion(nc.createVar("hdr_version", NC_DOUBLE, hDim, std::string()));
-  const int hdrGlider(nc.createVar("hdr_glider", NC_INT, hDim, std::string()));
-  const int hdrMission(nc.createVar("hdr_mission", NC_INT, hDim, std::string()));
-  const int hdrDive(nc.createVar("hdr_dive", NC_INT, hDim, std::string()));
-  const int hdrBaseStationVersion(nc.createVar("hdr_basestation_version", NC_DOUBLE, hDim, std::string()));
-  const int hdrStart(nc.createVar("hdr_start_time", NC_DOUBLE, hDim, std::string()));
 
   typedef std::vector<int> tVars;
   tVars vars(sensors.size(), -1);
+  tVars hdrs(headers.size(), -1);
+
+  for (tSensors::const_iterator it(headers.begin()), et(headers.end()); it != et; ++it) {
+    const std::string& name("hdr_" + it->first);
+    tTypeUnitsMap::const_iterator jt(typeUnitsMap.find(name));
+    if (jt == typeUnitsMap.end()) {
+      hdrs[it->second] = nc.createVar(name, NC_DOUBLE, hDim, std::string());
+    } else {
+      hdrs[it->second] = nc.createVar(name, jt->second.first, hDim, jt->second.second);
+    }
+  }
 
   for (tSensors::const_iterator it(sensors.begin()), et(sensors.end()); it != et; ++it) {
     const std::string& name(it->first);
@@ -276,70 +284,36 @@ main(int argc,
         continue;
       }
       const std::string key(line.substr(1, index - 1));
-      std::istringstream iss(line.substr(index + 1));
+      tSensors::const_iterator it(headers.find(key));
 
-      if (key == "version") {
-        double version;
-        if (!(iss >> version)) {
-          std::cerr << "Error reading version from '" << line << "', " 
-		                << strerror(errno) << std::endl;
-	        return(1);
-	      }
-        nc.putVar(hdrVersion, i, version);
-      } else if (key == "glider") {
-        int glider;
-        if (!(iss >> glider)) {
-          std::cerr << "Error reading glider from '" << line << "', " 
-		                << strerror(errno) << std::endl;
-	        return(1);
-	      }
-        nc.putVar(hdrGlider, i, glider);
-      } else if (key == "mission") {
-        int mission;
-        if (!(iss >> mission)) {
-          std::cerr << "Error reading mission from '" << line << "', " 
-		                << strerror(errno) << std::endl;
-	        return(1);
-	      }
-        nc.putVar(hdrMission, i, mission);
-      } else if (key == "dive") {
-        int dive;
-        if (!(iss >> dive)) {
-          std::cerr << "Error reading dive from '" << line << "', " 
-		                << strerror(errno) << std::endl;
-	        return(1);
-	      }
-        nc.putVar(hdrDive, i, dive);
-      } else if (key == "basestation_version") {
-        double version;
-        if (!(iss >> version)) {
-          std::cerr << "Error reading basestation_version from '" << line << "', " 
-		                << strerror(errno) << std::endl;
-	        return(1);
-	      }
-        nc.putVar(hdrBaseStationVersion, i, version);
-      } else if (key == "start") {
-	      struct tm ti;
-        if (!(iss >> ti.tm_mon >> ti.tm_mday >> ti.tm_year
-		              >> ti.tm_hour >> ti.tm_min >> ti.tm_sec)) {
-          std::cerr << "Error reading start from '" << line << "', " 
-		                << strerror(errno) << std::endl;
-	        return(1);
-	      }
-	      --ti.tm_mon;
-	      const time_t start = mktime(&ti);
-        nc.putVar(hdrStart, i, (double) start);
+      if (it != headers.end()) {
+        std::istringstream iss(line.substr(index + 1));
+        if (key == "start") {
+	  struct tm ti;
+          if (!(iss >> ti.tm_mon >> ti.tm_mday >> ti.tm_year
+		    >> ti.tm_hour >> ti.tm_min >> ti.tm_sec)) {
+            std::cerr << "Error reading start from '" << line << "', " 
+		      << strerror(errno) << std::endl;
+	    return(1);
+	  }
+	  --ti.tm_mon;
+	  const time_t start = mktime(&ti);
+          nc.putVar(hdrs[it->second], i, (double) start);
+	} else {
+          double value;
+          if (!(iss >> value)) {
+            std::cerr << "Error reading " << key << " from '" << line << "', " 
+		      << strerror(errno) << std::endl;
+	    return(1);
+	  }
+          nc.putVar(hdrs[it->second], i, value);
+        }
       } else if (key == "columns") {
-	      const tTokens fields(tokenize(line.substr(index+1)));
-        for (tTokens::const_iterator it(fields.begin()), et(fields.end()); 
-	           it != et; ++it) {
-	        tSensors::const_iterator jt(sensors.find(*it));
-	        dataIndices.push_back(jt->second);
-	      }
-      } else {
-        std::cerr << "Unregonized line '" << line << "' in '" 
-		              << files[i] << "'" << std::endl;
-	      return(1);
+	const tTokens fields(tokenize(line.substr(index+1)));
+        for (tTokens::const_iterator it(fields.begin()), et(fields.end()); it != et; ++it) {
+	  tSensors::const_iterator jt(sensors.find(*it));
+	  dataIndices.push_back(jt->second);
+	}
       }
     }
 
