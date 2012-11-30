@@ -172,7 +172,10 @@ main(int argc,
 	        }
 	      }
         files.push_back(argv[i]);
-	      break; // No need to do anything else
+      } else if (key.substr(0,3) == "GPS") {
+        headers.insert(std::make_pair(key + "_lat", headers.size()));
+        headers.insert(std::make_pair(key + "_lon", headers.size()));
+        headers.insert(std::make_pair(key + "_time", headers.size()));
       } else {
         headers.insert(std::make_pair(key, headers.size()));
       }
@@ -236,11 +239,15 @@ main(int argc,
 
   for (tSensors::const_iterator it(headers.begin()), et(headers.end()); it != et; ++it) {
     const std::string& name("hdr_" + it->first);
-    tTypeUnitsMap::const_iterator jt(typeUnitsMap.find(name));
-    if (jt == typeUnitsMap.end()) {
-      hdrs[it->second] = nc.createVar(name, NC_DOUBLE, hDim, std::string());
+    if (name == "hdr_comment") {
+      hdrs[it->second] = nc.createVar(name, NC_STRING, hDim, std::string());
     } else {
-      hdrs[it->second] = nc.createVar(name, jt->second.first, hDim, jt->second.second);
+      tTypeUnitsMap::const_iterator jt(typeUnitsMap.find(name));
+      if (jt == typeUnitsMap.end()) {
+        hdrs[it->second] = nc.createVar(name, NC_DOUBLE, hDim, std::string());
+      } else {
+        hdrs[it->second] = nc.createVar(name, jt->second.first, hDim, jt->second.second);
+      }
     }
   }
 
@@ -273,6 +280,8 @@ main(int argc,
     nc.putVar(hdrFilename, i, files[i]);
     nc.putVar(hdrStartIndex, i, (int) count+1);
 
+    std::string comment;
+
     for (std::string line; getline(is, line);) {
       if (line.empty() || (line[0] != '%') || (line.substr(1,4) == "data")) {
         break;
@@ -284,42 +293,79 @@ main(int argc,
         continue;
       }
       const std::string key(line.substr(1, index - 1));
-      tSensors::const_iterator it(headers.find(key));
+      const std::string remainder(line.substr(index+1));
 
-      if (it != headers.end()) {
-        std::istringstream iss(line.substr(index + 1));
-        if (key == "start") {
-	  struct tm ti;
-          if (!(iss >> ti.tm_mon >> ti.tm_mday >> ti.tm_year
-		    >> ti.tm_hour >> ti.tm_min >> ti.tm_sec)) {
-            std::cerr << "Error reading start from '" << line << "', " 
-		      << strerror(errno) << std::endl;
-	    return(1);
-	  }
-	  --ti.tm_mon;
-	  const time_t start = mktime(&ti);
-          nc.putVar(hdrs[it->second], i, (double) start);
-	} else {
+      if (key.substr(0,3) == "GPS") { // (44.626850 -124.788450) 04/09/08 21:44:25
+        std::istringstream iss(remainder);
+        std::string prefix;
+        if (getline(iss, prefix, '(')) { // skip leading (
+          double lat, lon;
+          int mon, mday, year;
+          int hour, min, sec;
+          if ((iss >> lat >> lon >> prefix >> mon) &&  // get lat, lon, ), and month
+              getline(iss, prefix, '/') && (iss >> mday) && // Skip / and get day
+              getline(iss, prefix, '/') && (iss >> year >> hour) && // skip / and get year and hour
+              getline(iss, prefix, ':') && (iss >> min) && // skip / and get minute
+              getline(iss, prefix, ':') && (iss >> sec)) { // skip / and get second
+            struct tm ti;
+            ti.tm_year = year + 100;
+            ti.tm_mon = mon - 1;
+            ti.tm_mday = mday;
+            ti.tm_hour = hour;
+            ti.tm_min = min;
+            ti.tm_sec = sec;
+            const time_t t(timegm(&ti));
+            nc.putVar(hdrs[headers.find(key + "_lat")->second], i, lat);
+            nc.putVar(hdrs[headers.find(key + "_lon")->second], i, lon);
+            nc.putVar(hdrs[headers.find(key + "_time")->second], i, (double) t);
+          }
+        }
+      } else if (key == "comment") {
+        comment += remainder;
+      } else if (key == "columns") {
+	      const tTokens fields(tokenize(remainder));
+        for (tTokens::const_iterator it(fields.begin()), et(fields.end()); it != et; ++it) {
+	        tSensors::const_iterator jt(sensors.find(*it));
+	        dataIndices.push_back(jt->second);
+	      }
+      } else if (key == "start") {
+	      struct tm ti;
+        std::istringstream iss(remainder);
+        if (!(iss >> ti.tm_mon >> ti.tm_mday >> ti.tm_year
+		              >> ti.tm_hour >> ti.tm_min >> ti.tm_sec)) {
+          std::cerr << "Error reading start from '" << line << "', " 
+		                << strerror(errno) << std::endl;
+	        return(1);
+	      }
+	      --ti.tm_mon;
+	      const time_t start = timegm(&ti);
+        nc.putVar(hdrs[headers.find(key)->second], i, (double) start);
+      } else {
+        tSensors::const_iterator it(headers.find(key));
+
+        if (it != headers.end()) {
+          std::istringstream iss(remainder);
           double value;
           if (!(iss >> value)) {
             std::cerr << "Error reading " << key << " from '" << line << "', " 
-		      << strerror(errno) << std::endl;
-	    return(1);
-	  }
+		                  << strerror(errno) << std::endl;
+	          return(1);
+	        }
           nc.putVar(hdrs[it->second], i, value);
         }
-      } else if (key == "columns") {
-	const tTokens fields(tokenize(line.substr(index+1)));
-        for (tTokens::const_iterator it(fields.begin()), et(fields.end()); it != et; ++it) {
-	  tSensors::const_iterator jt(sensors.find(*it));
-	  dataIndices.push_back(jt->second);
-	}
       }
+    }
+
+    if (!comment.empty()) {
+      nc.putVar(hdrs[headers.find("comment")->second], i, comment);
     }
 
     size_t preCount(count);
 
     for (std::string line; getline(is, line); ++count) { // Read actual data
+      for (std::string::size_type index; (index = line.find(',')) != line.npos;) { // Commas
+        line[index] = ' ';
+      }
       std::istringstream iss(line);
       for (tDataIndices::size_type j(0), je(dataIndices.size()); j < je; ++j) {
         double value;
