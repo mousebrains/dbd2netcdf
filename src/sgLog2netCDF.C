@@ -143,7 +143,7 @@ main(int argc,
         const std::string voltage(key.substr(0,2));
         vars.typeInfo("VOLTS_" + voltage + "V", NC_DOUBLE, "Volts", std::string(), "iHdr");
         vars.typeInfo("AMPS_" + voltage + "V", NC_DOUBLE, "Amps-Hours", std::string(), "iHdr");
-      } else if (key == "RECOV_CODE") {
+      } else if ((key == "RECOV_CODE") || (key == "EOP_CODE")) {
         // Do an indirect reference to avoid a net CDF issues with multiple strings
         // which I don't understand yet.
         vars.typeInfo(key, NC_UINT, std::string(), std::string(), "iHdr");
@@ -358,7 +358,7 @@ main(int argc,
           nc.putVar(vars.varNum("SPEED_HORZ_MIN"), i, mkNum(tokens[0]));
           nc.putVar(vars.varNum("SPEED_HORZ_MAX"), i, mkNum(tokens[1]));
         }
-      } else if (key == "RECOV_CODE") {
+      } else if ((key == "RECOV_CODE") || (key == "EOP_CODE")) {
         if (chkTokens(tokens, 1, line, argv[i])) {
           tStringIndices::const_iterator it(stringIndices.find(tokens[0]));
           if (it == stringIndices.end()) {
