@@ -57,12 +57,12 @@ namespace {
     const double dval(mkNum(date));
     const double tval(mkNum(time));
     struct tm ti;
-    ti.tm_mday = fmod(dval / 10000, 100);
-    ti.tm_mon  = fmod(dval / 100, 100) - 1;
-    ti.tm_year = fmod(dval, 100) + 100;
-    ti.tm_hour = fmod(tval / 10000, 100);
-    ti.tm_min = fmod(tval / 100, 100);
-    ti.tm_sec = fmod(tval, 100);
+    ti.tm_mday = (int) fmod(dval / 10000, 100);
+    ti.tm_mon  = (int) fmod(dval / 100, 100) - 1;
+    ti.tm_year = (int) fmod(dval, 100) + 100;
+    ti.tm_hour = (int) fmod(tval / 10000, 100);
+    ti.tm_min = (int) fmod(tval / 100, 100);
+    ti.tm_sec = (int) fmod(tval, 100);
     const time_t t(timegm(&ti));
     return (double) t;
   }
