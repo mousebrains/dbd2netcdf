@@ -63,6 +63,9 @@ namespace {
     ti.tm_hour = (int) fmod(tval / 10000, 100);
     ti.tm_min = (int) fmod(tval / 100, 100);
     ti.tm_sec = (int) fmod(tval, 100);
+    if (ti.tm_year > 190) { // Dumb work around
+      ti.tm_year -= 100;
+    }
     const time_t t(timegm(&ti));
     return (double) t;
   }
@@ -276,6 +279,7 @@ main(int argc,
     nc.putVar(vars.varNum("start_iState"), i, (int) countState+1);
 
     time_t tStart(0);
+    std::string ddmmyy;
 
     for (std::string line; getline(is, line);) {
       if (line.empty() || (line == "data:")) {
@@ -294,6 +298,15 @@ main(int argc,
       if (key == "start") {
         tStart = sg.mkTime(remainder);
         nc.putVar(vars.varNum(key), i, (double) tStart);
+        const dbd::tTokens tokens(dbd::tokenize(remainder));
+        if (chkTokens(tokens, 6, line, argv[i])) {
+          char buffer[256];
+          snprintf(buffer, sizeof(buffer), "%02d%02d%02d", 
+                   (int) mkNum(tokens[1]),
+                   (int) mkNum(tokens[0]),
+                   (int) mkNum(tokens[2]) - 100);
+          ddmmyy = buffer;
+        }
       } else {
         const double val(mkNum(remainder));
         nc.putVar(vars.varNum(key), i, val);
@@ -307,7 +320,7 @@ main(int argc,
 
       const std::string::size_type index(line.find(','));
       const std::string key(line.substr(1,line.find(',')-1));
-      dbd::tTokens tokens(dbd::tokenize(line.substr(index+1), ",\t\n\r"));
+      const dbd::tTokens tokens(dbd::tokenize(line.substr(index+1), ",\t\n\r"));
 
       if (key == "GCHEAD") {
         gcVars.resize(tokens.size(), -1);
@@ -484,14 +497,26 @@ main(int argc,
         nc.putVar(vars.varNum("ERRORS_GPS"), i, mkNum(tokens[12]));
         nc.putVar(vars.varNum("ERRORS_SENSOR"), i, mkNum(tokens[13]));
       } else if ((key.substr(0,3) == "GPS") && (key != "GPS_DEVICE")) { // GPS but not GPS_DEVICE
-        if (chkTokens(tokens, 8, line, argv[i])) {
-          nc.putVar(vars.varNum(key + "_TIME"), i, mkGPSTime(tokens[0], tokens[1]));
-          nc.putVar(vars.varNum(key + "_LAT"), i, mkDegrees(tokens[2]));
-          nc.putVar(vars.varNum(key + "_LON"), i, mkDegrees(tokens[3]));
-          nc.putVar(vars.varNum(key + "_TO_FIX"), i, mkNum(tokens[4]));
-          nc.putVar(vars.varNum(key + "_HDOP"), i, mkNum(tokens[5]));
-          nc.putVar(vars.varNum(key + "_TIME_TO_AQUIRE"), i, mkNum(tokens[6]));
-          nc.putVar(vars.varNum(key + "_GotMe"), i, mkNum(tokens[7]));
+        if ((tokens.size() == 7) || (tokens.size() == 8)) {
+          size_t k = 0;
+          std::string date;
+          if (tokens.size() == 7) {
+            date = ddmmyy;
+          } else {
+            date = tokens[k++];
+          }
+          nc.putVar(vars.varNum(key + "_TIME"), i, mkGPSTime(date, tokens[k++]));
+          nc.putVar(vars.varNum(key + "_LAT"), i, mkDegrees(tokens[k++]));
+          nc.putVar(vars.varNum(key + "_LON"), i, mkDegrees(tokens[k++]));
+          nc.putVar(vars.varNum(key + "_TO_FIX"), i, mkNum(tokens[k++]));
+          nc.putVar(vars.varNum(key + "_HDOP"), i, mkNum(tokens[k++]));
+          nc.putVar(vars.varNum(key + "_TIME_TO_AQUIRE"), i, mkNum(tokens[k++]));
+          nc.putVar(vars.varNum(key + "_GotMe"), i, mkNum(tokens[k++]));
+        } else {
+          std::cerr << "Incorrect number of tokens, " << tokens.size()
+                    << " != 7 or 8, in " << fn << std::endl;
+          std::cerr << line << std::endl;
+          std::cerr << tokens << std::endl;
         }
       } else if (key == "ALTIM_BOTTOM_PING") {
         if (chkTokens(tokens, 2, line, argv[i])) {
