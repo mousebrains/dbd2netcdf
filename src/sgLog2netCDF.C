@@ -236,9 +236,16 @@ main(int argc,
         vars.typeInfo(key + "_HDOP", NC_DOUBLE, std::string(), std::string(), "iHdr");
         vars.typeInfo(key + "_TIME_TO_AQUIRE", NC_DOUBLE, "seconds", std::string(), "iHdr");
         vars.typeInfo(key + "_GotMe", NC_DOUBLE, std::string(), std::string(), "iHdr");
-      } else if (key == "ALTIM_BOTTOM_PING") {
+      } else if ((key == "ALTIM_BOTTOM_PING") || (key == "ALTIM_TOP_PING")) {
         vars.typeInfo(key + "_DEPTH", NC_DOUBLE, "m", std::string(), "iHdr");
         vars.typeInfo(key + "_ALTITUDE", NC_DOUBLE, "m", std::string(), "iHdr");
+      } else if (key == "FREEZE") {
+        vars.typeInfo(key + "_0", NC_DOUBLE, std::string(), std::string(), "iHdr");
+        vars.typeInfo(key + "_1", NC_DOUBLE, std::string(), std::string(), "iHdr");
+        vars.typeInfo(key + "_2", NC_DOUBLE, std::string(), std::string(), "iHdr");
+        vars.typeInfo(key + "_3", NC_DOUBLE, std::string(), std::string(), "iHdr");
+        vars.typeInfo(key + "_4", NC_DOUBLE, std::string(), std::string(), "iHdr");
+        vars.typeInfo(key + "_5", NC_DOUBLE, std::string(), std::string(), "iHdr");
       } else {
         if (tokens.size() != 1) {
           std::cout << tokens.size() << " " << line << std::endl;
@@ -518,10 +525,19 @@ main(int argc,
           std::cerr << line << std::endl;
           std::cerr << tokens << std::endl;
         }
-      } else if (key == "ALTIM_BOTTOM_PING") {
+      } else if ((key == "ALTIM_BOTTOM_PING") || (key == "ALTIM_TOP_PING")) {
         if (chkTokens(tokens, 2, line, argv[i])) {
           nc.putVar(vars.varNum(key + "_DEPTH"), i, mkNum(tokens[0]));
           nc.putVar(vars.varNum(key + "_ALTITUDE"), i, mkNum(tokens[1]));
+        }
+      } else if (key == "FREEZE") {
+        if (chkTokens(tokens, 6, line, argv[i])) {
+          nc.putVar(vars.varNum(key + "_0"), i, mkNum(tokens[0]));
+          nc.putVar(vars.varNum(key + "_1"), i, mkNum(tokens[1]));
+          nc.putVar(vars.varNum(key + "_2"), i, mkNum(tokens[2]));
+          nc.putVar(vars.varNum(key + "_3"), i, mkNum(tokens[3]));
+          nc.putVar(vars.varNum(key + "_4"), i, mkNum(tokens[4]));
+          nc.putVar(vars.varNum(key + "_5"), i, mkNum(tokens[5]));
         }
       } else {
         if (chkTokens(tokens, 1, line, argv[i])) 
