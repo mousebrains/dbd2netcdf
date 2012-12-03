@@ -38,6 +38,10 @@ public:
   Variables() {}
   Variables(const std::string& mapfn, const std::string& typfn);
 
+  void remap(const std::string& src, const std::string& tgt) {
+    mReMap.insert(std::make_pair(src, tgt));
+  }
+
   void typeInfo(const std::string& name, const nc_type t, 
                 const std::string& units, const std::string& prefix,
                 const std::string& dimName);

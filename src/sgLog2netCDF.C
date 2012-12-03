@@ -88,6 +88,8 @@ int
 main(int argc,
      char **argv)
 {
+  const std::string illegalChars("_");
+
   SeaGlider sg(argc, argv);
   Variables vars(sg.remapfn(), sg.typefn());
 
@@ -129,6 +131,11 @@ main(int argc,
       }
       const std::string::size_type index(line.find(','));
       const std::string key(line.substr(1,line.find(',')-1));
+
+      if (illegalChars.find(key[0]) != illegalChars.npos) {
+        vars.remap(key, key.substr(1)); // strip off leading character and hope
+      }
+
       dbd::tTokens tokens(dbd::tokenize(line.substr(index+1), ",\n\r"));
 
       if (key == "GCHEAD") {
