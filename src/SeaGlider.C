@@ -29,6 +29,7 @@
 SeaGlider::SeaGlider(int argc,
                      char **argv)
   : mOptions("ho:r:t:Vv")
+  , mqVerbose(false)
 {
   for (int ch; (ch = getopt(argc, argv, mOptions.c_str())) != -1;) { // Process options
     switch (ch) {
