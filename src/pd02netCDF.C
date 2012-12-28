@@ -88,7 +88,7 @@ main(int argc,
   }
 
   if (qVerbose)
-    std::cout << "Maximum number of cells " << nCells << std::endl;
+    std::cout << "Maximum number of cells " << ((unsigned int) nCells) << std::endl;
 
   NetCDF nc(ofn);
   const int hDim(nc.createDim("h"));
