@@ -22,7 +22,11 @@ add_executable(dbdSensors
                dbdSensors.C SensorsMap.C Sensors.C Sensor.C Header.C
                KnownBytes.C)
 
+<<<<<<< HEAD
 set_target_properties(dbd2netCDF dbd2csv dbdSensors ncCat pd02netCDF sg2netCDF sgLog2netCDF
+=======
+set_target_properties(dbd2netCDF dbd2csv dbdSensors pd02netCDF sg2netCDF sgLog2netCDF
+>>>>>>> 06e743611e7274f657e1b7bc9691aa0799a9bad4
                       PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${dbd2netcdf_SOURCE_DIR}/bin)
 
 include_directories(${dbd2netcdf_SOURCE_DIR}/bin) #  ${dbd2netcdf_SOURCE_DIR}/src)
@@ -133,4 +137,8 @@ target_link_libraries(sgLog2netCDF  netcdf)
 
 # Install locally
 
+<<<<<<< HEAD
 install(TARGETS dbd2netCDF ncCat pd02netCDF sg2netCDF sgLog2netCDF dbd2csv dbdSensors DESTINATION bin)
+=======
+install(TARGETS dbd2netCDF pd02netCDF sg2netCDF sgLog2netCDF dbd2csv dbdSensors DESTINATION bin)
+>>>>>>> 06e743611e7274f657e1b7bc9691aa0799a9bad4
