@@ -112,7 +112,9 @@ main(int argc,
     }
     try {
       Header hdr(is);
-      if (hdr.qProcessMission(missionsToSkip, missionsToKeep)) {
+      if (hdr.empty()) {
+        std::cerr << "Warning '" << argv[i] << "' is empty" << std::endl;
+      } else if (hdr.qProcessMission(missionsToSkip, missionsToKeep)) {
         smap.insert(is, hdr, false);
         fileIndices.push_back(i);
       }
