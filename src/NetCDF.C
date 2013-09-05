@@ -369,3 +369,28 @@ NetCDF::mkCountOne(const size_t len)
   return mCountOne;
 
 }
+
+std::string
+NetCDF::typeToStr(const nc_type t)
+{
+  std::string str;
+
+  switch (t) {
+    case NC_BYTE:   str = "int8"; break;
+    case NC_CHAR:   str = "char"; break;
+    case NC_SHORT:  str = "int16"; break;
+    case NC_INT:    str = "int32"; break;
+    case NC_FLOAT:  str = "float"; break;
+    case NC_DOUBLE: str = "double"; break;
+    case NC_UBYTE:  str = "uint8"; break;
+    case NC_USHORT: str = "uint16"; break;
+    case NC_UINT:   str = "uint32"; break;
+    case NC_INT64:  str = "int64"; break;
+    case NC_UINT64: str = "uint64"; break;
+    case NC_STRING: str = "string"; break;
+    default:        str = "gotMe"; break;
+  }
+
+  return str;
+}
+
