@@ -33,6 +33,9 @@
 #include <vector>
 #include <ctime>
 #include <cmath>
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif // HAVE_UNISTD_H
 
 int
 main(int argc,

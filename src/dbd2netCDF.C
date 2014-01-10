@@ -35,6 +35,9 @@
 #include <cstdlib>
 #include <cstring>
 #include <cstdlib>
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif // HAVE_UNISTD_H
 
 namespace {
   int usage(const char *argv0, const char *options) {

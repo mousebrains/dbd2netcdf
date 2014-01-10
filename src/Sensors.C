@@ -17,6 +17,7 @@
     along with dbd2netCDF.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "config.h"
 #include "Sensors.H"
 #include "Header.H"
 #include "StackDump.H"
@@ -28,6 +29,9 @@
 #include <cstring>
 #include <cstdlib>
 #include <sys/stat.h>
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif // HAVE_UNISTD_H
 
 namespace {
   std::string dirname(const std::string& filename) {

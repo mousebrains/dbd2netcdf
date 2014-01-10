@@ -32,6 +32,9 @@
 #include <cstring>
 #include <cstdlib>
 #include <cerrno>
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif // HAVE_UNISTD_H
 
 namespace {
   void usage(const char *argv0, const char *options) {

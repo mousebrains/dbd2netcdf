@@ -8,6 +8,8 @@
 #define MAINTAINER "@dbd2netcdf_MAINTAINER@"
 
 #cmakedefine HAVE_EXECINFO_H
+#cmakedefine HAVE_UNISTD_H
+#cmakedefine HAVE_NETCDF_H
 #cmakedefine HAVE_BACKTRACE
 #cmakedefine HAVE_INT8_T
 

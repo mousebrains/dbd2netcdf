@@ -26,6 +26,7 @@ set_target_properties(dbd2netCDF dbd2csv dbdSensors ncCat pd02netCDF sg2netCDF s
                       PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${dbd2netcdf_SOURCE_DIR}/bin)
 
 include_directories(${dbd2netcdf_SOURCE_DIR}/bin) #  ${dbd2netcdf_SOURCE_DIR}/src)
+include_directories(${CMAKE_INSTALL_PREFIX}/include)
 
 if(APPLE) # Define some settings for the Bundle
   # set(MACOSX_BUNDLE_BUNDLE_NAME dbd2netcdf)
@@ -82,6 +83,7 @@ ENDIF("${isSystemDir}" STREQUAL "-1")
 include(CheckIncludeFiles)
 check_include_files(execinfo.h HAVE_EXECINFO_H)
 check_include_files(netcdf.h HAVE_NETCDF_H)
+check_include_files(unistd.h HAVE_UNISTD_H)
 
 if ("${HAVE_NETCDF_H}" STREQUAL "HAVE_NETCDF_H-NOTFOUND")
   message(FATAL_ERROR "Unable to locate netcdf.h")
@@ -125,11 +127,11 @@ endforeach (compilerFlag "-g;-O2;-Wall;-pedantic")
 
 # We want netCDF libraries linked in
 
-target_link_libraries(dbd2netCDF netcdf)
-target_link_libraries(ncCat netcdf)
-target_link_libraries(pd02netCDF netcdf)
-target_link_libraries(sg2netCDF  netcdf)
-target_link_libraries(sgLog2netCDF  netcdf)
+target_link_libraries(dbd2netCDF ${netCDF_libnetcdf})
+target_link_libraries(ncCat ${netCDF_libnetcdf})
+target_link_libraries(pd02netCDF ${netCDF_libnetcdf})
+target_link_libraries(sg2netCDF  ${netCDF_libnetcdf})
+target_link_libraries(sgLog2netCDF  ${netCDF_libnetcdf})
 
 # Install locally
 

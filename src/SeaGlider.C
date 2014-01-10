@@ -25,6 +25,9 @@
 #include <iostream>
 #include <sstream>
 #include <cerrno>
+#ifdef HAVE_UNISTD_H
+#include <unistd.h>
+#endif // HAVE_UNISTD_H
 
 SeaGlider::SeaGlider(int argc,
                      char **argv)
