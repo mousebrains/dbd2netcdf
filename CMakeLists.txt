@@ -8,7 +8,7 @@ project(dbd2netcdf)
 
 set(dbd2netcdf_VERSION_MAJOR 1)
 set(dbd2netcdf_VERSION_MINOR 2)
-set(dbd2netcdf_VERSION_PATCH 1)
+set(dbd2netcdf_VERSION_PATCH 2)
 set(dbd2netcdf_MAINTAINER pat@mousebrains.com) # output to config.h
 
 if (APPLE)
