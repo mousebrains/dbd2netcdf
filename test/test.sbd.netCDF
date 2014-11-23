@@ -1,40 +1,40 @@
-netcdf test.sbd {
+netcdf tpw {
 dimensions:
 	i = UNLIMITED ; // (94 currently)
 	j = UNLIMITED ; // (1 currently)
 variables:
 	float m_altitude(i) ;
-		m_altitude:_FillValue = 8.818744e+21f ;
+		m_altitude:_FillValue = NaNf ;
 		m_altitude:units = "m" ;
 	float m_battery(i) ;
-		m_battery:_FillValue = 8.818744e+21f ;
+		m_battery:_FillValue = NaNf ;
 		m_battery:units = "volts" ;
 	float m_depth(i) ;
-		m_depth:_FillValue = 8.818744e+21f ;
+		m_depth:_FillValue = NaNf ;
 		m_depth:units = "m" ;
 	double m_gps_lat(i) ;
-		m_gps_lat:_FillValue = 6.95322644377758e-310 ;
+		m_gps_lat:_FillValue = NaN ;
 		m_gps_lat:units = "lat" ;
 	double m_gps_lon(i) ;
-		m_gps_lon:_FillValue = 6.95322644377758e-310 ;
+		m_gps_lon:_FillValue = NaN ;
 		m_gps_lon:units = "lon" ;
 	float m_leakdetect_voltage(i) ;
-		m_leakdetect_voltage:_FillValue = 8.818744e+21f ;
+		m_leakdetect_voltage:_FillValue = NaNf ;
 		m_leakdetect_voltage:units = "volts" ;
 	float m_pitch(i) ;
-		m_pitch:_FillValue = 8.818744e+21f ;
+		m_pitch:_FillValue = NaNf ;
 		m_pitch:units = "rad" ;
 	double m_present_time(i) ;
-		m_present_time:_FillValue = 6.95322644377758e-310 ;
+		m_present_time:_FillValue = NaN ;
 		m_present_time:units = "timestamp" ;
 	float m_roll(i) ;
-		m_roll:_FillValue = 8.818744e+21f ;
+		m_roll:_FillValue = NaNf ;
 		m_roll:units = "rad" ;
 	float m_vacuum(i) ;
-		m_vacuum:_FillValue = 8.818744e+21f ;
+		m_vacuum:_FillValue = NaNf ;
 		m_vacuum:units = "inHg" ;
 	float m_water_depth(i) ;
-		m_water_depth:_FillValue = 8.818744e+21f ;
+		m_water_depth:_FillValue = NaNf ;
 		m_water_depth:units = "m" ;
 	string hdr_full_filename(j) ;
 	string hdr_encoding_ver(j) ;

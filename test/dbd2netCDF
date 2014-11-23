@@ -26,9 +26,9 @@ chkCMD() {
 }
 
 doCompare() {
-  tmpfn=$TMP/dbdcsv.out.$$
-  tmp1fn=$TMP/dbdcsv.out.1.$$
-  tmp2fn=$TMP/dbdcsv.out.2.$$
+  tmpfn=$TMP/dbd.out.$$
+  tmp1fn=$TMP/dbd.out.1.$$
+  tmp2fn=$TMP/dbd.out.2.$$
 
   ref=$1
   shift
@@ -57,34 +57,21 @@ doCompare() {
     exit 1
   fi
 
-
-  if ! tail -n +2 $tmp1fn >$tmp2fn ; then
+  if ! tail -n +2 $tmp1fn >$tmp2fn ; then # Get rid of first line which contains filename
     echo Failed to execute tail on $tmp1fn
     rm -f $tmpfn $tmp1fn $tmp2fn
     exit 1
   fi
 
-  if  ! grep -v ':_FillValue = ' $tmp2fn >$tmpfn ; then
-    echo Failed to execute grep on $tmp2fn
-    rm -f $tmpfn $tmp1fn $tmp2fn
-    exit 1
-  fi
-  
-  if ! tail -n +2 $ref >$tmp2fn ; then
+  if ! tail -n +2 $ref >$tmp1fn ; then # Get rid of first line which contains filename
     echo Failed to execute tail on $ref
     rm -f $tmpfn $tmp1fn $tmp2fn
     exit 1
   fi
 
-  if  ! grep -v ':_FillValue = ' $tmp2fn >$tmp1fn ; then
-    echo Failed to execute greap on $tmp2fn
-    rm -f $tmpfn $tmp1fn $tmp2fn
-    exit 1
-  fi
- 
-  if ! diff -q $tmpfn $tmp1fn ; then
+  if ! diff -q $tmp2fn $tmp1fn ; then
     echo Failed on comparison of $* sensors
-    diff $tmpfn $tmp1fn
+    diff $tmp2fn $tmp1fn
     rm -f $tmpfn $tmp1fn $tmp2fn
     exit 1
   fi

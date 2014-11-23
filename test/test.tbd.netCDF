@@ -1,31 +1,31 @@
-netcdf test.tbd {
+netcdf tpw {
 dimensions:
 	i = UNLIMITED ; // (246 currently)
 	j = UNLIMITED ; // (1 currently)
 variables:
 	double sci_m_present_time(i) ;
-		sci_m_present_time:_FillValue = 6.95323306509833e-310 ;
+		sci_m_present_time:_FillValue = NaN ;
 		sci_m_present_time:units = "timestamp" ;
 	float sci_water_pressure(i) ;
-		sci_water_pressure:_FillValue = 5.705405e+26f ;
+		sci_water_pressure:_FillValue = NaNf ;
 		sci_water_pressure:units = "bar" ;
 	float sci_water_cond(i) ;
-		sci_water_cond:_FillValue = 5.705405e+26f ;
+		sci_water_cond:_FillValue = NaNf ;
 		sci_water_cond:units = "s/m" ;
 	float sci_water_temp(i) ;
-		sci_water_temp:_FillValue = 5.705405e+26f ;
+		sci_water_temp:_FillValue = NaNf ;
 		sci_water_temp:units = "degc" ;
 	float sci_bbfl2s_bb_sig(i) ;
-		sci_bbfl2s_bb_sig:_FillValue = 5.705405e+26f ;
+		sci_bbfl2s_bb_sig:_FillValue = NaNf ;
 		sci_bbfl2s_bb_sig:units = "nodim" ;
 	float sci_bbfl2s_chlor_sig(i) ;
-		sci_bbfl2s_chlor_sig:_FillValue = 5.705405e+26f ;
+		sci_bbfl2s_chlor_sig:_FillValue = NaNf ;
 		sci_bbfl2s_chlor_sig:units = "nodim" ;
 	float sci_bbfl2s_cdom_sig(i) ;
-		sci_bbfl2s_cdom_sig:_FillValue = 5.705405e+26f ;
+		sci_bbfl2s_cdom_sig:_FillValue = NaNf ;
 		sci_bbfl2s_cdom_sig:units = "nodim" ;
 	float sci_oxy3835_oxygen(i) ;
-		sci_oxy3835_oxygen:_FillValue = 5.705405e+26f ;
+		sci_oxy3835_oxygen:_FillValue = NaNf ;
 		sci_oxy3835_oxygen:units = "nodim" ;
 	string hdr_full_filename(j) ;
 	string hdr_encoding_ver(j) ;
