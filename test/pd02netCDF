@@ -1,0 +1,88 @@
+#! /bin/sh
+#
+# Generate output from pd02netCDF and compare to expected output
+#
+# Nov-2014, Pat Welch, pat@mousebrains.com
+#
+
+CMD=../bin/pd02netCDF
+TMP=../tmp
+
+if [ ! -x $CMD ] ; then
+  echo $CMD is not executable
+  exit 1
+fi
+
+if ! mkdir -p $TMP ; then
+  echo Unable to create $TMP
+  exit 1
+fi
+
+chkCMD() {
+  if ! $* </dev/null >/dev/null 2>&1; then
+    echo No $1 command found
+    exit 1
+  fi
+}
+
+doCompare() {
+  tmpfn=$TMP/dbd.out.$$
+  tmp1fn=$TMP/dbd.out.1.$$
+  tmp2fn=$TMP/dbd.out.2.$$
+
+  ref=$1
+  shift
+
+  if [ ! -e $ref ] ; then
+    echo Reference file $ref does not exist
+    exit 1
+  fi
+
+  for file in $* ; do
+    if [ ! -e $file ] ; then
+      echo Dinkum Binary Data file $file does not exist
+      exit 1
+    fi
+  done
+
+  if ! $CMD -o $tmpfn $* ; then
+    echo Failed to execute $CMD on $*
+    rm -f $tmpfn
+    exit 1
+  fi
+
+  if ! ncdump $tmpfn >$tmp1fn ; then
+    echo Failed to execute ncdump on $tmpfn
+    rm -f $tmpfn $tmp1fn $tmp2fn
+    exit 1
+  fi
+
+  if ! tail -n +2 $tmp1fn >$tmp2fn ; then # Get rid of first line which contains filename
+    echo Failed to execute tail on $tmp1fn
+    rm -f $tmpfn $tmp1fn $tmp2fn
+    exit 1
+  fi
+
+  if ! tail -n +2 $ref >$tmp1fn ; then # Get rid of first line which contains filename
+    echo Failed to execute tail on $ref
+    rm -f $tmpfn $tmp1fn $tmp2fn
+    exit 1
+  fi
+
+  if ! diff -q $tmp2fn $tmp1fn ; then
+    echo Failed on comparison of $* sensors
+    diff $tmp2fn $tmp1fn
+    rm -f $tmpfn $tmp1fn $tmp2fn
+    exit 1
+  fi
+
+  rm -f $tmpfn $tmp1fn $tmp2fn
+}
+
+chkCMD diff -v
+chkCMD grep --version
+chkCMD tail
+
+doCompare test.pd0.netCDF test.pd0
+
+exit 0
