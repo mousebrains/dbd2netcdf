@@ -24,6 +24,8 @@
 #include "config.h"
 #include <iostream>
 #include <sstream>
+#include <cstdlib>
+#include <cstring>
 #include <cerrno>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>

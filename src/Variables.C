@@ -23,6 +23,8 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <cstring>
+#include <cstdlib>
 #include <cerrno>
 
 Variables::Variables(const std::string& mapfn,

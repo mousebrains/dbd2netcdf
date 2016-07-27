@@ -32,6 +32,7 @@
 #include <ctime>
 #include <cmath>
 #include <cstdlib>
+#include <cstring>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif // HAVE_UNISTD_H
