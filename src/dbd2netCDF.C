@@ -296,7 +296,7 @@ main(int argc,
         }
       }
       
-      delete values;
+      delete[] values;
 
       indexOffset += data.size() - kStart;
 

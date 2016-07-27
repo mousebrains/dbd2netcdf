@@ -98,7 +98,7 @@ PD0::loadBlock(std::istream& is)
   }
 
   const std::string data(buffer, nBytes);
-  delete buffer;
+  delete[] buffer;
 
   std::istringstream iss(data, std::ios_base::in | std::ios_base::binary);
   iss.seekg(5, std::ios::beg);
@@ -587,7 +587,7 @@ PD0::Velocity::ncDump(NetCDF& nc,
 
   nc.putVars(mVarId, dims, cnt, ptr);
 
-  delete ptr;
+  delete[] ptr;
 }
 
 bool
@@ -630,7 +630,7 @@ PD0::Correlation::ncDump(NetCDF& nc,
 
   nc.putVars(mVarId, dims, cnt, ptr);
 
-  delete ptr;
+  delete[] ptr;
 }
 
 PD0::BottomTrack::BottomTrack()

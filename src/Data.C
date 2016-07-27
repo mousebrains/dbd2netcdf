@@ -57,7 +57,7 @@ Data::load(std::istream& is,
   while (true) { // Walk through the file
     int8_t tag;
     if (!is.read((char *) &tag, 1)) {
-      delete bits;
+      delete[] bits;
       throw(MyException("Error reading tag byte"));
     }
     if (tag != 'd') {
@@ -71,7 +71,7 @@ Data::load(std::istream& is,
           << " '" << (char) (tag & 0xff)
           << "' should be either 'd' or 'X' at offset "
           << is.tellg();
-      delete bits;
+      delete[] bits;
       throw(MyException(oss.str()));
     }
 
@@ -79,7 +79,7 @@ Data::load(std::istream& is,
       mData.resize(nRows); // Prune off unused rows
       std::ostringstream oss;
       oss << "Error reading " << nHeader << " bytes for header bits";
-      delete bits;
+      delete[] bits;
       throw(MyException(oss.str()));
     }
 
@@ -95,7 +95,7 @@ Data::load(std::istream& is,
         std::ostringstream oss;
         oss << "offIndex issue " << offIndex << " >= " << nHeader
             << " at " << is.tellg();
-        delete bits;
+        delete[] bits;
         throw(MyException(oss.str()));
       }
       if (code == 1) { // Repeat previous value
@@ -123,7 +123,7 @@ Data::load(std::istream& is,
 
   mData.resize(nRows); // Prune off unused rows
 
-  delete bits;
+  delete[] bits;
 }
 
 std::ostream&

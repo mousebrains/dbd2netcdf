@@ -167,7 +167,7 @@ NetCDF::createVar(const std::string& name,
         exit(2);
       }
 
-      delete(chunkSizes);
+      delete[] chunkSizes;
     } // Chunking
 
   const int qShuffle(mqShuffle && (idType != NC_FLOAT) && (idType != NC_DOUBLE));
