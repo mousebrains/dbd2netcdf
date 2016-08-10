@@ -16,7 +16,7 @@ make
 
 F) Run make to test the software
 
-make test
+make check
 
 G) Run make to install the software
 
