@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.6)
 
+add_executable(sgMergeNetCDF 
+               sgMergeNetCDF.C SGMerge.C)
+
 add_executable(dbd2netCDF 
                dbd2netCDF.C SensorsMap.C Sensors.C Sensor.C Header.C 
                NetCDF.C Data.C KnownBytes.C)
@@ -15,7 +18,7 @@ add_executable(dbdSensors
                dbdSensors.C SensorsMap.C Sensors.C Sensor.C Header.C
                KnownBytes.C)
 
-set_target_properties(dbd2netCDF dbd2csv dbdSensors pd02netCDF 
+set_target_properties(sgMergeNetCDF dbd2netCDF dbd2csv dbdSensors pd02netCDF 
                       PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${dbd2netcdf_SOURCE_DIR}/bin)
 
 include_directories(${dbd2netcdf_SOURCE_DIR}/bin) #  ${dbd2netcdf_SOURCE_DIR}/src)
@@ -114,15 +117,12 @@ foreach (compilerFlag -g -O2 -Wall -pedantic)
   endif (${qCompilerFlagOkay})
 endforeach (compilerFlag "-g;-O2;-Wall;-pedantic")
 
-# Pick up some includes from the source directory
-
-# include_directories(${dbd2netcdf_SOURCE_DIR})
-
 # We want netCDF libraries linked in
 
+target_link_libraries(sgMergeNetCDF ${netCDF_libnetcdf})
 target_link_libraries(dbd2netCDF ${netCDF_libnetcdf})
 target_link_libraries(pd02netCDF ${netCDF_libnetcdf})
 
 # Install locally
 
-install(TARGETS dbd2netCDF pd02netCDF dbd2csv dbdSensors DESTINATION bin)
+install(TARGETS sgMergeNetCDF dbd2netCDF pd02netCDF dbd2csv dbdSensors DESTINATION bin)
