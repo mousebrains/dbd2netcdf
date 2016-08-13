@@ -2,8 +2,6 @@
 # set up test for use by ctest
 #
 
-cmake_minimum_required(VERSION 3.6)
-
 enable_testing()
 
 add_test(dbdSensors ${dbd2netcdf_SOURCE_DIR}/test/dbdSensors) 
