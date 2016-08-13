@@ -4,6 +4,8 @@
 #include <cstdlib>
 #include <cstring>
 #include <cstdio>
+#include <climits>
+#include <cmath>
 
 //  NetCDF ncid(ofn);
 //  ncid.enddef();
@@ -189,14 +191,22 @@ SGMerge::updateHeader()
   }
 
   for (tDimMap::const_iterator it(mDims.begin()), et(mDims.end()); it != et; ++it) {
+    const std::string& name(it->first);
     int id;
-    if ((status = nc_def_dim(ncid, it->first.c_str(), it->second, &id))) {
+    if ((status = nc_def_dim(ncid, name.c_str(), it->second, &id))) {
       std::cerr << "Error def_dim '" << mFilename << "', " << nc_strerror(status) << std::endl;
       nc_close(ncid);
       return;
     }
     mDimIDs.insert(std::make_pair(it->first, id));
     mDimCnt.insert(std::make_pair(it->first, 0));
+
+    if ((name.substr(0,2) != "j_") && (name.substr(0,4) != "str_")) {
+      Variable var("Dive_" + name, NC_INT);
+      var.mDims.push_back(name);
+      mVars.insert(std::make_pair(var.name, var));
+      mDiveVars.insert(std::make_pair(var.name, name));
+    }
   }
 
   for (tVars::const_iterator it(mVars.begin()), et(mVars.end()); it != et; ++it) {
@@ -212,13 +222,22 @@ SGMerge::updateHeader()
       nc_close(ncid);
       return;
     }
+
     mVarIDs.insert(std::make_pair(var.name, id));
+
     if ((status = nc_def_var_deflate(ncid, id, NC_SHUFFLE, 1, 3))) {
       std::cerr << "Error def_var_deflate '" << mFilename << "', " 
                 << nc_strerror(status) << std::endl;
       nc_close(ncid);
       return;
     }
+
+    if ((status = Data::setFill(ncid, id, var.xtype))) {
+      nc_close(ncid);
+      return;
+    }
+
+
     for (tAttr::const_iterator it(var.mAttr.begin()), et(var.mAttr.end()); it != et; ++it) {
       const Attribute& attr(it->second);
       if ((status = attr.value.putAttr(ncid, id, attr.name))) {
@@ -245,7 +264,7 @@ SGMerge::mergeFile(const char *fn)
     std::cerr << "Error opening '" << fn << "' for reading, " << nc_strerror(status) << std::endl;
     return false;
   }
- 
+
   int ndims, nvars, natts, nunlim;
    
   if ((status = nc_inq(ncid, &ndims, &nvars, &natts, &nunlim))) {
@@ -325,6 +344,24 @@ SGMerge::mergeFile(const char *fn)
     }
 
     data.putVar(oncid, mVarIDs[oVar.name], start, cnt);
+  }
+
+  if (!mDiveVars.empty()) { // Write out id info 
+    int diveNum(0);
+    if ((status = nc_get_att_int(ncid, NC_GLOBAL, "dive_number", &diveNum))) {
+      std::cerr << "Error getting Dive attr " << fn << ", " << nc_strerror(status) << std::endl;
+      nc_close(ncid);
+      return false;
+    }
+    for (tDiveVars::const_iterator it(mDiveVars.begin()), et(mDiveVars.end()); it != et; ++it) {
+      const std::string& vName(it->first);
+      const std::string& dName(it->second);
+      const size_t start(mDimCnt[dName]);
+      const size_t cnt(nextCnt[dName] - start);
+      Data data(NC_INT);
+      data.iVal.resize(cnt, diveNum);
+      data.putVar(oncid, mVarIDs[vName], &start, &cnt);
+    }
   }
  
   if ((status = nc_close(ncid))) {
@@ -506,7 +543,7 @@ SGMerge::Data::getAttr(const int ncid,
   }
 
   if (status) 
-    std::cerr << "Error put_att " << name << ", " << nc_strerror(status);
+    std::cerr << "Error put_att " << name << ", " << nc_strerror(status) << std::endl;
   
   return status;
 }
@@ -534,7 +571,7 @@ SGMerge::Data::putAttr(const int ncid,
   }
 
   if (status) 
-    std::cerr << "Error put_att " << name << ", " << nc_strerror(status);
+    std::cerr << "Error put_att " << name << ", " << nc_strerror(status) << std::endl;
   
   return status;
 }
@@ -561,7 +598,7 @@ SGMerge::Data::getVar(const int ncid,
   }
   
   if (status) 
-    std::cerr << "Error get_var, " << nc_strerror(status);
+    std::cerr << "Error get_var, " << nc_strerror(status) << std::endl;
   
   return status;
 }
@@ -590,7 +627,53 @@ SGMerge::Data::putVar(const int ncid,
   }
   
   if (status) 
-    std::cerr << "Error put_var, " << nc_strerror(status);
+    std::cerr << "Error put_var, " << nc_strerror(status) << std::endl;
+  
+  return status;
+}
+
+int
+SGMerge::Data::setFill(const int ncid,
+                       const int id,
+                       const nc_type xtype)
+{
+  int status(NC_EBADTYPE);
+
+  switch (xtype) {
+    case NC_BYTE: 
+      {
+        char fv(SCHAR_MIN); 
+        status =  nc_def_var_fill(ncid, id, 0, (void *) &fv);
+      }
+      break;
+    case NC_CHAR: 
+      {
+        char fv(0); 
+        status =  nc_def_var_fill(ncid, id, 0, (void *) &fv);
+      }
+      break;
+    case NC_INT: 
+      {
+        int fv(INT_MIN); 
+        status =  nc_def_var_fill(ncid, id, 0, (void *) &fv);
+      }
+      break;
+    case NC_FLOAT: 
+      {
+        float fv(nanf(""));
+        status =  nc_def_var_fill(ncid, id, 0, (void *) &fv);
+      }
+      break;
+    case NC_DOUBLE: 
+      {
+        double fv(nan(""));
+        status =  nc_def_var_fill(ncid, id, 0, (void *) &fv);
+      }
+      break;
+  }
+  
+  if (status) 
+    std::cerr << "Error def_var_fill, " << nc_strerror(status) << std::endl;
   
   return status;
 }

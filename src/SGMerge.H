@@ -6,6 +6,7 @@
 #include <netcdf.h>
 #include <vector>
 #include <map>
+#include <map>
 #include <string>
 
 class SGMerge {
@@ -31,6 +32,7 @@ private:
     bool qDigits() const;
     void toDigits();
     void toArray(const size_t nSkip);
+    static int setFill(const int ncid, const int vid, const nc_type xtype);
     std::string toString() const;
   };
 
@@ -76,6 +78,9 @@ private:
   typedef std::map<std::string, Variable> tVars;
   tVars mVars;
   tDimMap mVarIDs;
+
+  typedef std::map<std::string, std::string> tDiveVars;
+  tDiveVars mDiveVars;
 
   const std::string mFilename;
   int oncid;
