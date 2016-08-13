@@ -58,9 +58,9 @@ SGMerge::loadFileHeader(const char *fn)
           }
           data += attr.value;
         } else {
-          std::cout << "Global attribute type mismatch" << std::endl;
-          std::cout << " attr " << attr.toString() << std::endl;
-          std::cout << "oattr  " << it->second.toString() << std::endl;
+          std::cerr << "Global attribute type mismatch" << std::endl;
+          std::cerr << " attr " << attr.toString() << std::endl;
+          std::cerr << "oattr  " << it->second.toString() << std::endl;
         }
       }
     }
@@ -118,7 +118,7 @@ SGMerge::loadFileHeader(const char *fn)
         if (attr.name.empty()) continue;
         var.mAttr.insert(std::make_pair(attr.name, attr));
       }
-      size_t totLen(0);
+      size_t totLen(nvDim ? 0 : 1);
       for (size_t j(0); j < nvDim; ++j) { // Walk through this variable's dimensions
         const Dimension& dim(dims[dimids[j]]);
         const std::string& dname(dim.name);
