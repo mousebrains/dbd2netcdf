@@ -80,7 +80,7 @@ main(int argc,
   if (optind >= argc) {
     std::cerr << "No input files specified!" << std::endl;
     usage(argv[0], options);
-    exit(1);
+    return 1;
   }
 
   SGMerge sg(ofn);

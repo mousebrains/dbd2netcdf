@@ -1,6 +1,9 @@
 #include "SGMerge.H"
 #include <iostream>
 #include <sstream>
+#include <cstdlib>
+#include <cstring>
+#include <cstdio>
 
 //  NetCDF ncid(ofn);
 //  ncid.enddef();

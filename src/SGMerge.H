@@ -35,10 +35,9 @@ private:
   };
 
   struct Dimension {
-    const std::string name;
-    const size_t len;
-    Dimension(const std::string& n, const size_t l) 
-      : name(n), len(l) {}
+    std::string name;
+    size_t len;
+    Dimension(const std::string& n, const size_t l) : name(n), len(l) {}
   };
   
   typedef std::vector<Dimension> tDims;
