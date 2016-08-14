@@ -83,7 +83,7 @@ main(int argc,
     return 1;
   }
 
-  SGMerge sg(ofn);
+  SGMerge sg(ofn, qVerbose);
 
   for (size_t i = optind; i < argc; ++i) { // Loop over input files
     if (!sg.loadFileHeader(argv[i])) return 1;

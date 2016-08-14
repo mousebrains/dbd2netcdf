@@ -52,7 +52,7 @@ private:
     std::string name;
     struct Data value;
 
-    Attribute(const int ncid, const size_t vid, const size_t aid, const char *fn);
+    Attribute(const int ncid, const size_t vid, const size_t aid, const std::string& fn);
     std::string toString() const;
   };
 
@@ -71,7 +71,7 @@ private:
     tAttr mAttr;
     Variable(const std::string& n, const nc_type xt) 
       : name(n), xtype(xt), nSkip(0), nFields(0), qArray(false), qChars(false) {} 
-    bool check(const int ncid, const size_t id, const size_t len, const char *fn);
+    bool check(const int ncid, const size_t id, const size_t len, const std::string& fn);
     void checkArray(const Data& data);
   };
 
@@ -82,10 +82,15 @@ private:
   typedef std::map<std::string, std::string> tDiveVars;
   tDiveVars mDiveVars;
 
+  bool loadHeader(const int ncid, const std::string& fn);
+  void loadAttr(const int ncid, const int id, const size_t nAttr, tAttr& attr, 
+                const std::string& fn) const;
+
   const std::string mFilename;
-  int oncid;
+  const bool mqVerbose;
+  int mNCID;
 public:
-  explicit SGMerge(const char *fn);
+  SGMerge(const char *fn, const bool qVerbose);
   ~SGMerge();
   bool loadFileHeader(const char *fn);
   void updateHeader();

@@ -7,25 +7,52 @@
 #include <climits>
 #include <cmath>
 
-//  NetCDF ncid(ofn);
-//  ncid.enddef();
-//  ncid.close();
-
-SGMerge::SGMerge(const char *fn)
+SGMerge::SGMerge(const char *fn,
+                 const bool qVerbose)
   : mFilename(fn)
-  , oncid(-1)
+  , mqVerbose(qVerbose)
+  , mNCID(-1)
 {
   mDims.insert(std::make_pair("index", 0));
 }
 
 SGMerge::~SGMerge()
 {
-  if (oncid >= 0) {
-    const int status(nc_close(oncid));
+  if (mNCID >= 0) {
+    const int status(nc_close(mNCID));
     if (status)
       std::cerr << "Error closing " << mFilename << ", " << nc_strerror(status) << std::endl;
-    oncid = -1;
+    mNCID = -1;
   }
+}
+
+void
+SGMerge::loadAttr(const int ncid,
+                  const int id,
+                  const size_t nAttr,
+                  tAttr& attributes,
+                  const std::string& fn) const
+{
+  for (size_t i(0); i < nAttr; ++i) {
+    Attribute attr(ncid, id, i, fn);
+    if (attr.name.empty()) continue; // _FillValue ??
+    tAttr::iterator it(attributes.find(attr.name));
+    if (it == attributes.end()) { // This Attribute does not already exist
+      attributes.insert(std::make_pair(attr.name, attr));
+    } else if (it->second.value != attr.value) {
+      Data& data(it->second.value);
+      if (attr.value.xtype == data.xtype) { // append
+        if (data.xtype == NC_CHAR) { // split with new lines
+          data.cVal.push_back('\n');
+        }
+        data += attr.value;
+      } else {
+       std::cerr << "Attribute type mismatch" << std::endl;
+       std::cerr << " attr " << attr.toString() << std::endl;
+       std::cerr << "oattr  " << it->second.toString() << std::endl;
+     }
+   }
+ }
 }
 
 bool
@@ -37,33 +64,23 @@ SGMerge::loadFileHeader(const char *fn)
     std::cerr << "Error opening '" << fn << "' for reading, " << nc_strerror(status) << std::endl;
     return false;
   }
+  return loadHeader(ncid, fn);
+}
+
+bool
+SGMerge::loadHeader(const int ncid,
+                    const std::string& fn)
+{
+  int status; // nc_ return status
 
   { // global attributes
-    int natts;
-    if ((status = nc_inq_natts(ncid, &natts))) {
+    int nAttr;
+    if ((status = nc_inq_natts(ncid, &nAttr))) {
       std::cerr << "Error inq_natts '" << fn << "', " << nc_strerror(status) << std::endl;
       nc_close(ncid);
       return false;
     }
-    for (size_t i(0); i < natts; ++i) {
-      Attribute attr(ncid, NC_GLOBAL, i, fn);
-      tAttr::iterator it(mGlobalAttr.find(attr.name));
-      if (it == mGlobalAttr.end()) {
-        mGlobalAttr.insert(std::make_pair(attr.name, attr));
-      } else if (it->second.value != attr.value) {
-        Data& data(it->second.value);
-        if (attr.value.xtype == data.xtype) { // append
-          if (data.xtype == NC_CHAR) { // split with new lines
-            data.cVal.push_back('\n');
-          }
-          data += attr.value;
-        } else {
-          std::cerr << "Global attribute type mismatch" << std::endl;
-          std::cerr << " attr " << attr.toString() << std::endl;
-          std::cerr << "oattr  " << it->second.toString() << std::endl;
-        }
-      }
-    }
+    loadAttr(ncid, NC_GLOBAL, nAttr, mGlobalAttr, fn);
   }
 
   int ndims, nvars, natts, nunlim;
@@ -113,11 +130,7 @@ SGMerge::loadFileHeader(const char *fn)
 
     if (it == mVars.end()) { // Not known so populate
       struct Variable var(name, xtype);
-      for (size_t j(0); j < nvAtt; ++j) {
-        struct Attribute attr(ncid, id, j, fn);
-        if (attr.name.empty()) continue;
-        var.mAttr.insert(std::make_pair(attr.name, attr));
-      }
+      loadAttr(ncid, id, nvAtt, var.mAttr, fn);
       size_t totLen(nvDim ? 0 : 1);
       for (size_t j(0); j < nvDim; ++j) { // Walk through this variable's dimensions
         const Dimension& dim(dims[dimids[j]]);
@@ -252,7 +265,7 @@ SGMerge::updateHeader()
     nc_close(ncid);
     return;
   }
-  oncid = ncid;
+  mNCID = ncid;
 }
 
 bool
@@ -343,7 +356,7 @@ SGMerge::mergeFile(const char *fn)
       nextCnt[sName] = start[0] + cnt[0];
     }
 
-    data.putVar(oncid, mVarIDs[oVar.name], start, cnt);
+    data.putVar(mNCID, mVarIDs[oVar.name], start, cnt);
   }
 
   if (!mDiveVars.empty()) { // Write out id info 
@@ -360,7 +373,7 @@ SGMerge::mergeFile(const char *fn)
       const size_t cnt(nextCnt[dName] - start);
       Data data(NC_INT);
       data.iVal.resize(cnt, diveNum);
-      data.putVar(oncid, mVarIDs[vName], &start, &cnt);
+      data.putVar(mNCID, mVarIDs[vName], &start, &cnt);
     }
   }
  
@@ -375,7 +388,7 @@ SGMerge::mergeFile(const char *fn)
 SGMerge::Attribute::Attribute(const int ncid,
                               const size_t vid,
                               const size_t id,
-                              const char *fn)
+                              const std::string& fn)
 {
   char aname[NC_MAX_NAME+1];
   int status(nc_inq_attname(ncid, vid, id, aname));
@@ -413,7 +426,7 @@ bool
 SGMerge::Variable::check(const int ncid,
                          const size_t id,
                          const size_t len,
-                         const char *fn)
+                         const std::string& fn)
 {
   if (xtype != NC_CHAR) return true; // No conversion needed
   Data data(xtype, len);
@@ -480,6 +493,7 @@ SGMerge::Data::operator += (const Data& rhs)
     return *this;
   }
   switch (xtype) {
+    case NC_BYTE:
     case NC_CHAR:   cVal.insert(cVal.end(), rhs.cVal.begin(), rhs.cVal.end()); break;
     case NC_INT:    iVal.insert(iVal.end(), rhs.iVal.begin(), rhs.iVal.end()); break;
     case NC_FLOAT:  fVal.insert(fVal.end(), rhs.fVal.begin(), rhs.fVal.end()); break;
@@ -495,6 +509,7 @@ size_t
 SGMerge::Data::size() const
 {
   switch (xtype) {
+    case NC_BYTE:
     case NC_CHAR: return cVal.size();
     case NC_INT: return iVal.size();
     case NC_FLOAT: return fVal.size();
@@ -510,6 +525,7 @@ void
 SGMerge::Data::resize(const size_t len)
 {
   switch (xtype) {
+    case NC_BYTE:
     case NC_CHAR: cVal.resize(len); break;
     case NC_INT: iVal.resize(len); break;
     case NC_FLOAT: fVal.resize(len); break;
@@ -528,6 +544,9 @@ SGMerge::Data::getAttr(const int ncid,
   int status(NC_EBADTYPE);
 
   switch (xtype) {
+    case NC_BYTE: 
+      status = nc_get_att_schar(ncid, vid, name.c_str(), (signed char *) cVal.data());
+      break;
     case NC_CHAR: 
       status = nc_get_att_text(ncid, vid, name.c_str(), cVal.data());
       break;
@@ -556,6 +575,9 @@ SGMerge::Data::putAttr(const int ncid,
   int status(NC_EBADTYPE);
 
   switch (xtype) {
+    case NC_BYTE: 
+      status = nc_put_att_schar(ncid, vid, name.c_str(), xtype, cVal.size(), (signed char *) cVal.data());
+      break;
     case NC_CHAR: 
       status = nc_put_att_text(ncid, vid, name.c_str(), cVal.size(), cVal.data());
       break;
@@ -583,6 +605,9 @@ SGMerge::Data::getVar(const int ncid,
   int status(NC_EBADTYPE);
 
   switch (xtype) {
+    case NC_BYTE: 
+      status = nc_get_var_schar(ncid, vid, (signed char *) cVal.data());
+      break;
     case NC_CHAR: 
       status = nc_get_var_text(ncid, vid, cVal.data());
       break;
@@ -612,6 +637,9 @@ SGMerge::Data::putVar(const int ncid,
   int status(NC_EBADTYPE);
 
   switch (xtype) {
+    case NC_BYTE: 
+      status =  nc_put_vara_schar(ncid, vid, start, cnt, (signed char *) cVal.data());
+      break;
     case NC_CHAR: 
       status =  nc_put_vara_text(ncid, vid, start, cnt, cVal.data());
       break;
@@ -728,6 +756,10 @@ SGMerge::Data::toString() const
 
   switch (xtype) {
     case NC_CHAR: os << std::string(cVal.data(), cVal.size()); return os.str();
+    case NC_BYTE: 
+      for (size_t i(0), e(cVal.size()); i < e; ++i) 
+        os << ((i == 0) ? "" : ",") << (signed char) cVal[i];
+      return os.str();
     case NC_INT: 
       for (size_t i(0), e(iVal.size()); i < e; ++i) 
         os << ((i == 0) ? "" : ",") << iVal[i];
