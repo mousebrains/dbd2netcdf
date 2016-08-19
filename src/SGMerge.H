@@ -5,7 +5,6 @@
 
 #include <netcdf.h>
 #include <vector>
-#include <set>
 #include <map>
 #include <string>
 
@@ -48,7 +47,6 @@ private:
   tDimMap mDims;
   tDimMap mDimCnt;
   tDimMap mDimIDs;
-  std::set<std::string> mDimNew;
  
   struct Attribute {
     std::string name;
@@ -64,24 +62,24 @@ private:
   struct Variable {
     const std::string name; // Name of variable
     nc_type xtype; // Data type
-    size_t nSkip; // Number of leading fields to skip
     size_t nFields; // Number of numeric fields
-    bool qArray; // Comma deliminated array of numbers
-    bool qChars; // Single character to number
     std::vector<std::string> mDims; // Names of dimensions
 
     tAttr mAttr;
     Variable(const std::string& n, const nc_type xt) 
-      : name(n), xtype(xt), nSkip(0), nFields(0), qArray(false), qChars(false) {} 
+      : name(n), xtype(xt), nFields(0) {} 
     bool check(const int ncid, const size_t id, const size_t len, const std::string& fn);
     void checkArray(const Data& data);
     void insertAttr(const std::string& name, const bool value);
+    void insertAttr(const std::string& name, const size_t value);
+    bool qChars() const; // Single character to number
+    bool qArray() const; // String to an array of numbers
+    size_t nSkip() const; // Number of leading fields to skip
   };
 
   typedef std::map<std::string, Variable> tVars;
   tVars mVars;
   tDimMap mVarIDs;
-  std::set<std::string> mVarNew;
 
   typedef std::map<std::string, std::string> tDiveVars;
   tDiveVars mDiveVars;

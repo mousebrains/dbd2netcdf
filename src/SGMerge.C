@@ -24,7 +24,6 @@ SGMerge::SGMerge(const char *fn,
   , mNCID(-1)
 {
   mDims.insert(std::make_pair("index", 0));
-  mDimNew.insert("index");
 }
 
 SGMerge::~SGMerge()
@@ -98,7 +97,6 @@ SGMerge::loadHeader(const int ncid,
       tDimMap::iterator it(mDims.find(name));
       if (it == mDims.end()) {
         mDims.insert(std::make_pair(name, len));
-        mDimNew.insert(name);
       } else {
         it->second += len;
       }
@@ -136,7 +134,6 @@ SGMerge::loadHeader(const int ncid,
           snprintf(buffer, sizeof(buffer), "str_%s", name);
           mDims.insert(std::make_pair(buffer, totLen)); 
           var.mDims.push_back(buffer);
-          mDimNew.insert(buffer);
         } else { // Some conversion
           var.mDims.push_back("index");
           if (var.nFields > 1) { // Need a second dimension
@@ -145,13 +142,11 @@ SGMerge::loadHeader(const int ncid,
             var.mDims.push_back(dimName);
             if (mDims.find(dimName) == mDims.end()) { // Add in this dim
               mDims.insert(std::make_pair(dimName, var.nFields));
-              mDimNew.insert(dimName);
             }
           }
         }
       }
       it = mVars.insert(std::make_pair(name, var)).first;
-      mVarNew.insert(name);
     } else if (it->second.xtype == NC_CHAR) { // No conversion
       char buffer[NC_MAX_NAME + 5];
       snprintf(buffer, sizeof(buffer), "str_%s", name);
@@ -174,8 +169,8 @@ void
 SGMerge::updateHeader()
 {
   int ncid;
-  if (ncOp(nc_create(mFilename.c_str(), NC_CLOBBER | NC_NETCDF4, &ncid), "creating", mFilename, -1))
-    return;
+  if (ncOp(nc_create(mFilename.c_str(), NC_CLOBBER | NC_NETCDF4, &ncid), 
+           "creating", mFilename, -1)) return;
 
   for (tAttr::const_iterator it(mGlobalAttr.begin()), et(mGlobalAttr.end()); it != et; ++it) {
     const Attribute& attr(it->second);
@@ -185,58 +180,41 @@ SGMerge::updateHeader()
 
   for (tDimMap::const_iterator it(mDims.begin()), et(mDims.end()); it != et; ++it) {
     const std::string& name(it->first);
-    const bool qNew(mDimNew.find(name) != mDimNew.end());
-    const bool qJdim(name.substr(0,2) == "j_");
     int id;
     size_t offset(0);
 
-std::cout << name << " " << qNew << " " << qJdim << std::endl;
-
-    if (qNew) {
-      if (ncOp(nc_def_dim(ncid, name.c_str(), it->second, &id), "def_dim", mFilename, ncid)) return;
-    } else { // !qNew
-      if (ncOp(nc_inq_dimid(ncid, name.c_str(), &id), "inq_dimid for " + name, mFilename, ncid)) 
-        return;
-      if (!qJdim && ncOp(nc_inq_dimlen(ncid, id, &offset), "inq_dimlen", mFilename, ncid)) 
-        return;
-    } // qNew
+    if (ncOp(nc_def_dim(ncid, name.c_str(), it->second, &id), "def_dim", mFilename, ncid)) return;
 
     mDimIDs.insert(std::make_pair(it->first, id));
     mDimCnt.insert(std::make_pair(it->first, offset));
 
-    if (qNew && !qJdim && (name.substr(0,4) != "str_")) {
+    if ((name.substr(0,2) != "j_") && (name.substr(0,4) != "str_")) {
       Variable var("Dive_" + name, NC_INT);
       var.insertAttr("qDive", true);
       var.mDims.push_back(name);
       mVars.insert(std::make_pair(var.name, var));
-      mVarNew.insert(var.name);
       mDiveVars.insert(std::make_pair(var.name, name));
     }
   }
 
   for (tVars::const_iterator it(mVars.begin()), et(mVars.end()); it != et; ++it) {
     const Variable& var(it->second);
-    const bool qNew(mVarNew.find(it->first) != mVarNew.end());
     const size_t n(var.mDims.size());
     int dimids[n];
     for (size_t i(0); i < n; ++i) {
       dimids[i] = mDimIDs[var.mDims[i]];
     }
     int id;
-    if (qNew) {
-      if (ncOp(nc_def_var(ncid, var.name.c_str(), var.xtype, n, dimids, &id), 
-               "def_var", mFilename, ncid) ||
-          ncOp(nc_def_var_deflate(ncid, id, NC_SHUFFLE, 1, 3), 
-               "def_var_deflate", mFilename, ncid) ||
-          Data::setFill(ncid, id, var.xtype, mFilename))
-        return;
-      for (tAttr::const_iterator it(var.mAttr.begin()), et(var.mAttr.end()); it != et; ++it) {
-        const Attribute& attr(it->second);
-        if (attr.value.putAttr(ncid, id, attr.name)) return;
-      }
-    } else { // !qNew
-      if (ncOp(nc_inq_varid(ncid, var.name.c_str(), &id), "inq_varid", mFilename, ncid)) return;
-    } // qNew
+    if (ncOp(nc_def_var(ncid, var.name.c_str(), var.xtype, n, dimids, &id), 
+             "def_var", mFilename, ncid) ||
+        ncOp(nc_def_var_deflate(ncid, id, NC_SHUFFLE, 1, 3), 
+             "def_var_deflate", mFilename, ncid) ||
+        Data::setFill(ncid, id, var.xtype, mFilename))
+      return;
+    for (tAttr::const_iterator it(var.mAttr.begin()), et(var.mAttr.end()); it != et; ++it) {
+      const Attribute& attr(it->second);
+      if (attr.value.putAttr(ncid, id, attr.name)) return;
+    }
 
     mVarIDs.insert(std::make_pair(var.name, id));
   }
@@ -281,10 +259,10 @@ SGMerge::mergeFile(const char *fn)
     if (data.getVar(ncid, id, fn)) return false; // Get the actual data
 
     const Variable &oVar(mVars.find(name)->second); // We know it is there
-    if (oVar.qChars) { // Convert a series of digits to an vector of ints
+    if (oVar.qChars()) { // Convert a series of digits to an vector of ints
       data.toDigits();
-    } else if (oVar.qArray) { // Convert a series of number to a vector
-      data.toArray(oVar.nSkip);
+    } else if (oVar.qArray()) { // Convert a series of number to a vector
+      data.toArray(oVar.nSkip());
       len = data.size();
     }
    
@@ -381,8 +359,10 @@ SGMerge::Variable::check(const int ncid,
   if (mDims.empty()) {
     checkArray(data);
   } else {
-    qChars = data.qDigits();
-    xtype = qChars ? NC_BYTE : xtype;
+    if (data.qDigits()) { // Digits so qChars
+      insertAttr("qChars", true);
+      xtype = NC_BYTE;
+    }
   }
   return true;
 }
@@ -394,25 +374,28 @@ SGMerge::Variable::checkArray(const Data& data)
   const size_t n(data.cVal.size());
   char buffer[n + 1];
   bool qInt(true);
+  bool q(true);
+  size_t nToSkip(0);
 
-  nSkip = 0;
   nFields = 0;
-  qArray = true;
   strncpy(buffer, data.cVal.data(), n);
   buffer[n] = '\0';
 
-  for (char *ptr(strtok(buffer, delim)); qArray && ptr; ptr = strtok(NULL, delim)) {
+  for (char *ptr(strtok(buffer, delim)); q && ptr; ptr = strtok(NULL, delim)) {
     if ((nFields == 0) && (*ptr == '$')) {
-      nSkip = 1;
+      nToSkip = 1;
       continue;
     }
     char *eptr;
     const double value(strtod(ptr, &eptr)); 
-    qArray &= (ptr != eptr);
+    q &= (ptr != eptr);
     qInt &= index(ptr, '.') == 0;
     ++nFields;
   }
-  xtype = qArray ? (qInt ? NC_INT : NC_DOUBLE) : NC_CHAR;
+  if (q) { // an array of numbers
+    insertAttr("nSkip", nToSkip);
+    xtype = qInt ? NC_INT : NC_DOUBLE;
+  }
 }
 
 void
@@ -424,15 +407,43 @@ SGMerge::Variable::insertAttr(const std::string& name,
   mAttr.insert(std::make_pair(name, Attribute(name, datum)));
 }
 
+void
+SGMerge::Variable::insertAttr(const std::string& name,
+                              const size_t value)
+{
+  Data datum(NC_INT);
+  datum.push_back(value);
+  mAttr.insert(std::make_pair(name, Attribute(name, datum)));
+}
+
+bool
+SGMerge::Variable::qChars() const
+{
+  return mAttr.find("qChars") != mAttr.end();
+}
+
+bool
+SGMerge::Variable::qArray() const
+{
+  return mAttr.find("nSkip") != mAttr.end();
+}
+
+size_t
+SGMerge::Variable::nSkip() const
+{
+  tAttr::const_iterator it(mAttr.find("nSkip"));
+  return it != mAttr.end() ? (size_t) it->second.value.iVal[0] : 0;
+}
+
 std::ostream&
 operator << (std::ostream& os,
              const SGMerge::Variable& v)
 {
   os << v.name 
      << ", " << v.xtype
-     << ", " << v.qChars
-     << ", " << v.qArray
-     << ", " << v.nSkip
+     << ", " << v.qChars()
+     << ", " << v.qArray()
+     << ", " << v.nSkip()
      << ", " << v.nFields
      << ", " << v.mDims.size()
      ;
