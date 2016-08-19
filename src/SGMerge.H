@@ -5,7 +5,7 @@
 
 #include <netcdf.h>
 #include <vector>
-#include <map>
+#include <set>
 #include <map>
 #include <string>
 
@@ -23,17 +23,18 @@ private:
     bool operator == (const Data& rhs) const;
     bool operator != (const Data& rhs) const {return !(*this == rhs);}
     struct Data& operator += (const Data& rhs);
+    struct Data& push_back(const bool val);
     size_t size() const;
     void resize(const size_t len);
-    int getAttr(const int ncid, const int vid, const std::string& name);
-    int putAttr(const int ncid, const int vid, const std::string& name) const;
-    int getVar(const int ncid, const int vid);
-    int putVar(const int ncid, const int vid, const size_t start[], const size_t cnt[]) const;
+    bool getAttr(const int ncid, const int vid, const std::string& name);
+    bool putAttr(const int ncid, const int vid, const std::string& name) const;
+    bool getVar(const int ncid, const int vid, const std::string& fn);
+    bool putVar(const int ncid, const int vid, const size_t start[], const size_t cnt[], 
+                const std::string& fn) const;
     bool qDigits() const;
     void toDigits();
     void toArray(const size_t nSkip);
-    static int setFill(const int ncid, const int vid, const nc_type xtype);
-    std::string toString() const;
+    static bool setFill(const int ncid, const int vid, const nc_type xtype, const std::string& fn);
   };
 
   struct Dimension {
@@ -47,13 +48,14 @@ private:
   tDimMap mDims;
   tDimMap mDimCnt;
   tDimMap mDimIDs;
+  std::set<std::string> mDimNew;
  
   struct Attribute {
     std::string name;
     struct Data value;
 
+    Attribute(const std::string& n, const Data& val) : name(n), value(val) {}
     Attribute(const int ncid, const size_t vid, const size_t aid, const std::string& fn);
-    std::string toString() const;
   };
 
   typedef std::map<std::string, Attribute> tAttr;
@@ -73,11 +75,13 @@ private:
       : name(n), xtype(xt), nSkip(0), nFields(0), qArray(false), qChars(false) {} 
     bool check(const int ncid, const size_t id, const size_t len, const std::string& fn);
     void checkArray(const Data& data);
+    void insertAttr(const std::string& name, const bool value);
   };
 
   typedef std::map<std::string, Variable> tVars;
   tVars mVars;
   tDimMap mVarIDs;
+  std::set<std::string> mVarNew;
 
   typedef std::map<std::string, std::string> tDiveVars;
   tDiveVars mDiveVars;
@@ -95,6 +99,10 @@ public:
   bool loadFileHeader(const char *fn);
   void updateHeader();
   bool mergeFile(const char *fn);
+
+  friend std::ostream& operator << (std::ostream& os, const Variable& var);
+  friend std::ostream& operator << (std::ostream& os, const Attribute& attr);
+  friend std::ostream& operator << (std::ostream& os, const Data& datum);
 }; // SGMerge
 
 #endif // INC_SGMerge_H_
