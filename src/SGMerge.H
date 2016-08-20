@@ -6,6 +6,7 @@
 #include <netcdf.h>
 #include <vector>
 #include <map>
+#include <set>
 #include <string>
 
 class SGMerge {
@@ -47,6 +48,7 @@ private:
   tDimMap mDims;
   tDimMap mDimCnt;
   tDimMap mDimIDs;
+  std::set<std::string> mDimNew;
  
   struct Attribute {
     std::string name;
@@ -80,6 +82,7 @@ private:
   typedef std::map<std::string, Variable> tVars;
   tVars mVars;
   tDimMap mVarIDs;
+  std::set<std::string> mVarNew;
 
   typedef std::map<std::string, std::string> tDiveVars;
   tDiveVars mDiveVars;
@@ -90,9 +93,11 @@ private:
 
   const std::string mFilename;
   const bool mqVerbose;
+  bool mqAppend;
+  bool mqUnlimited;
   int mNCID;
 public:
-  SGMerge(const char *fn, const bool qVerbose);
+  SGMerge(const char *fn, const bool qVerbose, const bool qAppend, const bool qUnlimited);
   ~SGMerge();
   bool loadFileHeader(const char *fn);
   void updateHeader();

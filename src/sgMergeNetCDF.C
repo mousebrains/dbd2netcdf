@@ -36,8 +36,12 @@ namespace {
     std::cerr << std::endl;
     std::cerr << "Usage: " << argv0 << " -[" << options << "] files" << std::endl;
     std::cerr << std::endl;
+    std::cerr << " -a           append to output file if it exists" << std::endl;
     std::cerr << " -h           display the usage message" << std::endl;
     std::cerr << " -o filename  where to store the data" << std::endl;
+    std::cerr << " -u           do not use unlimited dimensions," << std::endl;
+    std::cerr << "              so output can not be appended to." << std::endl;
+    std::cerr << "              This will be faster and smaller output." << std::endl;
     std::cerr << " -V           Print out version" << std::endl;
     std::cerr << " -v           Enable some diagnostic output" << std::endl;
     std::cerr << "\nReport bugs to " << MAINTAINER << std::endl;
@@ -49,15 +53,23 @@ int
 main(int argc,
      char **argv)
 {
-  const char *options("fho:Vv"); 
+  const char *options("afho:uVv"); 
 
   const char *ofn(0);
   bool qVerbose(false);
+  bool qAppend(false);
+  bool qUnlimited(true);
 
   for (int ch; (ch = getopt(argc, argv, options)) != -1;) { // Process options
     switch (ch) {
+      case 'a': // Append
+        qAppend = !qAppend;
+        break;
       case 'o': // Output filename
         ofn = optarg;
+        break;
+      case 'u': // Unlimited
+        qUnlimited = !qUnlimited;
         break;
       case 'V': // Print out version string
         std::cerr << VERSION << std::endl;
@@ -83,7 +95,7 @@ main(int argc,
     return 1;
   }
 
-  SGMerge sg(ofn, qVerbose);
+  SGMerge sg(ofn, qVerbose, qAppend, qUnlimited);
 
   for (size_t i = optind; i < argc; ++i) { // Loop over input files
     if (!sg.loadFileHeader(argv[i])) return 1;
