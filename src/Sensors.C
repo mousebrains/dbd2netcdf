@@ -180,8 +180,6 @@ Sensors::dump(const std::string& dir) const
     std::string str;
     { // Build output string
       std::ostringstream oss;
-      oss << mLength << std::endl;
-      oss << mnToStore << std::endl;
       for (tSensors::const_iterator it(mSensors.begin()), et(mSensors.end()); it != et; ++it) {
         it->dump(oss);
       }
@@ -247,48 +245,14 @@ Sensors::load(const std::string& dir,
     return false;
   }
 
-  std::string line;
-
-  if (!getline(is, line)) {
-    std::cerr << "Error reading mLength line from '" << filename << "', " << strerror(errno) << std::endl;
-    return false;
-  } else {
-    std::istringstream iss(line);
-    if (!(iss >> mLength)) {
-      std::cerr << "Error reading mLength from '" << filename << "', " << strerror(errno) << std::endl;
-      return false;
+  for (std::string line; getline(is, line);) {
+    const Sensor sensor(line);
+    if (sensor.qAvailable()) {
+      mSensors.push_back(sensor);
     }
   }
 
-  if (!getline(is, line)) {
-    std::cerr << "Error reading mnToStore line from '" << filename << "', " << strerror(errno) << std::endl;
-    return false;
-  } else {
-    std::istringstream iss(line);
-    if (!(iss >> mnToStore)) {
-      std::cerr << "Error reading mnToStore from '" << filename << "', " << strerror(errno) << std::endl;
-      return false;
-    }
-  }
-
-  for (size_t i(0); i < mnToStore; ++i) {
-    const Sensor sensor(is);
-    mSensors.push_back(sensor);
-  }
-
-  if (getline(is, line)) {
-    std::cerr << "Error: Extra lines at end of '" << filename << "'" << std::endl;
-    std::cerr << line << std::endl;
-    while (getline(is, line)) {
-      std::cerr << line << std::endl;
-    }
-    return false;
-  }
-
-  if (mSensors.size() != mnToStore) {
-    std::cerr << "Number of sensors read " << mSensors.size() << " != mnToStore " << mnToStore << std::endl;
-    return false;
-  }
+  mnToStore = mSensors.size();
 
   return true;
 }
