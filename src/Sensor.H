@@ -17,8 +17,11 @@ private:
   bool mqAvailable; // This sensor is available in the data stream
   bool mqKeep;     // Should this sensor be output?
   bool mqCriteria; // Is this a criteria sensor to select on
+
+  void procLine(const std::string& line);
 public:
   explicit Sensor(std::istream& is);
+  explicit Sensor(const std::string& line);
 
   const std::string& name() const {return mName;}
   const std::string& units() const {return mUnits;}

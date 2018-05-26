@@ -20,6 +20,7 @@
 #include "Sensor.H"
 #include "KnownBytes.H"
 #include <iostream>
+#include <iostream>
 #include <sstream>
 #include <cerrno>
 #include <cmath>
@@ -38,6 +39,19 @@ Sensor::Sensor(std::istream& is)
     exit(1);
   }
 
+  procLine(line);
+}
+
+Sensor::Sensor(const std::string& line)
+  : mqKeep(true)
+  , mqCriteria(true)
+{
+  procLine(line);
+}
+
+void
+Sensor::procLine(const std::string& line)
+{
   std::istringstream iss(line);
 
   std::string prefix;
