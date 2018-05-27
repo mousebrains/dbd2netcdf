@@ -67,9 +67,13 @@ SensorsMap::insert(std::istream& is,
 
     return;
   }
- 
-  if (qPosition && !hdr.qFactored())
-    is.seekg(it->second.length(), std::ios::cur);
+
+  if (qPosition && !hdr.qFactored()) { // Read in nSensors worth of lines, but skip processing
+    for (size_t i = hdr.nSensors(); i; --i) {
+      std::string line;
+      getline(is, line);
+    }
+  }
 }
 
 void
