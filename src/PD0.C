@@ -122,31 +122,31 @@ PD0::loadBlock(std::istream& is)
               // << " opos " << opos << " npos " << npos 
               // << " hdr " << std::hex << hdr << std::dec << std::endl;
     switch (hdr) {
-      case 0x0000: 
+      case 0x0000:  // Fixed leader
         if (!mFixed.load(iss, *this))
           return false;
         break;
-      case 0x0080: 
+      case 0x0080:  // Variable leader
         if (!mVariable.load(iss, *this))
           return false;
         break;
-      case 0x0100:
+      case 0x0100: // Velocities
         if (!mVelocity.load(iss, *this))
           return false;
         break;
-      case 0x0200:
+      case 0x0200: // Correlations
         if (!mCorrelation.load(iss, *this))
           return false;
         break;
-      case 0x0300:
+      case 0x0300: // Echo intensities
         if (!mEcho.load(iss, *this))
           return false;
         break;
-      case 0x0400:
+      case 0x0400: // Percent Good
         if (!mPercentGood.load(iss, *this))
           return false;
         break;
-      case 0x0600:
+      case 0x0600: // Bottom Track
         if (!mBottomTrack.load(iss, *this))
           return false;
         break;
