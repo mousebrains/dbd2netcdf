@@ -22,6 +22,7 @@ PD0::load(const std::string& fn,
   mEcho.clear();
   mPercentGood.clear();
   mBottomTrack.clear();
+  mVMDAS.clear();
 
   std::ifstream is(fn.c_str());
 
@@ -150,6 +151,10 @@ PD0::loadBlock(std::istream& is)
         if (!mBottomTrack.load(iss, *this))
           return false;
         break;
+      case 0x2000: // VMDAS navigation record
+        if (!mVMDAS.load(iss, *this))
+          return false;
+        break;
       default:
         {
           std::ostringstream msg;
@@ -204,6 +209,11 @@ PD0::dumpBlock(NetCDF& nc,
   if (mBottomTrack) { // Something to dump out
     qDumped = true;
     mBottomTrack.ncDump(nc, index);
+  }
+
+  if (mVMDAS) { // Something to dump out
+    qDumped = true;
+    mVMDAS.ncDump(nc, index);
   }
 
   return qDumped ? (index + 1) : index;
@@ -389,6 +399,7 @@ PD0::setupNetCDFVars(NetCDF& nc)
   mEcho.ncSetup(nc, iDim, jDim, k4Dim);
   mPercentGood.ncSetup(nc, iDim, jDim, k4Dim);
   mBottomTrack.ncSetup(nc, iDim, k4Dim);
+  mVMDAS.ncSetup(nc, iDim, k4Dim);
 }
 
 int
@@ -663,6 +674,39 @@ PD0::BottomTrack::BottomTrack()
 
 bool
 PD0::BottomTrack::load(std::istream& is,
+                       PD0& pd0)
+{
+  return ((Common *) this)->load(is, pd0);
+}
+
+PD0::VMDAS::VMDAS()
+{
+  mItems.push_back(Item("vmdas_day", dtUInt8, "day"));
+  mItems.push_back(Item("vmdas_month", dtUInt8, "month"));
+  mItems.push_back(Item("vmdas_year", dtUInt16, "year"));
+  mItems.push_back(Item("vmdas_ms", dtUInt32, "ms"));
+  mItems.push_back(Item("vmdas_dummy0", dtUInt32));
+  mItems.push_back(Item("vmdas_slat", dtInt32, "centideg"));
+  mItems.push_back(Item("vmdas_slon", dtInt32, "centideg"));
+  mItems.push_back(Item("vmdas_duration", dtUInt32, "ms"));
+  mItems.push_back(Item("vmdas_elat", dtInt32, "centideg"));
+  mItems.push_back(Item("vmdas_elon", dtInt32, "centideg"));
+  mItems.push_back(Item("vmdas_dummy1", dtUInt32));
+  mItems.push_back(Item("vmdas_dummy2", dtUInt32));
+  mItems.push_back(Item("vmdas_dummy3", dtUInt32));
+  mItems.push_back(Item("vmdas_flags", dtUInt16));
+  mItems.push_back(Item("vmdas_dummy4", dtUInt32));
+  mItems.push_back(Item("vmdas_dummy5", dtUInt32));
+  mItems.push_back(Item("vmdas_dummy6", dtUInt32));
+  mItems.push_back(Item("vmdas_dummy7", dtUInt32));
+  mItems.push_back(Item("vmdas_dummy8", dtUInt32));
+  mItems.push_back(Item("vmdas_dummy9", dtUInt32));
+  mItems.push_back(Item("vmdas_dummyA", dtUInt32));
+  mItems.push_back(Item("vmdas_dummyB", dtUInt16));
+}
+
+bool
+PD0::VMDAS::load(std::istream& is,
                        PD0& pd0)
 {
   return ((Common *) this)->load(is, pd0);

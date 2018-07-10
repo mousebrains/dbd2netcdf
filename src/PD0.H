@@ -116,6 +116,12 @@ private:
     bool load(std::istream& is, PD0& pd0);
   }; // BottomTrack
 
+  class VMDAS : public Common {
+  public:
+    VMDAS();
+    bool load(std::istream& is, PD0& pd0);
+  }; // VMDAS
+
   Fixed mFixed;
   Variable mVariable;
   Velocity mVelocity;
@@ -123,6 +129,7 @@ private:
   Correlation mEcho;
   Correlation mPercentGood;
   BottomTrack mBottomTrack;
+  VMDAS mVMDAS;
 
   std::string mFilename;
   uint8_t mMaxNumberOfCells;
