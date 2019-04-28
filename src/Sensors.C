@@ -155,9 +155,38 @@ Sensors::qCriteria(const tNames& names)
 }
 
 std::string
+Sensors::crcLower() const
+{
+  std::string codigo(crc());
+  for (std::string::size_type i(0), e(codigo.size()); i < e; ++i) {
+    codigo[i] = tolower(codigo[i]);
+  }
+  return codigo;
+}
+
+std::string
+Sensors::crcUpper() const
+{
+  std::string codigo(crc());
+  for (std::string::size_type i(0), e(codigo.size()); i < e; ++i) {
+    codigo[i] = toupper(codigo[i]);
+  }
+  return codigo;
+}
+
+std::string
 Sensors::mkFilename(const std::string& dir) const
 {
-  return dir + "/" + crc();
+  std::string fn(dir + "/" + crcLower()); // First try lower case
+  const std::string fnBase(fn);
+  if (isFile(fn)) return fn; 
+  fn += ".cac"; // Now try lower with a '.cac' suffix
+  if (isFile(fn)) return fn;
+  fn = dir + "/" + crcUpper(); // try upper case
+  if (isFile(fn)) return fn; 
+  fn += ".cac"; // Now try upper with a '.cac' suffix
+  if (isFile(fn)) return fn;
+  return fnBase;
 }
 
 bool
