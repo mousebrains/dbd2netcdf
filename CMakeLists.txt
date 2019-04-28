@@ -26,7 +26,7 @@ include(InstallRequiredSystemLibraries)
 
 # http://www.cmake.org/Wiki/CMake:CPackConfiguration
 
-set(CPACK_PACKAGE_DESCRIPTION_FILE ${dbd2netcdf_SOURCE_DIR}/Readme.txt)
+set(CPACK_PACKAGE_DESCRIPTION_FILE ${dbd2netcdf_SOURCE_DIR}/Readme.md)
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Dinkum Binary Data to netCDF or csv")
 
 set(CPACK_PACKAGE_VENDOR "mousebrains")
@@ -36,7 +36,7 @@ set(CPACK_PACKAGE_VERSION_PATCH ${dbd2netcdf_VERSION_PATCH})
 set(CPACK_PACKAGE_CONTACT ${dbd2netcdf_MAINTAINER})
 
 set(CPACK_RESOURCE_FILE_LICENSE ${dbd2netcdf_SOURCE_DIR}/License.txt)
-set(CPACK_RESOURCE_FILE_README ${dbd2netcdf_SOURCE_DIR}/Readme.txt)
+set(CPACK_RESOURCE_FILE_README ${dbd2netcdf_SOURCE_DIR}/Readme.md)
 set(CPACK_RESOURCE_FILE_WELCOME ${dbd2netcdf_SOURCE_DIR}/INSTALL)
 
 set(CPACK_SOURCE_GENERATOR "TGZ;ZIP") # Place here incase it is modified below
