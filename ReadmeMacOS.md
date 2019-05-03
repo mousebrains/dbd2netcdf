@@ -65,3 +65,9 @@ To install this software on a Mac, you will need the following prerequisites:
 * You can convert all the DBD files into a single NetCDF, but when working in Matlab, the number of variables slows things down a lot. So I build three NetCDF files from the DBD files, one with all the m\_ and c\_ sensors, another with all the sci\_ sensors, and the third with everything else.
 * You can get the list of sensors using the dbdSensors command.
 
+# UPDATE dbd2netCDF
+* To keep your version of dbd2netcdf up to date do the following in the dbd2netcdf directory:
+* git pull
+* cmake .
+* make
+* make install
