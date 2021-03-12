@@ -8,6 +8,11 @@
 #include <vector>
 #include <cstring>
 #include <cstdlib>
+#include <set>
+
+namespace { // Anonymous namespace
+	std::set<size_t> qSeen;
+}
 
 size_t
 PD0::load(const std::string& fn,
@@ -156,12 +161,11 @@ PD0::loadBlock(std::istream& is)
           return false;
         break;
       default:
-        {
-          std::ostringstream msg;
-          msg << "Unrecognized header type 0x" << std::hex << hdr << " in " << mFilename;
-          std::cerr << msg.str() << std::endl;
-          throw(MyException(msg.str()));
-          break;
+	if (qSeen.find(hdr) == qSeen.end()) {
+		qSeen.insert(hdr);
+		std::cerr << "Unsupported header type 0x" << std::hex << hdr 
+			<< " in " << mFilename
+			<< std::endl;
         }
     }
   }
