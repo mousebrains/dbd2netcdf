@@ -2,7 +2,7 @@
 #
 # Mar-2012, Pat Welch, pat@mousebrains.com
 
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.19)
 
 project(dbd2netcdf)
 
@@ -10,11 +10,6 @@ set(dbd2netcdf_VERSION_MAJOR 1)
 set(dbd2netcdf_VERSION_MINOR 3)
 set(dbd2netcdf_VERSION_PATCH 0)
 set(dbd2netcdf_MAINTAINER pat@mousebrains.com) # output to config.h
-
-if (APPLE)
-  set(CMAKE_OSX_ARCHITECTURES "x86_64")
-else (APPLE)
-endif (APPLE)
 
 add_subdirectory(src)  # Source code location
 add_subdirectory(test) # Tests

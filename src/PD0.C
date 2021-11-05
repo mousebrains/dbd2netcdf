@@ -1,5 +1,5 @@
 #include "PD0.H"
-#include "NetCDF.H"
+#include "MyNetCDF.H"
 #include "MyException.H"
 #include <iostream>
 #include <fstream>

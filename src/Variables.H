@@ -3,7 +3,7 @@
 
 // Nov-2012, Pat Welch, pat@mousebrains.com
 
-#include "NetCDF.H"
+#include "MyNetCDF.H"
 #include <iosfwd>
 #include <string>
 #include <map>

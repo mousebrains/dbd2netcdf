@@ -3,10 +3,10 @@ add_executable(sgMergeNetCDF
 
 add_executable(dbd2netCDF 
                dbd2netCDF.C SensorsMap.C Sensors.C Sensor.C Header.C 
-               NetCDF.C Data.C KnownBytes.C)
+               MyNetCDF.C Data.C KnownBytes.C)
 
 add_executable(pd02netCDF 
-               pd02netCDF.C PD0.C NetCDF.C)
+               pd02netCDF.C PD0.C MyNetCDF.C)
 
 add_executable(dbd2csv 
                dbd2csv.C SensorsMap.C Sensors.C Sensor.C Header.C
@@ -19,10 +19,39 @@ add_executable(dbdSensors
 set_target_properties(sgMergeNetCDF dbd2netCDF dbd2csv dbdSensors pd02netCDF 
                       PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${dbd2netcdf_SOURCE_DIR}/bin)
 
+# Get where NetCDF is installed using the nc-config command
+execute_process(COMMAND nc-config --includedir 
+	OUTPUT_VARIABLE NCINCDIR 
+	RESULTS_VARIABLE RETURNCODE
+	ERROR_VARIABLE ERROROUTPUT
+	)
+if (RETURNCODE)
+    message(FATAL_ERROR "Error finding NetCDF include directory ${ERROROUTPUT}")
+else (NOT RETURNCODE)
+    string(STRIP ${NCINCDIR} NCINCDIR)
+    message(STATUS "NetCDF include directory ${NCINCDIR}")
+    include_directories(${NCINCDIR}) # Add NetCDF include directory into the search path
+endif (RETURNCODE)
+
+execute_process(COMMAND nc-config --libdir 
+	OUTPUT_VARIABLE NCLIBDIR 
+	RESULTS_VARIABLE RETURNCODE
+	ERROR_VARIABLE ERROROUTPUT
+	)
+if (RETURNCODE)
+    message(FATAL_ERROR "Error finding NetCDF lib directory ${ERROROUTPUT}")
+else (NOT RETURNCODE)
+    string(STRIP ${NCLIBDIR} NCLIBDIR)
+    message(STATUS "NetCDF lib directory ${NCLIBDIR}")
+    link_directories(${NCLIBDIR}) # Add NetCDF library directory into the search path
+endif (RETURNCODE)
+
 include_directories(${dbd2netcdf_SOURCE_DIR}/bin) #  ${dbd2netcdf_SOURCE_DIR}/src)
 include_directories(${CMAKE_INSTALL_PREFIX}/include)
 
 if(APPLE) # Define some settings for the Bundle
+  message(STATUS "ARCH ${CMAKE_OSX_ARCHITECTURES}")
+  
   # set(MACOSX_BUNDLE_BUNDLE_NAME dbd2netcdf)
   # set(MACOSX_BUNDLE_GUI_IDENTIFIER "dbd2netcdf")
   # set(MACOSX_BUNDLE_ICON_FILE dbd2netcdf.icns)
@@ -73,15 +102,12 @@ IF("${isSystemDir}" STREQUAL "-1")
   SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 ENDIF("${isSystemDir}" STREQUAL "-1")
 
+get_property(_system_include_dirs GLOBAL PROPERTY INTERFACE_SYSTEM_INCLUDE_DIRECTORIES)
+message("System: ${_system_include_dirs}")
 
-include(CheckIncludeFiles)
-check_include_files(execinfo.h HAVE_EXECINFO_H)
-check_include_files(netcdf.h HAVE_NETCDF_H)
-check_include_files(unistd.h HAVE_UNISTD_H)
-
-if ("${HAVE_NETCDF_H}" STREQUAL "HAVE_NETCDF_H-NOTFOUND")
-  message(FATAL_ERROR "Unable to locate netcdf.h")
-endif ("${HAVE_NETCDF_H}" STREQUAL "HAVE_NETCDF_H-NOTFOUND")
+include(CheckIncludeFile)
+check_include_file(execinfo.h HAVE_EXECINFO_H)
+check_include_file(unistd.h HAVE_UNISTD_H)
 
 include(CheckFunctionExists)
 check_function_exists(backtrace HAVE_BACKTRACE)
@@ -95,9 +121,9 @@ CHECK_TYPE_SIZE(off_t HAVE_off_T)
 CHECK_TYPE_SIZE(size_t HAVE_size_T)
 
 find_library(netCDF_libnetcdf NAMES netcdf)
-if ("${netCDF_libnetcdf}" MATCHES "netCDF_libnetcdf-NOTFOUND")
+if (NOT netCDF_libnetcdf)
     message(FATAL_ERROR "Unable to locate libnetcdf")
-endif ("${netCDF_libnetcdf}" MATCHES "netCDF_libnetcdf-NOTFOUND")
+endif (NOT netCDF_libnetcdf)
 
 # Write out config.h as derived from config.h.in
 

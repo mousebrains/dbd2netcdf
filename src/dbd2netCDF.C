@@ -20,7 +20,7 @@
 // Read in a set of Dinkum Binary Data files, and
 // output them into a netCDF file
 
-#include "NetCDF.H"
+#include "MyNetCDF.H"
 #include "Header.H"
 #include "SensorsMap.H"
 #include "KnownBytes.H"
