@@ -170,9 +170,13 @@ NetCDF::createVar(const std::string& name,
       delete[] chunkSizes;
     } // Chunking
 
-  const int qShuffle(mqShuffle && (idType != NC_FLOAT) && (idType != NC_DOUBLE));
+  const int qShuffle(mqShuffle 
+		  && (idType != NC_FLOAT) 
+		  && (idType != NC_DOUBLE)
+		  && (idType != NC_STRING) // I don't understand this one
+		  );
 
-  if ((retval = nc_def_var_deflate(mId, varId, qShuffle, 1, mCompressionLevel))) {
+  if (qShuffle && (retval = nc_def_var_deflate(mId, varId, qShuffle, 1, mCompressionLevel))) {
     std::cerr << "Error enabling compression and shuffle(" << qShuffle
               << ") for '" << name << "' in '" << mFilename << "', "
               << nc_strerror(retval) << std::endl;
