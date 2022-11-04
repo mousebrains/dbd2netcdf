@@ -177,16 +177,25 @@ Sensors::crcUpper() const
 std::string
 Sensors::mkFilename(const std::string& dir) const
 {
-  std::string fn(dir + "/" + crcLower()); // First try lower case
-  const std::string fnBase(fn);
-  if (isFile(fn)) return fn; 
-  fn += ".cac"; // Now try lower with a '.cac' suffix
-  if (isFile(fn)) return fn;
-  fn = dir + "/" + crcUpper(); // try upper case
-  if (isFile(fn)) return fn; 
-  fn += ".cac"; // Now try upper with a '.cac' suffix
-  if (isFile(fn)) return fn;
-  return fnBase;
+  // Unfortunately, the filenames can come in various cases and formats:
+  // lower case crc
+  // lower case crc + .cac
+  // lower case crc + .CAC
+  // upper case crc
+  // upper case crc + .cac
+  // upper case crc + .CAC
+  const std::string fn(dir + "/" + crcLower()); // First try lower case
+
+  if (isFile(fn)) return fn; // lower case crc
+  if (isFile(fn + ".cac")) return fn + ".cac"; // lower case crc + .cac
+  if (isFile(fn + ".CAC")) return fn + ".CAC"; // lower case crc + .CAC
+
+  const std::string fnUpper = dir + "/" + crcUpper(); // try upper case
+  if (isFile(fnUpper)) return fnUpper; // upper case crc
+  if (isFile(fnUpper + ".cac")) return fn + ".cac"; // upper case crc + .cac
+  if (isFile(fnUpper + ".CAC")) return fn + ".CAC"; // upper case crc + .CAC
+
+  return fn; // Lower case crc
 }
 
 bool
