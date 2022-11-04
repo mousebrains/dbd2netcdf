@@ -6,4 +6,3 @@ prior to configuring, building, and installing this software!
 
 * To start afresh with cmake
 - rm -rf `find . -name 'CMakeFiles' -print` `find . -name CMakeCache.txt -print`
-Pat Welch, pat at mousebrains.com
