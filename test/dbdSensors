@@ -13,7 +13,7 @@ if [ ! -x $CMD ] ; then
   exit 1
 fi
 
-if ! diff -v >/dev/null ; then
+if ! diff --version >/dev/null ; then
   echo No diff command found
   exit 1
 fi

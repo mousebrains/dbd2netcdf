@@ -79,7 +79,7 @@ doCompare() {
   rm -f $tmpfn $tmp1fn $tmp2fn
 }
 
-chkCMD diff -v
+chkCMD diff --version
 chkCMD grep --version
 chkCMD tail
 
