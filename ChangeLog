@@ -7,5 +7,7 @@ Feb-2012, Setup for sourceforge, Pat Welch, pat@mousebrains.com
 Mar-2012, Change build system to use cmake instead of autotools, Pat Welch, pat@mousebrains.com
 Mar-2012, Change from using netCDF's C++4 API to C API
 Apr-2012, Split netCDF code out of dbd2netCDF.C into NetCDF.[CH]
-          Add pd02netCDF.C, PD0.[CH]
-          Pat Welch, pat@mousebrains.com
+	  Add pd02netCDF.C, PD0.[CH]
+Jan-2023, Clean up compression and shuffle handling
+
+Pat Welch, pat@mousebrains.com
