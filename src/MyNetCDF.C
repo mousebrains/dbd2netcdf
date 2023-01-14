@@ -26,8 +26,8 @@
 #include <vector>
 #include <cstdlib>
 
-void 
-NetCDF::basicOp(int retval, 
+void
+NetCDF::basicOp(int retval,
                 const std::string& label) const
 {
   if (!retval) {
@@ -37,13 +37,12 @@ NetCDF::basicOp(int retval,
   exit(2);
 }
 
-NetCDF::NetCDF(const std::string& fn) 
+NetCDF::NetCDF(const std::string& fn)
   : mFilename(fn)
   , mId(-1)
-  , mqOpen(false) 
+  , mqOpen(false)
   , mChunkSize(100000)
   , mChunkPriority(true)
-  , mqShuffle(true)
   , mCompressionLevel(9)
   , mCountOne(0)
   , mCountLength(0)
@@ -52,29 +51,29 @@ NetCDF::NetCDF(const std::string& fn)
   mqOpen = true;
 }
 
-NetCDF::~NetCDF() 
+NetCDF::~NetCDF()
 {
   close();
   delete mCountOne;
 }
 
-int 
-NetCDF::createDim(const std::string& name) 
+int
+NetCDF::createDim(const std::string& name)
 {
   return createDim(name, NC_UNLIMITED, 0);
 }
 
-int 
+int
 NetCDF::createDim(const std::string& name,
-                  const size_t len) 
+                  const size_t len)
 {
   return createDim(name, len, (len == NC_UNLIMITED) ? 0 : len);
 }
 
-int 
+int
 NetCDF::createDim(const std::string& name,
                   const size_t len,
-                  const size_t maxLength) 
+                  const size_t maxLength)
 {
   int dimId;
   const int retval(nc_def_dim(mId, name.c_str(), len, &dimId));
@@ -89,21 +88,21 @@ NetCDF::createDim(const std::string& name,
   return dimId;
 }
 
-int 
-NetCDF::createVar(const std::string& name, 
-                  const nc_type idType, 
-                  const int idDim, 
-                  const std::string& units) 
+int
+NetCDF::createVar(const std::string& name,
+                  const nc_type idType,
+                  const int idDim,
+                  const std::string& units)
 {
   return createVar(name, idType, &idDim, 1, units);
 }
 
-int 
-NetCDF::createVar(const std::string& name, 
-                  const nc_type idType, 
-                  const int dims[], 
-                  const size_t nDims, 
-                  const std::string& units) 
+int
+NetCDF::createVar(const std::string& name,
+                  const nc_type idType,
+                  const int dims[],
+                  const size_t nDims,
+                  const std::string& units)
 {
   int varId;
   int retval;
@@ -129,17 +128,17 @@ NetCDF::createVar(const std::string& name,
         chunkSizes[i] = lengths[i];
         availSize /= lengths[i];
       } else { // Unlimited length
-        chunkSizes[i] = 1; 
+        chunkSizes[i] = 1;
       }
     }
 
     if (availSize) { // space available for unlimited dimensions
       const size_t iStart(mChunkPriority ? 0 : nDims - 1);
       const int iOp(mChunkPriority ? 1 : -1);
-      for (size_t i(iStart); i < nDims; i += iOp) { 
+      for (size_t i(iStart); i < nDims; i += iOp) {
           if (lengths[i] == 0) { // An unlimited dimension
             tDimensionLimits::const_iterator it(mDimensionLimits.find(dims[i]));
-            if ((it != mDimensionLimits.end()) && 
+            if ((it != mDimensionLimits.end()) &&
                 (it->second > 0) &&
                 (it->second < availSize)) {
                 chunkSizes[i] = it->second;
@@ -170,32 +169,40 @@ NetCDF::createVar(const std::string& name,
       delete[] chunkSizes;
     } // Chunking
 
-  const int qShuffle(mqShuffle 
-		  && (idType != NC_FLOAT) 
-		  && (idType != NC_DOUBLE)
-		  && (idType != NC_STRING) // I don't understand this one
-		  );
+  const bool qShuffle((idType == NC_SHORT) || (idType == NC_INT) || (idType == NC_INT64));
+  const bool qCompress(idType != NC_STRING);
 
-  if (qShuffle && (retval = nc_def_var_deflate(mId, varId, qShuffle, 1, mCompressionLevel))) {
-    std::cerr << "Error enabling compression and shuffle(" << qShuffle
-              << ") for '" << name << "' in '" << mFilename << "', "
-              << nc_strerror(retval) << std::endl;
+  if ((qShuffle || qCompress) &&
+		  (retval = nc_def_var_deflate(mId, varId, qShuffle, qCompress, mCompressionLevel))
+		  ) {
+    std::cerr
+	    << "Error enabling compression and shuffle("
+	    << qShuffle
+	    << ","
+	    << mCompressionLevel
+	    << ") for '"
+	    << name
+	    << "' in '"
+	    << mFilename
+	    << "', "
+	    << nc_strerror(retval)
+	    << std::endl;
     exit(2);
   }
 
   if (idType == NC_FLOAT) {
     const float badValue(nan(""));
     if ((retval = nc_def_var_fill(mId, varId, NC_FILL, &badValue))) {
-      std::cerr << "Error setting fill value, " << badValue 
-                << " for '" << name << "' in '" << mFilename 
+      std::cerr << "Error setting fill value, " << badValue
+                << " for '" << name << "' in '" << mFilename
                 << "', " << nc_strerror(retval) << std::endl;
       exit(2);
     }
   } else if (idType == NC_DOUBLE) {
     const double badValue(nan(""));
     if ((retval = nc_def_var_fill(mId, varId, NC_FILL, &badValue))) {
-      std::cerr << "Error setting fill value, " << badValue 
-                << " for '" << name << "' in '" << mFilename 
+      std::cerr << "Error setting fill value, " << badValue
+                << " for '" << name << "' in '" << mFilename
                 << "', " << nc_strerror(retval) << std::endl;
       exit(2);
     }
@@ -228,63 +235,63 @@ NetCDF::close()
   mqOpen = false;
 }
 
-void 
-NetCDF::putVars(const int varId, 
-                const size_t start, 
-                const size_t count, 
+void
+NetCDF::putVars(const int varId,
+                const size_t start,
+                const size_t count,
                 const double data[])
 {
   putVars(varId, &start, &count, data);
 }
 
-void 
-NetCDF::putVars(const int varId, 
-                const size_t start, 
-                const size_t count, 
+void
+NetCDF::putVars(const int varId,
+                const size_t start,
+                const size_t count,
                 const int32_t data[])
 {
   putVars(varId, &start, &count, data);
 }
 
-void 
-NetCDF::putVars(const int varId, 
-                const size_t start, 
-                const size_t count, 
+void
+NetCDF::putVars(const int varId,
+                const size_t start,
+                const size_t count,
                 const uint32_t data[])
 {
   putVars(varId, &start, &count, data);
 }
 
 void
-NetCDF::putVars(const int varId, 
-                const size_t start[], 
-                const size_t count[], 
+NetCDF::putVars(const int varId,
+                const size_t start[],
+                const size_t count[],
                 const double data[])
 {
   putVarError(nc_put_vara_double(mId, varId, start, count, data), varId);
 }
 
 void
-NetCDF::putVars(const int varId, 
-                const size_t start[], 
-                const size_t count[], 
+NetCDF::putVars(const int varId,
+                const size_t start[],
+                const size_t count[],
                 const int32_t data[])
 {
   putVarError(nc_put_vara_int(mId, varId, start, count, data), varId);
 }
 
 void
-NetCDF::putVars(const int varId, 
-                const size_t start[], 
-                const size_t count[], 
+NetCDF::putVars(const int varId,
+                const size_t start[],
+                const size_t count[],
                 const uint32_t data[])
 {
   putVarError(nc_put_vara_uint(mId, varId, start, count, data), varId);
 }
 
 void
-NetCDF::putVar(const int varId, 
-               const size_t start[], 
+NetCDF::putVar(const int varId,
+               const size_t start[],
                const size_t len,
                const double value)
 {
@@ -292,8 +299,8 @@ NetCDF::putVar(const int varId,
 }
 
 void
-NetCDF::putVar(const int varId, 
-               const size_t start[], 
+NetCDF::putVar(const int varId,
+               const size_t start[],
                const size_t len,
                const uint32_t value)
 {
@@ -301,44 +308,44 @@ NetCDF::putVar(const int varId,
 }
 
 void
-NetCDF::putVar(const int varId, 
-               const size_t start[], 
+NetCDF::putVar(const int varId,
+               const size_t start[],
                const size_t len,
                const int32_t value)
 {
   putVarError(nc_put_vara_int(mId, varId, start, mkCountOne(len), &value), varId);
 }
 
-void 
-NetCDF::putVar(const int varId, 
-               const size_t start, 
+void
+NetCDF::putVar(const int varId,
+               const size_t start,
                const double value)
 {
   const size_t count(1);
   putVarError(nc_put_vara_double(mId, varId, &start, &count, &value), varId);
 }
 
-void 
-NetCDF::putVar(const int varId, 
-               const size_t start, 
+void
+NetCDF::putVar(const int varId,
+               const size_t start,
                const uint32_t value)
 {
   const size_t count(1);
   putVarError(nc_put_vara_uint(mId, varId, &start, &count, &value), varId);
 }
 
-void 
-NetCDF::putVar(const int varId, 
-               const size_t start, 
+void
+NetCDF::putVar(const int varId,
+               const size_t start,
                const int32_t value)
 {
   const size_t count(1);
   putVarError(nc_put_vara_int(mId, varId, &start, &count, &value), varId);
 }
 
-void 
-NetCDF::putVar(int varId, 
-               size_t start, 
+void
+NetCDF::putVar(int varId,
+               size_t start,
                const std::string& str)
 {
   const char *cstr(str.c_str());
@@ -351,7 +358,7 @@ NetCDF::putVarError(const int retval,
 {
   if (!retval)
     return;
-    
+
   char varName[NC_MAX_NAME + 1];
   basicOp(nc_inq_varname(mId, varId, varName), "getting variable name");
   std::cerr << "Error writing data to '" << varName << "' in '" << mFilename

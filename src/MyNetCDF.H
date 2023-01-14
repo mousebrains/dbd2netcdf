@@ -32,7 +32,6 @@ private:
   bool mqOpen;
   size_t mChunkSize;
   bool mChunkPriority;
-  bool mqShuffle;
   int mCompressionLevel;
 
   size_t *mCountOne;
@@ -52,7 +51,6 @@ public:
   void chunkSize(const size_t cs) {mChunkSize = cs;}
   void chunkPriority(const bool qFirst) {mChunkPriority = qFirst;}
 
-  void qShuffle(const bool q) {mqShuffle = q;}
   void compressionLevel(const int cl) {mCompressionLevel = cl;}
 
   int createDim(const std::string& name);
