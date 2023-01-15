@@ -71,9 +71,9 @@ namespace {
     std::cerr << " -o --output       filename  where to store the data" << std::endl;
     std::cerr << " -s --skipFirst              "
 	    << "Skip first record in each file, but the first" << std::endl;
-    std::cerr << " -r --repair                 Attempt to repair bad data records" << std::endl;
-    std::cerr << " -V --version                Print out version" << std::endl;
-    std::cerr << " -v --verbose                Enable some diagnostic output" << std::endl;
+    std::cerr << " -r --repair                 attempt to repair bad data records" << std::endl;
+    std::cerr << " -V --version                print out version" << std::endl;
+    std::cerr << " -v --verbose                enable some diagnostic output" << std::endl;
     std::cerr << "\nReport bugs to " << MAINTAINER << std::endl;
     return 1;
   }

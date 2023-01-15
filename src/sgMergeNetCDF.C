@@ -55,8 +55,8 @@ namespace {
     std::cerr << " -u --unlimited           do not use unlimited dimensions," << std::endl;
     std::cerr << "                          so output can not be appended to." << std::endl;
     std::cerr << "                          This will be faster and smaller output." << std::endl;
-    std::cerr << " -V --version             Print out version" << std::endl;
-    std::cerr << " -v --verbose             Enable some diagnostic output" << std::endl;
+    std::cerr << " -V --version             print out version" << std::endl;
+    std::cerr << " -v --verbose             enable some diagnostic output" << std::endl;
     std::cerr << "\nReport bugs to " << MAINTAINER << std::endl;
     return 1;
   }

@@ -26,20 +26,30 @@
 #include "config.h"
 #include <iostream>
 #include <cstdlib>
+#include <getopt.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif // HAVE_UNISTD_H
 
 namespace {
-  int usage(const char *argv0, const char *options) {
+  const char *options("ho:Vv"); 
+  const struct option optionsLong[] = {
+          {"output", required_argument, NULL, 'o'},
+          {"verbose", no_argument, NULL, 'v'},
+          {"version", no_argument, NULL, 'V'},
+          {"help", no_argument, NULL, 'h'},
+          {NULL, no_argument, NULL, 0}
+  };
+
+  int usage(const char *argv0) {
     std::cerr << argv0 << " Version " << VERSION << std::endl;
     std::cerr << std::endl;
     std::cerr << "Usage: " << argv0 << " -[" << options << "] files" << std::endl;
     std::cerr << std::endl;
-    std::cerr << " -h           display the usage message" << std::endl;
-    std::cerr << " -o filename  where to store the data" << std::endl;
-    std::cerr << " -V           Print out version" << std::endl;
-    std::cerr << " -v           Enable some diagnostic output" << std::endl;
+    std::cerr << " -h --help             display the usage message" << std::endl;
+    std::cerr << " -o --output  filename where to store the data" << std::endl;
+    std::cerr << " -V --version          print out version" << std::endl;
+    std::cerr << " -v --verbose          some diagnostic output" << std::endl;
     std::cerr << "\nReport bugs to " << MAINTAINER << std::endl;
     return 1;
   }
@@ -49,13 +59,16 @@ int
 main(int argc,
      char **argv)
 {
-  const char *options("ho:Vv"); 
-
   const char *ofn(0);
   bool qVerbose(false);
 
-  for (int ch; (ch = getopt(argc, argv, options)) != -1;) { // Process options
-    switch (ch) {
+  while (true) { // Walk through the options
+    int thisOptionOptind = optind ? optind : 1;
+    int optionIndex = 0;
+    int c = getopt_long(argc, argv, options, optionsLong, &optionIndex);
+    if (c == -1) break; // End of options
+
+    switch (c) {
       case 'o': // Output filename
         ofn = optarg;
         break;
@@ -66,21 +79,23 @@ main(int argc,
         qVerbose = !qVerbose;
         break;
       default:
-        std::cerr << "Unrecognized option '" << ((char) ch) << "'" << std::endl;
-      case 'h': // Sensors to select on
-        return usage(argv[0], options);
+        std::cerr << "Unsupported option 0x" << std::hex << c << std::dec;
+        if ((c >= 0x20) && (c <= 0x7e)) std::cerr << " '" << ((char) (c & 0xff)) << "'";
+        std::cerr << std::endl;
+      case '?': // Unsupported option
+      case 'h': // Help
+        return usage(argv[0]);
     }
   }
 
   if (!ofn) {
     std::cerr << "ERROR: No output filename specified" << std::endl;
-    return usage(argv[0], options);
+    return usage(argv[0]);
   }
 
   if (optind >= argc) {
     std::cerr << "No input files specified!" << std::endl;
-    usage(argv[0], options);
-    exit(1);
+    return usage(argv[0]);
   }
 
   uint8_t nCells(0);

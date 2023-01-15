@@ -34,12 +34,11 @@
 
 namespace {
   const char *options("C:hm:M:o:V");
-    const struct option optionsLong[] = {
-          {"cache", required_argument, NULL, 'C'},
+  const struct option optionsLong[] = {
+	  {"cache", required_argument, NULL, 'C'},
           {"skipMission", required_argument, NULL, 'm'},
           {"keepMission", required_argument, NULL, 'M'},
           {"output", required_argument, NULL, 'o'},
-          {"verbose", no_argument, NULL, 'v'},
           {"version", no_argument, NULL, 'V'},
           {"help", no_argument, NULL, 'h'},
           {NULL, no_argument, NULL, 0}
@@ -55,7 +54,7 @@ namespace {
     std::cerr << " -m --skipMission mission   mission to skip, this can be repeated" << std::endl;
     std::cerr << " -M --keepMission mission   mission to keep, this can be repeated" << std::endl;
     std::cerr << " -o --output      filename  where to store the data" << std::endl;
-    std::cerr << " -V --version               Print out version" << std::endl;
+    std::cerr << " -V --version               print out version" << std::endl;
     std::cerr << "\nReport bugs to " << MAINTAINER << std::endl;
     return 1;
   }
