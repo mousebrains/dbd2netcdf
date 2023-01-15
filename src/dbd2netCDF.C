@@ -35,26 +35,45 @@
 #include <cstdlib>
 #include <cstring>
 #include <cstdlib>
+#include <getopt.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif // HAVE_UNISTD_H
 
 namespace {
-  int usage(const char *argv0, const char *options) {
+  const char *options("c:C:hk:m:M:o:rsVv"); 
+  const struct option optionsLong[] = {
+	  {"sensors", required_argument, NULL, 'c'},
+	  {"cache", required_argument, NULL, 'C'},
+	  {"sensorOutput", required_argument, NULL, 'k'},
+	  {"skipMission", required_argument, NULL, 'm'},
+	  {"keepMission", required_argument, NULL, 'M'},
+	  {"output", required_argument, NULL, 'o'},
+	  {"skipFirst", no_argument, NULL, 's'},
+	  {"repair", no_argument, NULL, 'r'},
+	  {"verbose", no_argument, NULL, 'v'},
+	  {"version", no_argument, NULL, 'V'},
+	  {"help", no_argument, NULL, 'h'},
+	  {NULL, no_argument, NULL, 0}
+  };
+
+  int usage(const char *argv0) {
     std::cerr << argv0 << " Version " << VERSION << std::endl;
     std::cerr << std::endl;
     std::cerr << "Usage: " << argv0 << " -[" << options << "] files" << std::endl;
     std::cerr << std::endl;
-    std::cerr << " -c filename  file containing sensors to select on" << std::endl;
-    std::cerr << " -C directory directory to cache sensor list in" << std::endl;
-    std::cerr << " -h           display the usage message" << std::endl;
-    std::cerr << " -k filename  file containing sensors to output" << std::endl;
-    std::cerr << " -m mission   mission to skip, this can be repeated" << std::endl;
-    std::cerr << " -M mission   mission to keep, this can be repeated" << std::endl;
-    std::cerr << " -o filename  where to store the data" << std::endl;
-    std::cerr << " -s           Skip the first data record in each file, except the first" << std::endl;
-    std::cerr << " -V           Print out version" << std::endl;
-    std::cerr << " -v           Enable some diagnostic output" << std::endl;
+    std::cerr << " -c --sensor       filename  file containing sensors to select on" << std::endl;
+    std::cerr << " -C --cache        directory directory to cache sensor list in" << std::endl;
+    std::cerr << " -h --help                   display the usage message" << std::endl;
+    std::cerr << " -k --sensorOutput filename  file containing sensors to output" << std::endl;
+    std::cerr << " -m --skipMission  mission   mission to skip, this can be repeated" << std::endl;
+    std::cerr << " -M --keepMission  mission   mission to keep, this can be repeated" << std::endl;
+    std::cerr << " -o --output       filename  where to store the data" << std::endl;
+    std::cerr << " -s --skipFirst              "
+	    << "Skip first record in each file, but the first" << std::endl;
+    std::cerr << " -r --repair                 Attempt to repair bad data records" << std::endl;
+    std::cerr << " -V --version                Print out version" << std::endl;
+    std::cerr << " -v --verbose                Enable some diagnostic output" << std::endl;
     std::cerr << "\nReport bugs to " << MAINTAINER << std::endl;
     return 1;
   }
@@ -64,24 +83,28 @@ int
 main(int argc,
      char **argv)
 {
-  const char *options("c:C:hk:m:M:o:sVv"); 
-
   std::string sensorCacheDirectory;
   Sensors::tNames toKeep, criteria;
   const char *ofn(0);
   bool qSkipFirstRecord(false);
+  bool qRepair(false);
   bool qVerbose(false);
 
   Header::tMissions missionsToSkip;
   Header::tMissions missionsToKeep;
- 
-  for (int ch; (ch = getopt(argc, argv, options)) != -1;) { // Process options
-    switch (ch) {
-      case 'k': // Sensors to keep
-        Sensors::loadNames(optarg, toKeep);
-        break;
+
+  while (true) { // Walk through the options
+    int thisOptionOptind = optind ? optind : 1;
+    int optionIndex = 0;
+    int c = getopt_long(argc, argv, options, optionsLong, &optionIndex);
+    if (c == -1) break; // End of options
+    
+    switch (c) {
       case 'c': // Sensors to select on
         Sensors::loadNames(optarg, criteria);
+        break;
+      case 'k': // Sensors to keep
+        Sensors::loadNames(optarg, toKeep);
         break;
       case 'C': // directory to cache sensor lists in
         sensorCacheDirectory = optarg;
@@ -95,6 +118,9 @@ main(int argc,
       case 'o': // Output filename
         ofn = optarg;
         break;
+      case 'r': // Attempt to repair DBD files for missing data cycles
+        qRepair = true;
+        break;
       case 's': // Skip first data record in the DBD file
         qSkipFirstRecord = true;
         break;
@@ -105,21 +131,23 @@ main(int argc,
         qVerbose = !qVerbose;
         break;
       default:
-        std::cerr << "Unrecognized option '" << ((char) ch) << "'" << std::endl;
-      case 'h': // Sensors to select on
-        return usage(argv[0], options);
+	std::cerr << "Unsupported option 0x" << std::hex << c << std::dec;
+        if ((c >= 0x20) && (c <= 0x7e)) std::cerr << " '" << ((char) (c & 0xff)) << "'";
+        std::cerr << std::endl;
+      case '?': // Unsupported option
+      case 'h': // Help
+	return usage(argv[0]);
     }
   }
 
   if (!ofn) {
     std::cerr << "ERROR: No output filename specified" << std::endl;
-    return usage(argv[0], options);
+    return usage(argv[0]);
   }
 
   if (optind >= argc) {
     std::cerr << "No input files specified!" << std::endl;
-    usage(argv[0], options);
-    exit(1);
+    return usage(argv[0]);
   }
 
   SensorsMap smap(sensorCacheDirectory);
@@ -144,8 +172,7 @@ main(int argc,
 
   if (fileIndices.empty()) {
     std::cerr << "No input files found to process!" << std::endl;
-    usage(argv[0], options);
-    exit(1);
+    return usage(argv[0]);
   }
 
   smap.qKeep(toKeep);
@@ -183,7 +210,7 @@ main(int argc,
           break;
         default:
           std::cerr << "Unsupported sensor size " << sensor << std::endl;
-          exit(1);
+          return(1);
         }
       }
     }
@@ -233,15 +260,13 @@ main(int argc,
       Data data;
 
       try {
-        data.load(is, kb, sensors);
+        data.load(is, kb, sensors, qRepair);
       } catch (MyException& e) {
         std::cerr << "Error processing '" << argv[i] << "', " << e.what() 
                   << ", retaining " << data.size() << " records" << std::endl;
       }
 
-      if (data.empty()) {
-        continue;
-      }
+      if (data.empty()) continue;
 
       const size_t n(data.size());
       const size_t kStart(ii == 0 ? 0 : k0);
