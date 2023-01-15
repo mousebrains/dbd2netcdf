@@ -27,23 +27,37 @@
 #include <cstring>
 #include <cstdlib>
 #include <cerrno>
+#include <getopt.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif // HAVE_UNISTD_H
 
 namespace {
-  void usage(const char *argv0, const char *options) {
+  const char *options("C:hm:M:o:V");
+    const struct option optionsLong[] = {
+          {"cache", required_argument, NULL, 'C'},
+          {"skipMission", required_argument, NULL, 'm'},
+          {"keepMission", required_argument, NULL, 'M'},
+          {"output", required_argument, NULL, 'o'},
+          {"verbose", no_argument, NULL, 'v'},
+          {"version", no_argument, NULL, 'V'},
+          {"help", no_argument, NULL, 'h'},
+          {NULL, no_argument, NULL, 0}
+  };
+
+  int usage(const char *argv0) {
     std::cout << argv0 << " Version " << VERSION << std::endl;
     std::cout << std::endl;
     std::cerr << "Usage: " << argv0 << " -[" << options << "] files" << std::endl;
     std::cerr << std::endl;
-    std::cerr << " -C directory directory to cache sensor list in" << std::endl;
-    std::cerr << " -h           display this usage message" << std::endl;
-    std::cerr << " -m mission   mission to skip, this can be repeated" << std::endl;
-    std::cerr << " -M mission   mission to keep, this can be repeated" << std::endl;
-    std::cerr << " -o filename  where to store the data" << std::endl;
-    std::cerr << " -V           Print out version" << std::endl;
+    std::cerr << " -C --cache       directory directory to cache sensor list in" << std::endl;
+    std::cerr << " -h --help                  display the usage message" << std::endl;
+    std::cerr << " -m --skipMission mission   mission to skip, this can be repeated" << std::endl;
+    std::cerr << " -M --keepMission mission   mission to keep, this can be repeated" << std::endl;
+    std::cerr << " -o --output      filename  where to store the data" << std::endl;
+    std::cerr << " -V --version               Print out version" << std::endl;
     std::cerr << "\nReport bugs to " << MAINTAINER << std::endl;
+    return 1;
   }
 } // Anonymous namespace
 
@@ -51,8 +65,6 @@ int
 main(int argc,
      char **argv)
 {
-  const char *options("C:hm:M:o:V");
-
   std::string sensorCacheDirectory;
   std::ostream *osp(&std::cout);
   bool qUsingStdOut(true);
@@ -60,11 +72,16 @@ main(int argc,
   Header::tMissions missionsToSkip;
   Header::tMissions missionsToKeep;
 
-  for (int ch; (ch = getopt(argc, argv, options)) != -1;) { // Process options
-    switch (ch) {
+    while (true) { // Walk through the options
+    int thisOptionOptind = optind ? optind : 1;
+    int optionIndex = 0;
+    int c = getopt_long(argc, argv, options, optionsLong, &optionIndex);
+    if (c == -1) break; // End of options
+
+    switch (c) {
       case 'C': // directory to cache sensor lists in
         sensorCacheDirectory = optarg;
-        break;        
+        break;
       case 'm': // Missions to skip
         Header::addMission(optarg, missionsToSkip);
         break;
@@ -74,7 +91,8 @@ main(int argc,
       case 'o': // Output filename
         osp = new std::ofstream(optarg);
         if (!osp) {
-          std::cerr << "Error creating a new ofstream for '" << optarg << "', " << strerror(errno) << std::endl;
+          std::cerr << "Error creating a new ofstream for '" << optarg << "', " 
+		  << strerror(errno) << std::endl;
           return(1);
         }
         if (!(*osp)) {
@@ -84,20 +102,21 @@ main(int argc,
         qUsingStdOut = false;
         break;
       case 'V': // Print out version string
-        std::cout << VERSION << std::endl;
+        std::cerr << VERSION << std::endl;
         return(0);
       default:
-        std::cerr << "Unrecognized option '" << ((char) ch) << "'" << std::endl;
-      case 'h': // Sensors to select on
-        usage(argv[0], options);
-        exit(1);
+        std::cerr << "Unsupported option 0x" << std::hex << c << std::dec;
+        if ((c >= 0x20) && (c <= 0x7e)) std::cerr << " '" << ((char) (c & 0xff)) << "'";
+        std::cerr << std::endl;
+      case '?': // Unsupported option
+      case 'h': // Help
+        return usage(argv[0]);
     }
   }
 
   if (optind >= argc) {
     std::cerr << "No input files specified!" << std::endl;
-    usage(argv[0], options);
-    exit(1);
+    return usage(argv[0]);
   }
 
   SensorsMap smap(sensorCacheDirectory);
@@ -129,8 +148,7 @@ main(int argc,
 
   if (fileIndices.empty()) {
     std::cerr << "No input files found to process!" << std::endl;
-    usage(argv[0], options);
-    exit(1);
+    return usage(argv[0]);
   }
 
   for (tFileIndices::size_type ii(0), ie(fileIndices.size()); ii < ie; ++ii) {
@@ -145,7 +163,7 @@ main(int argc,
       const Sensors& sensors(smap.find(hdr));
       if (sensors.empty()) {
         std::cerr << "No sensors list found for '" << argv[i] << "'" << std::endl;
-        exit(1);
+        return(1);
       }
     } catch (MyException &e) {
       std::cerr << "Error working on '" << argv[i] << "'" << std::endl;
@@ -162,5 +180,5 @@ main(int argc,
     osp = 0;
   }
 
-  return (0);
+  return(0);
 }
