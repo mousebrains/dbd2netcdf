@@ -20,9 +20,9 @@ private:
   std::string mDelim;
 public:
   Data() : mDelim(" ") {}
-  Data(std::istream& is, const KnownBytes& kb, const Sensors& sensors);
+  Data(std::istream& is, const KnownBytes& kb, const Sensors& sensors, const bool qRepair);
 
-  void load(std::istream& is, const KnownBytes& kb, const Sensors& sensors);
+  void load(std::istream& is, const KnownBytes& kb, const Sensors& sensors, const bool qRepair);
 
   bool empty() const {return mData.empty();}
   tData::size_type size() const {return mData.size();}

@@ -27,16 +27,18 @@
 
 Data::Data(std::istream& is,
            const KnownBytes& kb,
-           const Sensors& sensors)
+           const Sensors& sensors,
+	   const bool qRepair)
   : mDelim(" ")
 {
-  load(is, kb, sensors);
+  load(is, kb, sensors, qRepair);
 }
 
 void
 Data::load(std::istream& is,
            const KnownBytes& kb,
-           const Sensors& sensors)
+           const Sensors& sensors,
+	   const bool qRepair)
 {
   const size_t nSensors(sensors.size());
   const size_t nHeader((nSensors + 3) / 4);
@@ -56,29 +58,60 @@ Data::load(std::istream& is,
 
   while (true) { // Walk through the file
     int8_t tag;
-    if (!is.read((char *) &tag, 1)) {
-      delete[] bits;
-      throw(MyException("Error reading tag byte"));
+    if (!is.read((char *) &tag, 1)) { // EOF while reading tag byte
+      break;
     }
-    if (tag != 'd') {
-      if (tag == 'X') {
+
+    if (tag == 'X') { // End-of-data tag
         break;
+    }
+
+    if (tag != 'd') {
+      // Not a data tag, so assume we've encountered garbage and look for a data tag
+      const size_t pos = is.tellg(); // Where the bad tag was found
+      bool qContinue = false;
+      while (true) { // look for the next d
+          int8_t c;
+	  if (!is.read((char *) &c, 1)) { // EOF looking for the next 'd'
+	    break;
+	  }
+	  if (c == 'd') {
+	    qContinue = true;
+	    break;
+	  }
       }
-      mData.resize(nRows); // Prune off unused rows
-      std::ostringstream oss;
-      oss << "Unknown data tag(0x"
-          << std::hex << (tag & 0xff) << std::dec
-          << " '" << (char) (tag & 0xff)
-          << "' should be either 'd' or 'X' at offset "
-          << is.tellg();
-      delete[] bits;
-      throw(MyException(oss.str()));
+      if (!qRepair || !qContinue) { // Not repairing or didn't find a 'd' to look at
+        mData.resize(nRows); // Prune off unused rows
+        std::ostringstream oss;
+        oss << "Unknown data tag(0x"
+            << std::hex << (tag & 0xff) << std::dec
+            << ") '";
+        if (tag >= 0x20 & tag <= 0x7E) {
+          oss << (char) (tag & 0xff);
+        } else {
+          oss << "GotMe";
+        }
+        oss << "' should be either 'd' or 'X' at offset " << pos;
+	oss << ", No more 'd' characters found";
+        delete[] bits;
+        throw(MyException(oss.str()));
+      } // if !qContinue
+      const size_t nPos = is.tellg();
+      std::cerr << "Skipped " << (nPos-pos) << " bytes due to bad data tag (0x"
+	      << std::hex << (tag & 0xff) << std::dec
+	      << ") '";
+      if (tag >= 0x20 & tag <= 0x7E) {
+        std::cerr << (char) (tag & 0xff);
+      } else {
+        std::cerr << "GotMe";
+      }
+      std::cerr << "' at " << pos << std::endl;
     }
 
     if (!is.read((char *) bits, nHeader)) {
       mData.resize(nRows); // Prune off unused rows
       std::ostringstream oss;
-      oss << "Error reading " << nHeader << " bytes for header bits";
+      oss << "EOF reading " << nHeader << " bytes for header bits";
       delete[] bits;
       throw(MyException(oss.str()));
     }
