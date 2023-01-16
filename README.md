@@ -16,3 +16,9 @@ If a filename follows the TWR convention for compressed, `*.?c?`, it will be tre
 
 * To start afresh with cmake
 - rm -rf `find . -name 'CMakeFiles' -print` `find . -name CMakeCache.txt -print`
+
+* This version was tested on the following systems:
+- MacOS 13.1 ARM
+- Ubuntu 18.04 Intel
+- Ubuntu 20.04 Intel
+- Ubuntu 22.04 Intel
