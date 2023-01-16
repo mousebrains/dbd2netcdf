@@ -25,6 +25,8 @@
 #include <iostream>
 #include <fstream>
 #include <cerrno>
+#include <cstring>
+#include <unistd.h>
 #include <getopt.h>
 
 namespace {

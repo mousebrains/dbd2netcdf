@@ -33,6 +33,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <cerrno>
+#include <filesystem>
 #include <getopt.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
