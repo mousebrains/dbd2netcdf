@@ -2,18 +2,22 @@
 #
 # Mar-2012, Pat Welch, pat@mousebrains.com
 
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.22)
 
 project(dbd2netcdf)
 
 set(dbd2netcdf_VERSION_MAJOR 1)
-set(dbd2netcdf_VERSION_MINOR 4)
-set(dbd2netcdf_VERSION_PATCH 1)
+set(dbd2netcdf_VERSION_MINOR 5)
+set(dbd2netcdf_VERSION_PATCH 0)
 set(dbd2netcdf_MAINTAINER pat@mousebrains.com) # output to config.h
 
 add_subdirectory(src)  # Source code location
 add_subdirectory(test) # Tests
 add_subdirectory(doc)  # Documentation
+
+if (NOT CMAKE_BUILD_TYPE)
+	set(CMAKE_BUILD_TYPE Release)
+endif()
 
 # Build a CPack installer package
 

@@ -21,7 +21,6 @@ private:
 
   std::string mkFilename(const std::string& dir) const;
   std::string crcLower() const;
-  std::string crcUpper() const;
 public:
   Sensors() : mLength(0), mnToStore(0) {}
 

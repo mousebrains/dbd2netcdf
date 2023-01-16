@@ -3,21 +3,32 @@ add_executable(sgMergeNetCDF
 
 add_executable(dbd2netCDF 
                dbd2netCDF.C SensorsMap.C Sensors.C Sensor.C Header.C 
-               MyNetCDF.C Data.C KnownBytes.C)
+	       MyNetCDF.C Data.C KnownBytes.C Decompress.C lz4.c)
 
 add_executable(pd02netCDF 
                pd02netCDF.C PD0.C MyNetCDF.C)
 
 add_executable(dbd2csv 
                dbd2csv.C SensorsMap.C Sensors.C Sensor.C Header.C
-               Data.C KnownBytes.C)
+	       Data.C KnownBytes.C Decompress.C lz4.c)
 
 add_executable(dbdSensors
                dbdSensors.C SensorsMap.C Sensors.C Sensor.C Header.C
-               KnownBytes.C)
+	       KnownBytes.C Decompress.C lz4.c)
 
-set_target_properties(sgMergeNetCDF dbd2netCDF dbd2csv dbdSensors pd02netCDF 
-                      PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${dbd2netcdf_SOURCE_DIR}/bin)
+add_executable(decompressTWR decompressTWR.C Decompress.C lz4.c)
+
+set_target_properties(sgMergeNetCDF dbd2netCDF dbd2csv dbdSensors pd02netCDF decompressTWR
+	PROPERTIES
+	  RUNTIME_OUTPUT_DIRECTORY ${dbd2netcdf_SOURCE_DIR}/bin
+	  LINKER_LANGUAGE CXX
+	  CXX_STANDARD 17
+	  CXX_STANDARD_REQUIRED ON
+	  CMAKE_CXX_FLAGS "-Wall -Wextra -pedantic"
+)
+
+set(CMAKE_CXX_FLAGS_DEBUG "-g")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 # Get where NetCDF is installed using the nc-config command
 execute_process(COMMAND nc-config --includedir 
@@ -129,17 +140,6 @@ endif (NOT netCDF_libnetcdf)
 
 configure_file(${dbd2netcdf_SOURCE_DIR}/src/config.h.in
                ${dbd2netcdf_SOURCE_DIR}/src/config.h)
-
-# Check which compiler flags are actually supported
-
-include(CheckCXXCompilerFlag)
-
-foreach (compilerFlag -g -O2 -Wall -pedantic)
-  CHECK_CXX_COMPILER_FLAG("${compilerFlag}" qCompilerFlagOkay)
-  if (${qCompilerFlagOkay})
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${compilerFLAG}")
-  endif (${qCompilerFlagOkay})
-endforeach (compilerFlag "-g;-O2;-Wall;-pedantic")
 
 # We want netCDF libraries linked in
 

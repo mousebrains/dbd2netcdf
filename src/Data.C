@@ -28,17 +28,19 @@
 Data::Data(std::istream& is,
            const KnownBytes& kb,
            const Sensors& sensors,
-	   const bool qRepair)
+	   const bool qRepair,
+	   const size_t nBytes)
   : mDelim(" ")
 {
-  load(is, kb, sensors, qRepair);
+  load(is, kb, sensors, qRepair, nBytes);
 }
 
 void
 Data::load(std::istream& is,
            const KnownBytes& kb,
            const Sensors& sensors,
-	   const bool qRepair)
+	   const bool qRepair,
+	   const size_t nBytes)
 {
   const size_t nSensors(sensors.size());
   const size_t nHeader((nSensors + 3) / 4);
@@ -46,15 +48,10 @@ Data::load(std::istream& is,
   const tRow empty(sensors.nToStore(), NAN);
   tRow prevValue(empty);
   tData::size_type nRows(0);
+  const size_t dSize(2 * nBytes / (nHeader + 1) + 1); // 2 is for compression
 
-  { // Get maximum number of records
-    const std::streampos spos(is.tellg()); // Current position
-    is.seekg(0, std::ios::end); // Move to end of file
-    const size_t nFileSize(is.tellg() - spos); // Number of data bytes
-    is.seekg(spos, std::ios::beg); // Move back to start of the data
-    const size_t nRecords(nFileSize / (nHeader + 1) + 1);
-    mData.resize(nRecords, empty);
-  }
+
+  mData.resize(dSize, empty); // Initial allocation
 
   while (true) { // Walk through the file
     int8_t tag;
@@ -115,6 +112,8 @@ Data::load(std::istream& is,
       delete[] bits;
       throw(MyException(oss.str()));
     }
+
+    if ((mData.size() - 1) <= nRows) mData.resize(mData.size()+dSize, empty);
 
     tRow& row(mData[nRows]);
     bool qKeep(false);

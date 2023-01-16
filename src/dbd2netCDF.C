@@ -27,6 +27,7 @@
 #include "Data.H"
 #include "MyException.H"
 #include "config.h"
+#include "Decompress.H"
 #include <set>
 #include <iostream>
 #include <fstream>
@@ -158,7 +159,7 @@ main(int argc,
   tFileIndices fileIndices;
 
   for (int i = optind; i < argc; ++i) {
-    std::ifstream is(argv[i]);
+    DecompressTWR is(argv[i], qCompressed(argv[i]));
     if (!is) {
       std::cerr << "Error opening '" << argv[i] << "', " << strerror(errno) << std::endl;
       return(1);
@@ -246,7 +247,7 @@ main(int argc,
 
   for (tFileIndices::size_type ii(0), iie(fileIndices.size()); ii < iie; ++ii) {
     const int i(fileIndices[ii]);
-    std::ifstream is(argv[i]);
+    DecompressTWR is(argv[i], qCompressed(argv[i]));
     if (!is) {
       std::cerr << "Error opening '" << argv[i] << "', " 
                 << strerror(errno) << std::endl;
@@ -258,9 +259,10 @@ main(int argc,
       const Sensors& sensors(smap.find(hdr));
       const KnownBytes kb(is);          // Get little/big endian
       Data data;
+      const size_t nBytes(std::filesystem::file_size(std::filesystem::path(argv[i])));
 
       try {
-        data.load(is, kb, sensors, qRepair);
+        data.load(is, kb, sensors, qRepair, nBytes);
       } catch (MyException& e) {
         std::cerr << "Error processing '" << argv[i] << "', " << e.what() 
                   << ", retaining " << data.size() << " records" << std::endl;

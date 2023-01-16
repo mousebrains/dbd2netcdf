@@ -21,6 +21,7 @@
 #include "Sensors.H"
 #include "Header.H"
 #include "StackDump.H"
+#include "Decompress.H"
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -28,7 +29,8 @@
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
-#include <sys/stat.h>
+#include <dirent.h>
+#include <filesystem>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif // HAVE_UNISTD_H
@@ -51,33 +53,19 @@ namespace {
     return dirname(filename.substr(0, filename.size() - 1));
   }
 
-  mode_t getMode(const std::string& name) {
-    struct stat buff;
-    return (stat(name.c_str(), &buff) == 0) ? buff.st_mode : (mode_t) 0;
-  } // getMode
-   
   bool isFile(const std::string& name) {
-    return S_ISREG(getMode(name));
+    return std::filesystem::exists(std::filesystem::path(name));
   } // isFile
 
   bool isDirectory(const std::string& name) {
-    return S_ISDIR(getMode(name));
+    return std::filesystem::is_directory(std::filesystem::path(name));
   } // isDirectory
 
   bool mkDirectory(const std::string& name) {
-    if (!mkdir(name.c_str(), 0777))
-      return true;
-
-    if (errno == EEXIST)
-      return isDirectory(name);
-
-    if (errno != ENOENT)
-      return false;
-
-    if (!mkDirectory(dirname(name)))
-      return false;
-
-    return !mkdir(name.c_str(), 0777);
+    std::filesystem::path path(name);
+    if (!std::filesystem::create_directory(path)) return false;
+    std::filesystem::permissions(path, std::filesystem::perms::all);
+    return true;
   } // mkDirectory
 } // Anonymous
 
@@ -165,37 +153,31 @@ Sensors::crcLower() const
 }
 
 std::string
-Sensors::crcUpper() const
-{
-  std::string codigo(crc());
-  for (std::string::size_type i(0), e(codigo.size()); i < e; ++i) {
-    codigo[i] = toupper(codigo[i]);
-  }
-  return codigo;
-}
-
-std::string
 Sensors::mkFilename(const std::string& dir) const
 {
-  // Unfortunately, the filenames can come in various cases and formats:
-  // lower case crc
-  // lower case crc + .cac
-  // lower case crc + .CAC
-  // upper case crc
-  // upper case crc + .cac
-  // upper case crc + .CAC
-  const std::string fn(dir + "/" + crcLower()); // First try lower case
+  DIR *directory = opendir(dir.c_str());
 
-  if (isFile(fn)) return fn; // lower case crc
-  if (isFile(fn + ".cac")) return fn + ".cac"; // lower case crc + .cac
-  if (isFile(fn + ".CAC")) return fn + ".CAC"; // lower case crc + .CAC
+  if (directory == NULL) {
+    std::cerr << "Unable to open directory '" << dir << "'" << std::endl;
+    return std::string();
+  }
 
-  const std::string fnUpper = dir + "/" + crcUpper(); // try upper case
-  if (isFile(fnUpper)) return fnUpper; // upper case crc
-  if (isFile(fnUpper + ".cac")) return fn + ".cac"; // upper case crc + .cac
-  if (isFile(fnUpper + ".CAC")) return fn + ".CAC"; // upper case crc + .CAC
+  struct dirent *entry;
+  const std::string crc = crcLower();
 
-  return fn; // Lower case crc
+  while ((entry = readdir(directory)) != NULL) {
+    const std::string name(entry->d_name);
+    std::string lower(name);
+    for (std::string::size_type i(0), e(lower.size()); i < e; ++i) {
+      lower[i] = tolower(lower[i]);
+    }
+    if (lower == crc) return dir + "/" + name;
+    if (lower == (crc + ".ccc")) return dir + "/" + name;
+    if (lower == (crc + ".cac")) return dir + "/" + name;
+  }
+
+  closedir(directory);
+  return std::string();
 }
 
 bool
@@ -214,7 +196,7 @@ Sensors::dump(const std::string& dir) const
 
   const std::string filename(mkFilename(dir));
 
-  if (!isFile(filename)) { // File already exists, so no need to update it
+  if (!isFile(filename)) { // File doesn't exist, so dump it
     std::string str;
     { // Build output string
       std::ostringstream oss;
@@ -276,8 +258,7 @@ Sensors::load(const std::string& dir,
     return false;
   }
 
-  std::ifstream is(filename.c_str());
-
+  DecompressTWR is(filename, qCompressed(filename));
   if (!is) {
     std::cerr << "Error opening '" << filename << "', " << strerror(errno) << std::endl;
     return false;

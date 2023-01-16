@@ -21,6 +21,7 @@
 #include "SensorsMap.H"
 #include "KnownBytes.H"
 #include "MyException.H"
+#include "Decompress.H"
 #include "config.h"
 #include <iostream>
 #include <fstream>
@@ -71,7 +72,7 @@ main(int argc,
   Header::tMissions missionsToSkip;
   Header::tMissions missionsToKeep;
 
-    while (true) { // Walk through the options
+  while (true) { // Walk through the options
     int thisOptionOptind = optind ? optind : 1;
     int optionIndex = 0;
     int c = getopt_long(argc, argv, options, optionsLong, &optionIndex);
@@ -126,7 +127,7 @@ main(int argc,
   tFileIndices fileIndices;
 
   for (int i = optind; i < argc; ++i) {
-    std::ifstream is(argv[i]);
+    DecompressTWR is(argv[i], qCompressed(argv[i]));
     if (!is) {
       std::cerr << "Error opening '" << argv[i] << "', " << strerror(errno) << std::endl;
       return(1);
@@ -152,7 +153,7 @@ main(int argc,
 
   for (tFileIndices::size_type ii(0), ie(fileIndices.size()); ii < ie; ++ii) {
     const int i(fileIndices[ii]);
-    std::ifstream is(argv[i]);
+    DecompressTWR is(argv[i], qCompressed(argv[i]));
     if (!is) {
       std::cerr << "Error opening '" << argv[i] << "', " << strerror(errno) << std::endl;
       return(1);
