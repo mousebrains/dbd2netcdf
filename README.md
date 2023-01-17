@@ -6,18 +6,18 @@ prior to configuring, building, and installing this software!
 
 It now requires a c++17 or higher compatible compiler
 
-If a filename follows the TWR convention for compressed, `*.?c?`, it will be treated as an LZ4 compressed file, and automatically decompressed.
+If a filename follows the TWR convention for compressed files, `*.?c?`, it will be treated as an LZ4 compressed file, and automatically decompressed.
 
-* Sample commands:
+*Sample commands:*
 - `./dbd2netcdf --cache=/data/cache --output=foobar.nc *.d?d`
 - `./dbd2csv --cache=/data/cache --output=foobar.csv *.e?d`
 - `./decompressTWR *.?c?`
 
 
-* To start afresh with cmake
+*To start afresh with cmake:*
 - rm -rf `find . -name 'CMakeFiles' -print` `find . -name CMakeCache.txt -print`
 
-* This version was tested on the following systems:
+*This version was tested on the following systems:*
 - MacOS 13.1 ARM
 - Ubuntu 18.04 Intel
 - Ubuntu 20.04 Intel
