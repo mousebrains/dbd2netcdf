@@ -9,5 +9,7 @@ Mar-2012, Change from using netCDF's C++4 API to C API
 Apr-2012, Split netCDF code out of dbd2netCDF.C into NetCDF.[CH]
 	  Add pd02netCDF.C, PD0.[CH]
 Jan-2023, Clean up compression and shuffle handling
+Jan-2023, Add --repair for corrupted dbd files
+Jan-2023, Add --append
 
 Pat Welch, pat@mousebrains.com

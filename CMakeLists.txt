@@ -7,7 +7,7 @@ cmake_minimum_required(VERSION 3.16)
 project(dbd2netcdf)
 
 set(dbd2netcdf_VERSION_MAJOR 1)
-set(dbd2netcdf_VERSION_MINOR 5)
+set(dbd2netcdf_VERSION_MINOR 6)
 set(dbd2netcdf_VERSION_PATCH 0)
 set(dbd2netcdf_MAINTAINER pat@mousebrains.com) # output to config.h
 

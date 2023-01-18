@@ -43,7 +43,7 @@
 #endif // HAVE_UNISTD_H
 
 namespace {
-  const char *options("c:C:hk:m:M:o:rsVv"); 
+  const char *options("ac:C:hk:m:M:o:rsVv"); 
   const struct option optionsLong[] = {
 	  {"sensors", required_argument, NULL, 'c'},
 	  {"cache", required_argument, NULL, 'C'},
@@ -53,6 +53,7 @@ namespace {
 	  {"output", required_argument, NULL, 'o'},
 	  {"skipFirst", no_argument, NULL, 's'},
 	  {"repair", no_argument, NULL, 'r'},
+	  {"append", no_argument, NULL, 'a'},
 	  {"verbose", no_argument, NULL, 'v'},
 	  {"version", no_argument, NULL, 'V'},
 	  {"help", no_argument, NULL, 'h'},
@@ -64,6 +65,7 @@ namespace {
     std::cerr << std::endl;
     std::cerr << "Usage: " << argv0 << " -[" << options << "] files" << std::endl;
     std::cerr << std::endl;
+    std::cerr << " -a --append                 Append to the NetCDF file" << std::endl;
     std::cerr << " -c --sensor       filename  file containing sensors to select on" << std::endl;
     std::cerr << " -C --cache        directory directory to cache sensor list in" << std::endl;
     std::cerr << " -h --help                   display the usage message" << std::endl;
@@ -78,7 +80,7 @@ namespace {
     std::cerr << " -v --verbose                enable some diagnostic output" << std::endl;
     std::cerr << "\nReport bugs to " << MAINTAINER << std::endl;
     return 1;
-  }
+  } // usage
 } // Anonymous namespace
 
 int
@@ -88,6 +90,7 @@ main(int argc,
   std::string sensorCacheDirectory;
   Sensors::tNames toKeep, criteria;
   const char *ofn(0);
+  bool qAppend(false);
   bool qSkipFirstRecord(false);
   bool qRepair(false);
   bool qVerbose(false);
@@ -102,6 +105,9 @@ main(int argc,
     if (c == -1) break; // End of options
     
     switch (c) {
+      case 'a': // Append to the NetCDF file, if it exists
+        qAppend = true;
+        break;
       case 'c': // Sensors to select on
         Sensors::loadNames(optarg, criteria);
         break;
@@ -184,39 +190,35 @@ main(int argc,
   typedef std::vector<int> tVars;
   tVars vars(smap.allSensors().nToStore());
 
-  NetCDF ncid(ofn);
-  const int iDim(ncid.createDim("i"));
-  const int jDim(ncid.createDim("j"));
+  NetCDF ncid(ofn, qAppend);
 
-  { // Setup variables
-    const Sensors& all(smap.allSensors());
+  const int iDim(ncid.maybeCreateDim("i"));
+  const int jDim(ncid.maybeCreateDim("j"));
+  std::cerr << "i " << iDim << " j " << jDim << std::endl;
 
-    for (Sensors::const_iterator it(all.begin()), et(all.end()); it != et; ++it) {
-      const Sensor& sensor(*it);
-      if (sensor.qKeep()) {
-        const size_t index(sensor.index());
-        const std::string& name(sensor.name());
-        const std::string& units(sensor.units());
-        switch (sensor.size()) {
-        case 1: 
-          vars[index] = ncid.createVar(name, NC_BYTE, iDim, units);
-          break;
-        case 2: 
-          vars[index] = ncid.createVar(name, NC_SHORT, iDim, units);
-          break;
-        case 4: 
-          vars[index] = ncid.createVar(name, NC_FLOAT, iDim, units);
-          break;
-        case 8: 
-          vars[index] = ncid.createVar(name, NC_DOUBLE, iDim, units);
-          break;
+  // Setup variables
+  const Sensors& all(smap.allSensors());
+
+  for (Sensors::const_iterator it(all.begin()), et(all.end()); it != et; ++it) {
+    const Sensor& sensor(*it);
+    if (sensor.qKeep()) {
+      const size_t index(sensor.index());
+      const std::string& name(sensor.name());
+      const std::string& units(sensor.units());
+      int idType(-1);
+      switch (sensor.size()) {
+	case 1: idType = NC_BYTE; break;
+        case 2: idType = NC_SHORT; break;
+        case 4: idType = NC_FLOAT; break;
+        case 8: idType = NC_DOUBLE; break;
         default:
           std::cerr << "Unsupported sensor size " << sensor << std::endl;
           return(1);
-        }
-      }
-    }
-  }
+      } // switch
+      
+      vars[index] = ncid.maybeCreateVar(name, idType, iDim, units);
+    } // if sensor.qKeep
+  } // for all
 
   typedef std::vector<std::string> tHdrNames;
   tHdrNames hdrNames;
@@ -232,19 +234,21 @@ main(int argc,
 
   for (tVars::size_type i(0), e(hdrVars.size()); i < e; ++i) {
     const std::string& name("hdr_" + hdrNames[i]);
-    hdrVars[i] = ncid.createVar(name, NC_STRING, jDim, std::string());
+    hdrVars[i] = ncid.maybeCreateVar(name, NC_STRING, jDim, std::string());
   }
 
-  const int hdrStartIndex(ncid.createVar("hdr_start_index", NC_UINT, jDim, std::string()));
-  const int hdrStopIndex(ncid.createVar("hdr_stop_index", NC_UINT, jDim, std::string()));
-  const int hdrLength(ncid.createVar("hdr_nRecords", NC_UINT, jDim, std::string()));
+  const int hdrStartIndex(ncid.maybeCreateVar("hdr_start_index", NC_UINT, jDim, std::string()));
+  const int hdrStopIndex(ncid.maybeCreateVar("hdr_stop_index", NC_UINT, jDim, std::string()));
+  const int hdrLength(ncid.maybeCreateVar("hdr_nRecords", NC_UINT, jDim, std::string()));
 
-  ncid.enddef();
+  // ncid.enddef(); // Not needed for NetCDF4 any more
 
   // Go through and grab all the data
 
-  unsigned int indexOffset(0);
   const size_t k0(qSkipFirstRecord ? 1 : 0);
+
+  size_t indexOffset(qAppend ? ncid.lengthDim(iDim) : 0);
+  const size_t jOffset(qAppend ? ncid.lengthDim(jDim) : 0);
 
   for (tFileIndices::size_type ii(0), iie(fileIndices.size()); ii < iie; ++ii) {
     const int i(fileIndices[ii]);
@@ -279,15 +283,15 @@ main(int argc,
       { // Update file info
         for (tVars::size_type i(0), e(hdrVars.size()); i < e; ++i) {
           const std::string str(hdr.find(hdrNames[i]));
-          ncid.putVar(hdrVars[i], (size_t) ii, str);
+          ncid.putVar(hdrVars[i], (size_t) ii + jOffset, str);
         }
         if (n > kStart) {
           const unsigned int stopIndex(indexOffset + n - kStart - 1);
 
-          ncid.putVar(hdrStartIndex, ii, indexOffset);
-          ncid.putVar(hdrStopIndex, ii, stopIndex);
+          ncid.putVar(hdrStartIndex, (size_t) ii + jOffset, (unsigned int) indexOffset);
+          ncid.putVar(hdrStopIndex, (size_t) ii + jOffset, stopIndex);
         }
-        ncid.putVar(hdrLength, ii, (unsigned int) n);
+        ncid.putVar(hdrLength, (size_t) ii + jOffset, (unsigned int) n);
       }
       
       if (n <= kStart) { // No data to be written

@@ -45,7 +45,7 @@ private:
   void putVarError(int retval, const int varid);
   void basicOp(int retval, const std::string& label) const;
 public:
-  explicit NetCDF(const std::string& fn);
+  explicit NetCDF(const std::string& fn, const bool qAppend=false);
   ~NetCDF();
 
   void chunkSize(const size_t cs) {mChunkSize = cs;}
@@ -54,14 +54,29 @@ public:
   void compressionLevel(const int cl) {mCompressionLevel = cl;}
 
   int createDim(const std::string& name);
-  int createDim(const std::string& name, const size_t nLength);
-  int createDim(const std::string& name, const size_t nLength, const size_t maxLength);
+  int createDim(const std::string& name,
+		  const size_t nLength);
+  int createDim(const std::string& name,
+		  const size_t nLength,
+		  const size_t maxLength);
+  int maybeCreateDim(const std::string& name);
+  size_t lengthDim(const int dimId);
 
-  int createVar(const std::string& name, const nc_type idType, const int idDim, 
-                const std::string& units);
+  int createVar(const std::string& name,
+		  const nc_type idType,
+		  const int idDim,
+		  const std::string& units);
 
-  int createVar(const std::string& name, const nc_type idType, 
-                const int dims[], const size_t nDims, const std::string& units);
+  int createVar(const std::string& name,
+		  const nc_type idType,
+		  const int dims[],
+		  const size_t nDims,
+		  const std::string& units);
+
+  int maybeCreateVar(const std::string& name,
+		  const nc_type idType,
+		  const int idDim,
+		  const std::string& units);
 
   void enddef();
   void close();

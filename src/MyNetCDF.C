@@ -25,6 +25,7 @@
 #include <cmath>
 #include <vector>
 #include <cstdlib>
+#include <filesystem>
 
 void
 NetCDF::basicOp(int retval,
@@ -37,7 +38,7 @@ NetCDF::basicOp(int retval,
   exit(2);
 }
 
-NetCDF::NetCDF(const std::string& fn)
+NetCDF::NetCDF(const std::string& fn, const bool qAppend)
   : mFilename(fn)
   , mId(-1)
   , mqOpen(false)
@@ -47,7 +48,11 @@ NetCDF::NetCDF(const std::string& fn)
   , mCountOne(0)
   , mCountLength(0)
 {
-  basicOp(nc_create(fn.c_str(), NC_NETCDF4 | NC_CLOBBER, &mId), "opening");
+  if (qAppend && std::filesystem::exists(fn)) {
+    basicOp(nc_open(fn.c_str(), NC_WRITE, &mId), "opening");
+  } else {
+    basicOp(nc_create(fn.c_str(), NC_NETCDF4 | NC_CLOBBER, &mId), "creating");
+  }
   mqOpen = true;
 }
 
@@ -56,6 +61,16 @@ NetCDF::~NetCDF()
   close();
   delete mCountOne;
 }
+
+int
+NetCDF::maybeCreateDim(const std::string& name)
+{
+  int dimId;
+  const int retval(nc_inq_dimid(mId, name.c_str(), &dimId));
+  if (retval) return createDim(name);
+  // Put checks in here
+  return dimId;
+} // maybeCreateDim
 
 int
 NetCDF::createDim(const std::string& name)
@@ -86,6 +101,32 @@ NetCDF::createDim(const std::string& name,
   mDimensionLimits.insert(std::make_pair(dimId, (len != NC_UNLIMITED) ? len : maxLength));
 
   return dimId;
+}
+
+size_t
+NetCDF::lengthDim(const int dimId) {
+  char name[NC_MAX_NAME + 1];
+  size_t length;
+  const int retval(nc_inq_dim(mId, dimId, name, &length));
+  if (retval) {
+    std::cerr << "Error getting dimension '" << name << "' length in '" << mFilename << "', "
+              << nc_strerror(retval) << std::endl;
+    exit(2);
+  }
+  return length;
+} // lengthDim
+
+int 
+NetCDF::maybeCreateVar(const std::string& name,
+		const nc_type idType,
+                const int idDim,
+                const std::string& units)
+{
+  int varId;
+  const int retval(nc_inq_varid(mId, name.c_str(), &varId));
+  if (retval) return createVar(name, idType, idDim, units);
+  // Put checks in here
+  return varId;
 }
 
 int
