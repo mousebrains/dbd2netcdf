@@ -149,4 +149,5 @@ target_link_libraries(pd02netCDF ${netCDF_libnetcdf})
 
 # Install locally
 
-install(TARGETS sgMergeNetCDF dbd2netCDF pd02netCDF dbd2csv dbdSensors DESTINATION bin)
+install(TARGETS sgMergeNetCDF dbd2netCDF pd02netCDF dbd2csv dbdSensors decompressTWR 
+	DESTINATION bin)
