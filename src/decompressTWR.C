@@ -21,10 +21,11 @@
 
 #include "config.h"
 #include "Decompress.H"
-#include <filesystem>
+#include "FileInfo.H"
 #include <iostream>
 #include <fstream>
 #include <cerrno>
+#include <cstdio>
 #include <cstring>
 #include <unistd.h>
 #include <getopt.h>
@@ -53,9 +54,9 @@ namespace {
   }
 
   std::string mkOutputFilename(const char *dir, const std::string& ifn) {
-    const std::filesystem::path fn(std::filesystem::path(ifn).filename());
-    std::filesystem::path ofn(std::filesystem::path(dir == NULL ? "" : dir) / fn);
-    std::string ext(ofn.extension());
+    const std::string fn(fs::filename(ifn));
+    std::string ofn(dir == NULL ? fn : (std::string(dir) + "/" + fn));
+    std::string ext(fs::extension(ofn));
     if ((ext.size() == 4) && (tolower(ext[2]) == 'c')) {
       switch (ext[3]) {
 	case 'g': ext[2] = 'l'; break;
@@ -64,7 +65,7 @@ namespace {
 	case 'D': ext[2] = 'B'; break;
       }
     }
-    return ofn.replace_extension(ext);
+    return fs::replace_extension(ofn, ext);
   }
 } // Anonymous namespace
 
@@ -128,9 +129,10 @@ main(int argc,
 	  }
       }
       os.close();
-      std::filesystem::rename(tfn, ofn);
+      std::rename(tfn.c_str(), ofn.c_str());
     } catch (int e) {
-      std::filesystem::remove(tfn);
+      std::cerr << "Error creating '" << ofn << "', " << strerror(e) << std::endl;
+      // remove(tfn); // Not found on Macos
     }
   }
 

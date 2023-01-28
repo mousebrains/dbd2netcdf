@@ -22,6 +22,7 @@
 #include "Header.H"
 #include "StackDump.H"
 #include "Decompress.H"
+#include "FileInfo.H"
 #include <fstream>
 #include <sstream>
 #include <iostream>
@@ -30,44 +31,9 @@
 #include <cstring>
 #include <cstdlib>
 #include <dirent.h>
-#include <filesystem>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
 #endif // HAVE_UNISTD_H
-
-namespace {
-  std::string dirname(const std::string& filename) {
-    const std::string::size_type i(filename.rfind('/'));
-
-    if (i == filename.npos)
-      return "./";
-
-    // Deal with a trailing /
-
-    if (i != (filename.size() - 1))
-      return filename.substr(0, i + 1);
-
-    if (filename.size() == 1)
-      return filename;
-
-    return dirname(filename.substr(0, filename.size() - 1));
-  }
-
-  bool isFile(const std::string& name) {
-    return std::filesystem::exists(std::filesystem::path(name));
-  } // isFile
-
-  bool isDirectory(const std::string& name) {
-    return std::filesystem::is_directory(std::filesystem::path(name));
-  } // isDirectory
-
-  bool mkDirectory(const std::string& name) {
-    std::filesystem::path path(name);
-    if (!std::filesystem::create_directory(path)) return false;
-    std::filesystem::permissions(path, std::filesystem::perms::all);
-    return true;
-  } // mkDirectory
-} // Anonymous
 
 Sensors::Sensors(std::istream& is,
                  const Header& hdr)
@@ -187,8 +153,8 @@ Sensors::dump(const std::string& dir) const
     return true;
   }
 
-  if (!isDirectory(dir)) { // Not a directory, so see if I can make it
-    if (!mkDirectory(dir)) {
+  if (!fs::is_directory(dir)) { // Not a directory, so see if I can make it
+    if (!fs::create_directory(dir)) {
       std::cerr << "Error creating '" << dir << "', " << strerror(errno) << std::endl;
       return false;
     }
@@ -196,7 +162,7 @@ Sensors::dump(const std::string& dir) const
 
   const std::string filename(mkFilename(dir));
 
-  if (!isFile(filename)) { // File doesn't exist, so dump it
+  if (!fs::exists(filename)) { // File doesn't exist, so dump it
     std::string str;
     { // Build output string
       std::ostringstream oss;
@@ -254,7 +220,7 @@ Sensors::load(const std::string& dir,
 
   const std::string filename(mkFilename(dir));
 
-  if (!isFile(filename)) { // no file exists, so nothing to load
+  if (!fs::exists(filename)) { // no file exists, so nothing to load
     return false;
   }
 

@@ -1,28 +1,66 @@
-add_executable(sgMergeNetCDF 
-               sgMergeNetCDF.C SGMerge.C)
+add_executable(sgMergeNetCDF
+	sgMergeNetCDF.C
+	SGMerge.C
+	)
 
-add_executable(dbd2netCDF 
-               dbd2netCDF.C SensorsMap.C Sensors.C Sensor.C Header.C 
-	       MyNetCDF.C Data.C KnownBytes.C Decompress.C lz4.c)
+add_executable(dbd2netCDF
+	dbd2netCDF.C
+       	SensorsMap.C
+       	Sensors.C
+       	Sensor.C
+       	Header.C
+	MyNetCDF.C
+       	Data.C
+       	KnownBytes.C
+       	Decompress.C
+	lz4.c
+	FileInfo.C
+	)
 
 add_executable(pd02netCDF 
-               pd02netCDF.C PD0.C MyNetCDF.C)
+	pd02netCDF.C
+	PD0.C
+	MyNetCDF.C
+	FileInfo.C
+	)
 
-add_executable(dbd2csv 
-               dbd2csv.C SensorsMap.C Sensors.C Sensor.C Header.C
-	       Data.C KnownBytes.C Decompress.C lz4.c)
+add_executable(dbd2csv
+	dbd2csv.C
+       	SensorsMap.C
+       	Sensors.C
+       	Sensor.C
+       	Header.C
+       	Data.C
+       	KnownBytes.C
+	Decompress.C
+       	lz4.c
+       	FileInfo.C
+	)
 
 add_executable(dbdSensors
-               dbdSensors.C SensorsMap.C Sensors.C Sensor.C Header.C
-	       KnownBytes.C Decompress.C lz4.c)
+	dbdSensors.C
+	SensorsMap.C
+	Sensors.C
+	Sensor.C
+       	Header.C
+	KnownBytes.C
+	Decompress.C
+	lz4.c
+	FileInfo.C
+	)
 
-add_executable(decompressTWR decompressTWR.C Decompress.C lz4.c)
+add_executable(decompressTWR
+	decompressTWR.C
+       	Decompress.C
+	lz4.c
+	FileInfo.C
+	)
 
 set_target_properties(sgMergeNetCDF dbd2netCDF dbd2csv dbdSensors pd02netCDF decompressTWR
 	PROPERTIES
 	  RUNTIME_OUTPUT_DIRECTORY ${dbd2netcdf_SOURCE_DIR}/bin
 	  LINKER_LANGUAGE CXX
-	  CXX_STANDARD 17
+	  CXX_STANDARD 11
 	  CXX_STANDARD_REQUIRED ON
 	  CMAKE_CXX_FLAGS "-Wall -Wextra -pedantic"
 )
@@ -33,7 +71,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 # Get where NetCDF is installed using the nc-config command
 execute_process(COMMAND nc-config --includedir 
 	OUTPUT_VARIABLE NCINCDIR 
-	RESULTS_VARIABLE RETURNCODE
+	RESULT_VARIABLE RETURNCODE
 	ERROR_VARIABLE ERROROUTPUT
 	)
 if (RETURNCODE)
@@ -46,7 +84,7 @@ endif (RETURNCODE)
 
 execute_process(COMMAND nc-config --libdir 
 	OUTPUT_VARIABLE NCLIBDIR 
-	RESULTS_VARIABLE RETURNCODE
+	RESULT_VARIABLE RETURNCODE
 	ERROR_VARIABLE ERROROUTPUT
 	)
 if (RETURNCODE)

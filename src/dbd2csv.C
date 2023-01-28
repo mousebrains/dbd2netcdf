@@ -26,6 +26,7 @@
 #include "Data.H"
 #include "MyException.H"
 #include "Decompress.H"
+#include "FileInfo.H"
 #include "config.h"
 #include <iostream>
 #include <fstream>
@@ -33,7 +34,6 @@
 #include <cstring>
 #include <cstdlib>
 #include <cerrno>
-#include <filesystem>
 #include <getopt.h>
 #ifdef HAVE_UNISTD_H
 #include <unistd.h>
@@ -222,7 +222,7 @@ main(int argc,
     const Sensors& sensors(smap.find(hdr));
     const KnownBytes kb(is);          // Get little/big endian
     Data data;
-    const size_t nBytes(std::filesystem::file_size(std::filesystem::path(argv[i])));
+    const size_t nBytes(fs::file_size(argv[i]));
 
     try {
       data.load(is, kb, sensors, qRepair, nBytes);

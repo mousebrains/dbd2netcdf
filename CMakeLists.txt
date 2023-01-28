@@ -2,13 +2,13 @@
 #
 # Mar-2012, Pat Welch, pat@mousebrains.com
 
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 2.8)
 
 project(dbd2netcdf)
 
 set(dbd2netcdf_VERSION_MAJOR 1)
 set(dbd2netcdf_VERSION_MINOR 6)
-set(dbd2netcdf_VERSION_PATCH 0)
+set(dbd2netcdf_VERSION_PATCH 1)
 set(dbd2netcdf_MAINTAINER pat@mousebrains.com) # output to config.h
 
 add_subdirectory(src)  # Source code location

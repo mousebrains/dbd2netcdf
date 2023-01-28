@@ -21,11 +21,11 @@
 // output them into a netCDF file
 
 #include "MyNetCDF.H"
+#include "FileInfo.H"
 #include <iostream>
 #include <cmath>
 #include <vector>
 #include <cstdlib>
-#include <filesystem>
 
 void
 NetCDF::basicOp(int retval,
@@ -48,7 +48,7 @@ NetCDF::NetCDF(const std::string& fn, const bool qAppend)
   , mCountOne(0)
   , mCountLength(0)
 {
-  if (qAppend && std::filesystem::exists(fn)) {
+  if (qAppend && fs::exists(fn)) {
     basicOp(nc_open(fn.c_str(), NC_WRITE, &mId), "opening");
   } else {
     basicOp(nc_create(fn.c_str(), NC_NETCDF4 | NC_CLOBBER, &mId), "creating");

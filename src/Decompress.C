@@ -19,7 +19,7 @@
 
 #include "Decompress.H"
 #include "lz4.h"
-#include <filesystem>
+#include "FileInfo.H"
 #include <cerrno>
 
 int DecompressTWRBuf::underflow() {
@@ -46,6 +46,6 @@ int DecompressTWRBuf::underflow() {
 }
 
 bool qCompressed(const std::string& fn) {
-  const std::string suffix(std::filesystem::path(fn).extension());
+  const std::string suffix(fs::extension(fn));
   return (suffix.size() == 4) & (std::tolower(suffix[2]) == 'c'); 
 }
