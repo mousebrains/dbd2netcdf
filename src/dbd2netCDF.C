@@ -194,7 +194,6 @@ main(int argc,
 
   const int iDim(ncid.maybeCreateDim("i"));
   const int jDim(ncid.maybeCreateDim("j"));
-  std::cerr << "i " << iDim << " j " << jDim << std::endl;
 
   // Setup variables
   const Sensors& all(smap.allSensors());
