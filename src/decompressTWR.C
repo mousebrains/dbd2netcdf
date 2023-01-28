@@ -24,6 +24,7 @@
 #include "FileInfo.H"
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <cerrno>
 #include <cstdio>
 #include <cstring>
@@ -115,7 +116,9 @@ main(int argc,
       return(1);
     }
     const std::string ofn(mkOutputFilename(directory, ifn));
-    const std::string tfn(ofn + "." + std::to_string(getpid()));
+    std::ostringstream oss; // to_string not defined in CentOS 7
+    oss << getpid();
+    const std::string tfn(ofn + "." + oss.str());
     try {
       std::ofstream os(tfn.c_str());
       if (!os) {

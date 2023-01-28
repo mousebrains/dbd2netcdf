@@ -21,6 +21,7 @@
 
 #include "FileInfo.H"
 #include <sys/stat.h>
+#include <cerrno>
 
 namespace fs {
   mode_t getMode(const std::string& fn) {
