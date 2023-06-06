@@ -41,7 +41,6 @@ Sensors::Sensors(std::istream& is,
   , mLength(0)
   , mnToStore(0)
 {
-
   if (!hdr.qFactored()) {
     const std::streampos spos(is.tellg());
 
@@ -125,7 +124,7 @@ Sensors::mkFilename(const std::string& dir) const
 
   if (directory == NULL) {
     std::cerr << "Unable to open directory '" << dir << "'" << std::endl;
-    return std::string();
+    exit(1);
   }
 
   struct dirent *entry;
@@ -143,7 +142,8 @@ Sensors::mkFilename(const std::string& dir) const
   }
 
   closedir(directory);
-  return std::string();
+
+  return dir + "/" + crc + ".cac";
 }
 
 bool
@@ -158,6 +158,7 @@ Sensors::dump(const std::string& dir) const
       std::cerr << "Error creating '" << dir << "', " << strerror(errno) << std::endl;
       return false;
     }
+    std::cerr << "Created directory '" << dir << "'" << std::endl;
   }
 
   const std::string filename(mkFilename(dir));
@@ -201,6 +202,8 @@ Sensors::dump(const std::string& dir) const
                   << "' to '" << filename << "', "
                   << strerror(errno) << std::endl;
         exit(1);
+      } else {
+        std::cerr << "Created '" << filename << "'" << std::endl;
       }
     }
   }
