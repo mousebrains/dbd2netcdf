@@ -13,7 +13,7 @@ private:
   typedef std::map<std::string, std::string> tRecords;
   tRecords mRecords;
 public:
-  Header(std::istream& is);
+  Header(std::istream& is, const char *fn);
 
   bool empty() const {return mRecords.empty();}
 

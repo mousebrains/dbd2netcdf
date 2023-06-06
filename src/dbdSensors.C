@@ -133,7 +133,7 @@ main(int argc,
       return(1);
     }
     try {
-      Header hdr(is);
+      Header hdr(is, argv[i]);
       if (hdr.empty()) {
         std::cerr << "Warning '" << argv[i] << "' is empty" << std::endl;
       } else if (hdr.qProcessMission(missionsToSkip, missionsToKeep)) {
@@ -159,7 +159,7 @@ main(int argc,
       return(1);
     }
     try {
-      Header hdr(is);
+      Header hdr(is, argv[i]);
       const Sensors& sensors(smap.find(hdr));
       if (sensors.empty()) {
         std::cerr << "No sensors list found for '" << argv[i] << "'" << std::endl;

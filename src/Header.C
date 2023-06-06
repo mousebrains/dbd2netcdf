@@ -31,16 +31,21 @@ namespace {
   }
 } // Anonymous namespace
 
-Header::Header(std::istream& is)
+Header::Header(std::istream& is, const char *fn)
 {
+  size_t cnt = 0;
   for (tRecords::size_type nLines(10); mRecords.size() < nLines;) {
     std::string line;
     if (!getline(is, line)) {
       break;
     }
     const std::string::size_type index(line.find(':'));
-   if (index == line.npos) {
-      throw(MyException("Malformed header line, no colon found, '" + line + "'"));
+    ++cnt;
+    if (index == line.npos) {
+      std::cerr << "Missing colon in '" << fn << "' on line " << cnt << std::endl;
+      std::cerr << "Line '" << line.substr(0,10) << "'" << std::endl;
+      mRecords.clear();
+      return;
     }
     const std::string key(trim(line.substr(0, index)));
     const std::string value(trim(line.substr(index + 1)));

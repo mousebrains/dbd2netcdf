@@ -171,7 +171,7 @@ main(int argc,
       std::cerr << "Error opening '" << argv[i] << "', " << strerror(errno) << std::endl;
       return(1);
     }
-    const Header hdr(is);
+    const Header hdr(is, argv[i]);
     if (!hdr.empty() && hdr.qProcessMission(missionsToSkip, missionsToKeep)) {
       smap.insert(is, hdr, false);
       fileIndices.push_back(i);
@@ -257,7 +257,7 @@ main(int argc,
                 << strerror(errno) << std::endl;
       return(1);
     }
-    const Header hdr(is);             // Load up header
+    const Header hdr(is, argv[i]);             // Load up header
     try {
       smap.insert(is, hdr, true);       // will move to the right position in the file
       const Sensors& sensors(smap.find(hdr));
