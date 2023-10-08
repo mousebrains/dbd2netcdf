@@ -66,7 +66,7 @@ namespace {
     std::cerr << "Usage: " << argv0 << " -[" << options << "] files" << std::endl;
     std::cerr << std::endl;
     std::cerr << " -a --append                 Append to the NetCDF file" << std::endl;
-    std::cerr << " -c --sensor       filename  file containing sensors to select on" << std::endl;
+    std::cerr << " -c --sensors      filename  file containing sensors to select on" << std::endl;
     std::cerr << " -C --cache        directory directory to cache sensor list in" << std::endl;
     std::cerr << " -h --help                   display the usage message" << std::endl;
     std::cerr << " -k --sensorOutput filename  file containing sensors to output" << std::endl;
