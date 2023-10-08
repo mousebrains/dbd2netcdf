@@ -11,5 +11,6 @@ Apr-2012, Split netCDF code out of dbd2netCDF.C into NetCDF.[CH]
 Jan-2023, Clean up compression and shuffle handling
 Jan-2023, Add --repair for corrupted dbd files
 Jan-2023, Add --append
+Oct-2023, Fix --sensor to --sensors and update version
 
 Pat Welch, pat@mousebrains.com
