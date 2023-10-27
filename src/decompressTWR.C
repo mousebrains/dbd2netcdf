@@ -32,9 +32,10 @@
 #include <getopt.h>
 
 namespace {
-  const char *options("o:Vv"); 
+  const char *options("o:sVv"); 
   const struct option optionsLong[] = {
 	  {"output", required_argument, NULL, 'o'},
+	  {"stdout", no_argument, NULL, 's'},
 	  {"verbose", no_argument, NULL, 'v'},
 	  {"version", no_argument, NULL, 'V'},
 	  {"help", no_argument, NULL, 'h'},
@@ -48,6 +49,7 @@ namespace {
     std::cerr << std::endl;
     std::cerr << " -h --help              display the usage message" << std::endl;
     std::cerr << " -o --output  directory where to store the data" << std::endl;
+    std::cerr << " -s --stdout            output to stdout" << std::endl;
     std::cerr << " -V --version           print out version" << std::endl;
     std::cerr << " -v --verbose           enable some diagnostic output" << std::endl;
     std::cerr << "\nReport bugs to " << MAINTAINER << std::endl;
@@ -75,6 +77,7 @@ main(int argc,
      char **argv)
 {
   const char *directory(NULL);
+  bool qStdOut(false);
   bool qVerbose(false);
 
   while (true) { // Walk through the options
@@ -90,6 +93,9 @@ main(int argc,
       case 'V': // Print out version string
         std::cerr << VERSION << std::endl;
         return(0);
+      case 's': // stdout
+        qStdOut = !qStdOut;
+        break;
       case 'v': // Verbose
         qVerbose = !qVerbose;
         break;
@@ -115,6 +121,18 @@ main(int argc,
       std::cerr << "Error opening '" << ifn << "', " << strerror(errno) << std::endl;
       return(1);
     }
+
+    if (qStdOut) {
+        while (is) { // Loop unitl EOF
+            char buffer[1024*1024];
+            if (is.read(buffer, sizeof(buffer)) || is.gcount()) {
+		    std::cout.write(buffer, is.gcount());
+	    }
+	    std::cout.flush();
+        }
+	continue;
+    }
+
     const std::string ofn(mkOutputFilename(directory, ifn));
     std::ostringstream oss; // to_string not defined in CentOS 7
     oss << getpid();
