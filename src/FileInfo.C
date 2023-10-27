@@ -52,7 +52,7 @@ namespace fs {
   std::string filename(const std::string& fn) {
     const std::string::size_type i(fn.rfind('/'));
 
-    return i == fn.npos ? fn : fn.substr(i);
+    return i == fn.npos ? fn : fn.substr(i+1);
   }
 
   std::string extension(const std::string& fn) {
