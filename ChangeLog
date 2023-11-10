@@ -13,5 +13,6 @@ Jan-2023, Add --repair for corrupted dbd files
 Jan-2023, Add --append
 Oct-2023, Fix --sensor to --sensors and update version
 Oct-2023, Add streaming to decompressTWR
+Nov-2023, Fix not closing directory
 
 Pat Welch, pat@mousebrains.com

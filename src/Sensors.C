@@ -123,7 +123,8 @@ Sensors::mkFilename(const std::string& dir) const
   DIR *directory = opendir(dir.c_str());
 
   if (directory == NULL) {
-    std::cerr << "Unable to open directory '" << dir << "'" << std::endl;
+    std::cerr << "Unable to open directory '" << dir << "', " 
+	    << strerror(errno) << std::endl;
     exit(1);
   }
 
@@ -136,12 +137,29 @@ Sensors::mkFilename(const std::string& dir) const
     for (std::string::size_type i(0), e(lower.size()); i < e; ++i) {
       lower[i] = tolower(lower[i]);
     }
-    if (lower == crc) return dir + "/" + name;
-    if (lower == (crc + ".ccc")) return dir + "/" + name;
-    if (lower == (crc + ".cac")) return dir + "/" + name;
+    if (lower == crc) {
+      if (closedir(directory)) {
+        std::cerr << "Error closing '" << dir << "', " << strerror(errno) << std::endl;
+      }
+      return dir + "/" + name;
+    }
+    if (lower == (crc + ".ccc")) {
+      if (closedir(directory)) {
+        std::cerr << "Error closing '" << dir << "', " << strerror(errno) << std::endl;
+      }
+      return dir + "/" + name;
+    }
+    if (lower == (crc + ".cac")) {
+      if (closedir(directory)) {
+        std::cerr << "Error closing '" << dir << "', " << strerror(errno) << std::endl;
+      }
+      return dir + "/" + name;
+    }
   }
 
-  closedir(directory);
+  if (closedir(directory)) {
+    std::cerr << "Error closing '" << dir << "', " << strerror(errno) << std::endl;
+  }
 
   return dir + "/" + crc + ".cac";
 }
