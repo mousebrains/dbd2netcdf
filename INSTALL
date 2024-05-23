@@ -1,10 +1,9 @@
 To build dbd2netcdf from source, do the following:
 
-A) Download the source files from
+A) Clone the source from:
 
-https://sourceforge.net/projects/dbd2netcdf/?source=directory
+https://github.com/mousebrains/dbd2netcdf
 
-B) Unpack the source archive
 C) cd into the source archive
 D) Execute cmake
 
