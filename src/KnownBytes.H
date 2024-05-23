@@ -4,6 +4,7 @@
 // Jan-2012, Pat Welch, pat@mousebrains.com
 
 #include <iosfwd>
+#include <cstddef>
 #include <stdint.h> // Use this instead of cstdint
 
 class KnownBytes {
