@@ -30,7 +30,7 @@ class RunCommand(threading.Thread):
         try:
             stime = time.time()
             processCommand(self.__cmd, self.__ofn, self.__filenames)
-            logging.info("Took wall clock %s seconds", "{:.2f}".format(time.time() - stime))
+            logging.info("Took %s wall clock seconds", "{:.2f}".format(time.time() - stime))
         except:
             logging.exception("Executing")
         
@@ -206,9 +206,6 @@ if not os.path.isdir(args.cache):
     os.makedirs(args.cache, mode=0o755, exist_ok=True)
 
 files = list(map(lambda x: os.path.abspath(os.path.expanduser(x)), args.filename))
-
-# Strip out filenames we don't know what to do with
-files = list(filter(lambda x: re.search(r"[.]([demnst][bc]d|pd0)$", x, re.IGNORECASE), files))
 
 processAll(filter(lambda x: re.search(r"[.]s[bc]d", x, re.IGNORECASE), files),
            args, "sbd.nc") # Flight decimated Dinkum Binary files
