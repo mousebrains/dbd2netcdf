@@ -24,6 +24,7 @@ If a filename follows the TWR convention for compressed files, `*.?c?`, it will 
 - Ubuntu 18.04, 20.04, 22.04, 24.04, 24.10, Intel and ARM
 - Alma Linux 8
 - Cygwin
+- WSL
 
 * Dependencies:
 - cmake
