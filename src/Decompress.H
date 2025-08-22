@@ -10,7 +10,7 @@ class DecompressTWRBuf: public std::streambuf {
   std::ifstream mIS;
   const bool mqCompressed;
   char mBuffer[65536];
-  const std::string& mFilename;
+  const std::string mFilename;
 public:
   DecompressTWRBuf(const std::string& fn, const bool qCompressed)
     : mIS(fn.c_str())
@@ -28,7 +28,6 @@ public:
 
 class DecompressTWR: public std::istream {
 private:
-  std::ifstream mIS;
   DecompressTWRBuf mBuf;
 public:
   DecompressTWR(const std::string& fn, const bool qCompressed)

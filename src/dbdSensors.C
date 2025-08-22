@@ -127,6 +127,7 @@ main(int argc,
   tFileIndices fileIndices;
 
   for (int i = optind; i < argc; ++i) {
+    std::cerr << "Opening i " << i << " '" << argv[i] << "'" << std::endl;
     DecompressTWR is(argv[i], qCompressed(argv[i]));
     if (!is) {
       std::cerr << "Error opening '" << argv[i] << "', " << strerror(errno) << std::endl;

@@ -25,12 +25,13 @@
 
 int DecompressTWRBuf::underflow() {
   // We are only called if the buffer has been consumed
+
   if (mqCompressed) { // Working with compressed files, so load an lz4 block
     char sz[2]; // For length of this frame
     if (!this->mIS.read(sz, sizeof(sz)) || (this->mIS.gcount() != 2)) { // EOF
       return std::char_traits<char>::eof();
     }
-    const size_t n(((sz[0] << 8) & 0xff) | (sz[1] & 0xff)); // unsigned Big endian
+    const size_t n(((sz[0] << 8) & 0xff00) | (sz[1] & 0xff)); // unsigned Big endian
     char frame[n];
     if (!this->mIS.read(frame, n)) { // EOF
       return std::char_traits<char>::eof();
@@ -40,10 +41,12 @@ int DecompressTWRBuf::underflow() {
       std::cerr << "Attempt to decompress lz4 block with too much data, "
 	      << j << " > " << sizeof(this->mBuffer) 
 	      << " in " << this->mFilename
+	      << " block size " << n
 	      << std::endl;
       return std::char_traits<char>::eof();
     }
     this->setg(this->mBuffer, this->mBuffer, this->mBuffer + j);
+    std::cout << "TPW buffer " << j << std::endl;
   } else { // Not compressed
     if (this->mIS.read(this->mBuffer, sizeof(this->mBuffer)) || this->mIS.gcount()) {
       this->setg(this->mBuffer, this->mBuffer, this->mBuffer + this->mIS.gcount());
@@ -57,5 +60,7 @@ int DecompressTWRBuf::underflow() {
 
 bool qCompressed(const std::string& fn) {
   const std::string suffix(fs::extension(fn));
-  return (suffix.size() == 4) & (std::tolower(suffix[2]) == 'c'); 
+  const bool q((suffix.size() == 4) & (std::tolower(suffix[2]) == 'c')); 
+  std::cerr << "TPW q '" << fn << "' q " << q << std::endl;
+  return q;
 }
