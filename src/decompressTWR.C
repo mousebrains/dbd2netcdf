@@ -116,7 +116,7 @@ main(int argc,
 
   for (int i = optind; i < argc; ++i) {
     std::string ifn(argv[i]);
-    DecompressTWR is(ifn, true);
+    DecompressTWR is(ifn, qCompressed(ifn));
     if (!is) {
       std::cerr << "Error opening '" << ifn << "', " << strerror(errno) << std::endl;
       return(1);
