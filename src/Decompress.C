@@ -61,6 +61,5 @@ int DecompressTWRBuf::underflow() {
 bool qCompressed(const std::string& fn) {
   const std::string suffix(fs::extension(fn));
   const bool q((suffix.size() == 4) & (std::tolower(suffix[2]) == 'c')); 
-  std::cerr << "TPW q '" << fn << "' q " << q << std::endl;
   return q;
 }
