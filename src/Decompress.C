@@ -45,10 +45,11 @@ int DecompressTWRBuf::underflow() {
     }
     this->setg(this->mBuffer, this->mBuffer, this->mBuffer + j);
   } else { // Not compressed
-    if (!this->mIS.read(this->mBuffer, sizeof(this->mBuffer)) || !this->mIS.gcount()) {
+    if (this->mIS.read(this->mBuffer, sizeof(this->mBuffer)) || this->mIS.gcount()) {
+      this->setg(this->mBuffer, this->mBuffer, this->mBuffer + this->mIS.gcount());
+    } else {
       return std::char_traits<char>::eof();
     }
-    this->setg(this->mBuffer, this->mBuffer, this->mBuffer + this->mIS.gcount());
   } // mqCompressed
 
   return std::char_traits<char>::to_int_type(*this->gptr());
