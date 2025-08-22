@@ -46,7 +46,6 @@ int DecompressTWRBuf::underflow() {
       return std::char_traits<char>::eof();
     }
     this->setg(this->mBuffer, this->mBuffer, this->mBuffer + j);
-    std::cout << "TPW buffer " << j << std::endl;
   } else { // Not compressed
     if (this->mIS.read(this->mBuffer, sizeof(this->mBuffer)) || this->mIS.gcount()) {
       this->setg(this->mBuffer, this->mBuffer, this->mBuffer + this->mIS.gcount());
