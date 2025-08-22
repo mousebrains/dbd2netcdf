@@ -21,28 +21,37 @@
 #include "lz4.h"
 #include "FileInfo.H"
 #include <cerrno>
+#include <cstdio>
 
 int DecompressTWRBuf::underflow() {
-  if (this->gptr() == this->egptr()) { // Decompress data into mBuffer
-    if (mqCompressed) {
-      char sz[2]; // For length of this frame
-      if (this->mIS.read(sz, sizeof(sz))) { // not EOF
-        const size_t n(sz[0] << 8 | (sz[1] & 0xff)); // Big endian
-        char frame[n];
-        if (this->mIS.read(frame, n)) { // not EOF
-          const size_t j(LZ4_decompress_safe(frame, this->mBuffer, n, sizeof(this->mBuffer)));
-          this->setg(this->mBuffer, this->mBuffer, this->mBuffer + j);
-        }
-      }
-    } else { // Not compressed, so just load from mIS
-      if (this->mIS.read(this->mBuffer, sizeof(this->mBuffer)) || this->mIS.gcount()) {
-	this->setg(this->mBuffer, this->mBuffer, this->mBuffer + this->mIS.gcount());
-      }
-    } // if mqCompressed
-  }
-  return this->gptr() == this->egptr()
-	  ? std::char_traits<char>::eof()
-	  : std::char_traits<char>::to_int_type(*this->gptr());
+  // We are only called if the buffer has been consumed
+  if (mqCompressed) { // Working with compressed files, so load an lz4 block
+    char sz[2]; // For length of this frame
+    if (!this->mIS.read(sz, sizeof(sz)) || (this->mIS.gcount() != 2)) { // EOF
+      return std::char_traits<char>::eof();
+    }
+    const size_t n(((sz[0] << 8) & 0xff) | (sz[1] & 0xff)); // unsigned Big endian
+    char frame[n];
+    if (!this->mIS.read(frame, n)) { // EOF
+      return std::char_traits<char>::eof();
+    }
+    const size_t j(LZ4_decompress_safe(frame, this->mBuffer, n, sizeof(this->mBuffer)));
+    if (j > sizeof(this->mBuffer)) { // Probably a corrupted file
+      std::cerr << "Attempt to decompress lz4 block with too much data, "
+	      << j << " > " << sizeof(this->mBuffer) 
+	      << " in " << this->mFilename
+	      << std::endl;
+      return std::char_traits<char>::eof();
+    }
+    this->setg(this->mBuffer, this->mBuffer, this->mBuffer + j);
+  } else { // Not compressed
+    if (!this->mIS.read(this->mBuffer, sizeof(this->mBuffer)) || !this->mIS.gcount()) {
+      return std::char_traits<char>::eof();
+    }
+    this->setg(this->mBuffer, this->mBuffer, this->mBuffer + this->mIS.gcount());
+  } // mqCompressed
+
+  return std::char_traits<char>::to_int_type(*this->gptr());
 }
 
 bool qCompressed(const std::string& fn) {
