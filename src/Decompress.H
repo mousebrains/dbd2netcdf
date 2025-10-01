@@ -31,9 +31,9 @@ private:
   DecompressTWRBuf mBuf;
 public:
   DecompressTWR(const std::string& fn, const bool qCompressed)
-    : mBuf(fn, qCompressed)
-    , std::ios(0)
+    : std::ios(0)
     , std::istream(&mBuf)
+    , mBuf(fn, qCompressed)
   {}
 };
 

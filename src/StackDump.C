@@ -35,16 +35,24 @@ stackDumpExit(int rc,
   }
 
 #ifdef HAVE_BACKTRACE
-  const size_t n(10);
-  void *array[n];
-  size_t size(backtrace(array, n));
-  char **messages(backtrace_symbols(array, size));
+  constexpr size_t MAX_STACK_FRAMES = 10;  // Maximum number of stack frames to capture
+  void *array[MAX_STACK_FRAMES];
+  size_t size(backtrace(array, MAX_STACK_FRAMES));
+
+  // RAII wrapper for backtrace_symbols - automatically calls free()
+  struct BacktraceRAII {
+    char** ptr;
+    explicit BacktraceRAII(void** array, size_t size) : ptr(backtrace_symbols(array, size)) {}
+    ~BacktraceRAII() { if (ptr) free(ptr); }
+    operator bool() const { return ptr != nullptr; }
+    char* operator[](size_t i) const { return ptr[i]; }
+  } messages(array, size);
+
   if (messages) {
     for (size_t i = 1; (i < size) && messages[i]; ++i) { // Skip my entry
       std::cout << messages[i] << std::endl;
     }
-    free(messages);
-  }
+  }  // Automatic cleanup via ~BacktraceRAII()
 #endif // HAVE_BACKTRACE
 
   exit(1);

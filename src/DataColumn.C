@@ -21,6 +21,8 @@
 #include "KnownBytes.H"
 #include "StackDump.H"
 #include <iostream>
+#include <sstream>
+#include <iomanip>
 #include <cerrno>
 #include <cmath>
 #include <cstdio>
@@ -248,14 +250,14 @@ DataColumn::toStr(const size_t index) const
   if (!qSet(index)) {
     return std::string("nan");
   }
-  char buffer[256];
+  std::ostringstream oss;
   switch(mId) {
-    case 1: snprintf(buffer, sizeof(buffer), "%d", mInt8[index]); break;
-    case 2: snprintf(buffer, sizeof(buffer), "%d", mInt16[index]); break;
-    case 4: snprintf(buffer, sizeof(buffer), "%.7g", mFloat[index]); break;
-    case 8: snprintf(buffer, sizeof(buffer), "%.15g", mDouble[index]); break;
+    case 1: oss << static_cast<int>(mInt8[index]); break;
+    case 2: oss << mInt16[index]; break;
+    case 4: oss << std::setprecision(7) << mFloat[index]; break;
+    case 8: oss << std::setprecision(15) << mDouble[index]; break;
   }
-  return std::string(buffer);
+  return oss.str();
 }
 
 std::ostream&

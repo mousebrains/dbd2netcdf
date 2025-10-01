@@ -1,5 +1,7 @@
 #include "SGMerge.H"
+#include "MyException.H"
 #include <iostream>
+#include <sstream>
 #include <cstdlib>
 #include <cstring>
 #include <cstdio>
@@ -7,6 +9,18 @@
 #include <cmath>
 
 namespace {
+  // String prefixes for special dimension names
+  constexpr char STRING_PREFIX[] = "string_";
+  constexpr size_t STRING_PREFIX_LEN = 7;
+  constexpr char J_PREFIX[] = "j_";
+  constexpr size_t J_PREFIX_LEN = 2;
+  constexpr char STR_PREFIX[] = "str_";
+  constexpr size_t STR_PREFIX_LEN = 4;
+
+  // NetCDF compression settings
+  constexpr int ENABLE_COMPRESSION = 1;
+  constexpr int COMPRESSION_LEVEL = 3;  // Level 3 provides good balance of speed/size
+
   bool ncOp(const int status, const std::string& msg, const std::string& fn, const int ncid) {
     if (status) {
       std::cerr << "Error " << msg << ", '" << fn << "', " << nc_strerror(status) << std::endl;
@@ -18,11 +32,10 @@ namespace {
 } // anonymous namespace
 
 SGMerge::SGMerge(const char *fn,
-                 const bool qVerbose,
+                 const bool /* qVerbose */,
                  const bool qAppend,
                  const bool qUnlimited)
   : mFilename(fn)
-  , mqVerbose(qVerbose)
   , mqAppend(false)
   , mqUnlimited(qUnlimited)
   , mNCID(-1)
@@ -101,17 +114,17 @@ SGMerge::loadHeader(const int ncid,
   }
 
   int ndims, nvars, natts, nunlim;
-   
+
   if (ncOp(nc_inq(ncid, &ndims, &nvars, &natts, &nunlim), "inq", fn, ncid)) return false;
 
   tDims dims;
 
-  for (size_t id(0); id < ndims; ++id) {
+  for (int id(0); id < ndims; ++id) {
     char name[NC_MAX_NAME+1];
     size_t len;
     if (ncOp(nc_inq_dim(ncid, id, name, &len), "inq_dim", fn, ncid)) return false;
     dims.push_back(Dimension(name, len));
-    if (strncmp(name, "string_", 7)) { // Doesn't begin with string_
+    if (strncmp(name, STRING_PREFIX, STRING_PREFIX_LEN)) { // Doesn't begin with string_
       tDimMap::iterator it(mDims.find(name));
       if (it == mDims.end()) {
         mDims.insert(std::make_pair(name, len));
@@ -122,13 +135,13 @@ SGMerge::loadHeader(const int ncid,
     }
   }
 
-  for (size_t id(0); id < nvars; ++id) {
+  for (int id(0); id < nvars; ++id) {
     char name[NC_MAX_NAME+1];
     nc_type xtype;
     int nvDim;
     int dimids[NC_MAX_VAR_DIMS];
     int nvAtt;
-    if (ncOp(nc_inq_var(ncid, id, name, &xtype, &nvDim, dimids, &nvAtt), "inq_var", fn, ncid)) 
+    if (ncOp(nc_inq_var(ncid, id, name, &xtype, &nvDim, dimids, &nvAtt), "inq_var", fn, ncid))
       return false;
 
     tVars::iterator it(mVars.find(name));
@@ -137,11 +150,11 @@ SGMerge::loadHeader(const int ncid,
       struct Variable var(name, xtype);
       loadAttr(ncid, id, nvAtt, var.mAttr, fn);
       size_t totLen(nvDim ? 0 : 1);
-      for (size_t j(0); j < nvDim; ++j) { // Walk through this variable's dimensions
+      for (int j(0); j < nvDim; ++j) { // Walk through this variable's dimensions
         const Dimension& dim(dims[dimids[j]]);
         const std::string& dname(dim.name);
         totLen += dim.len;
-        if (dname.substr(0, 7) != "string_") {
+        if (dname.substr(0, STRING_PREFIX_LEN) != STRING_PREFIX) {
           var.mDims.push_back(dname);
         }
       }
@@ -173,7 +186,7 @@ SGMerge::loadHeader(const int ncid,
       char buffer[NC_MAX_NAME + 5];
       snprintf(buffer, sizeof(buffer), "str_%s", name);
       size_t totLen(0);
-      for (size_t j(0); j < nvDim; ++j) { // Walk through this variable's dimensions
+      for (int j(0); j < nvDim; ++j) { // Walk through this variable's dimensions
         totLen += dims[dimids[j]].len;
       }
       tDimMap::iterator jt(mDims.find(buffer));
@@ -213,14 +226,14 @@ SGMerge::updateHeader()
       if (ncOp(nc_inq_dimid(ncid, name.c_str(), &id), "inq_dimid", mFilename, ncid)) return;
       if (ncOp(nc_inq_dimlen(ncid, id, &offset), "inq_dimlen", mFilename, ncid)) return;
     } else {
-      const size_t length(mqUnlimited && (name.substr(0,2) != "j_") ? NC_UNLIMITED : it->second);
+      const size_t length(mqUnlimited && (name.substr(0, J_PREFIX_LEN) != J_PREFIX) ? NC_UNLIMITED : it->second);
       if (ncOp(nc_def_dim(ncid, name.c_str(), length, &id), "def_dim", mFilename, ncid)) return;
     }
 
     mDimIDs.insert(std::make_pair(it->first, id));
     mDimCnt.insert(std::make_pair(it->first, offset));
 
-    if ((name.substr(0,2) != "j_") && (name.substr(0,4) != "str_")) {
+    if ((name.substr(0, J_PREFIX_LEN) != J_PREFIX) && (name.substr(0, STR_PREFIX_LEN) != STR_PREFIX)) {
       Variable var("Dive_" + name, NC_INT);
       if (mVars.find(var.name) == mVars.end()) {
         var.insertAttr("qDive", true);
@@ -236,15 +249,15 @@ SGMerge::updateHeader()
     const Variable& var(it->second);
     const bool qNew(mVarNew.find(var.name) != mVarNew.end());
     const size_t n(var.mDims.size());
-    int dimids[n];
+    std::vector<int> dimids(n);  // RAII heap allocation instead of VLA
     for (size_t i(0); i < n; ++i) {
       dimids[i] = mDimIDs[var.mDims[i]];
     }
     int id;
     if (qNew) { // Define the variable
-      if (ncOp(nc_def_var(ncid, var.name.c_str(), var.xtype, n, dimids, &id), 
+      if (ncOp(nc_def_var(ncid, var.name.c_str(), var.xtype, n, dimids.data(), &id), 
                "def_var", mFilename, ncid) ||
-          ncOp(nc_def_var_deflate(ncid, id, NC_SHUFFLE, 1, 3), 
+          ncOp(nc_def_var_deflate(ncid, id, NC_SHUFFLE, ENABLE_COMPRESSION, COMPRESSION_LEVEL), 
                "def_var_deflate", mFilename, ncid) ||
           Data::setFill(ncid, id, var.xtype, mFilename))
         return;
@@ -276,23 +289,23 @@ SGMerge::mergeFile(const char *fn)
   tDims dims;
   tDimMap nextCnt(mDimCnt);
 
-  for (size_t id(0); id < ndims; ++id) {
+  for (int id(0); id < ndims; ++id) {
     char name[NC_MAX_NAME+1];
     size_t len;
     if (ncOp(nc_inq_dim(ncid, id, name, &len), "inq_dim", fn, ncid)) return false;
     dims.push_back(Dimension(name, len));
   }
 
-  for (size_t id(0); id < nvars; ++id) {
+  for (int id(0); id < nvars; ++id) {
     char name[NC_MAX_NAME+1];
     nc_type xtype;
     int nvDim;
     int dimids[NC_MAX_VAR_DIMS];
     int nvAtt;
-    if (ncOp(nc_inq_var(ncid, id, name, &xtype, &nvDim, dimids, &nvAtt), "inq_var", fn, ncid)) 
+    if (ncOp(nc_inq_var(ncid, id, name, &xtype, &nvDim, dimids, &nvAtt), "inq_var", fn, ncid))
       return false;
     size_t len(nvDim ? 0 : 1);
-    for (size_t i(0); i < nvDim; ++i) {
+    for (int i(0); i < nvDim; ++i) {
       len += dims[dimids[i]].len;
     }
     Data data(xtype, len);
@@ -309,13 +322,13 @@ SGMerge::mergeFile(const char *fn)
     // Now build target start/cnt
 
     const size_t nODims(oVar.mDims.size()); // Number of output dims
-    size_t start[nODims]; // Start/offset to write data at
-    size_t cnt[nODims]; // Length of the data in each dimension
+    std::vector<size_t> start(nODims);  // RAII heap allocation instead of VLA
+    std::vector<size_t> cnt(nODims);    // RAII heap allocation instead of VLA
     std::string sName; // str_ name
 
     for (size_t i(0); i < nODims; ++i) { // Loop over output dims
       const std::string& dName(oVar.mDims[i]);
-      if (dName.substr(0, 4) == "str_") sName = dName;
+      if (dName.substr(0, STR_PREFIX_LEN) == STR_PREFIX) sName = dName;
 
       if (i == 0) {
         start[i] = mDimCnt[dName];
@@ -334,7 +347,7 @@ SGMerge::mergeFile(const char *fn)
       nextCnt[sName] = start[0] + cnt[0];
     }
 
-    if (data.putVar(mNCID, mVarIDs[oVar.name], start, cnt, fn)) return false;
+    if (data.putVar(mNCID, mVarIDs[oVar.name], start.data(), cnt.data(), fn)) return false;
   }
 
   if (!mDiveVars.empty()) { // Write out id info 
@@ -390,7 +403,7 @@ bool
 SGMerge::Variable::check(const int ncid,
                          const size_t id,
                          const size_t len,
-                         const std::string& fn)
+                         const std::string& /* fn */)
 {
   if (xtype != NC_CHAR) return true; // No conversion needed
   Data data(xtype, len);
@@ -410,26 +423,27 @@ SGMerge::Variable::check(const int ncid,
 void
 SGMerge::Variable::checkArray(const Data& data)
 {
-  const char *delim(",");
-  const size_t n(data.cVal.size());
-  char buffer[n + 1];
+  // Convert to string and use istringstream (no raw pointers)
+  std::string str(data.cVal.begin(), data.cVal.end());
+  std::istringstream iss(str);
+  std::string token;
   bool qInt(true);
   bool q(true);
   size_t nToSkip(0);
-
   nFields = 0;
-  strncpy(buffer, data.cVal.data(), n);
-  buffer[n] = '\0';
 
-  for (char *ptr(strtok(buffer, delim)); q && ptr; ptr = strtok(NULL, delim)) {
-    if ((nFields == 0) && (*ptr == '$')) {
+  while (std::getline(iss, token, ',')) {  // Split on comma
+    if ((nFields == 0) && (!token.empty() && token[0] == '$')) {
       nToSkip = 1;
       continue;
     }
+
+    if (token.empty()) continue;
+
     char *eptr;
-    const double value(strtod(ptr, &eptr)); 
-    q &= (ptr != eptr);
-    qInt &= index(ptr, '.') == 0;
+    std::strtod(token.c_str(), &eptr);
+    q &= (eptr != token.c_str());  // Check if conversion succeeded
+    qInt &= (token.find('.') == std::string::npos);  // No decimal point
     ++nFields;
   }
   if (q) { // an array of numbers
@@ -511,8 +525,7 @@ SGMerge::Data::push_back(const bool val)
     case NC_FLOAT:  fVal.push_back(val); break;
     case NC_DOUBLE: dVal.push_back(val); break;
     default: 
-      std::cerr << "unsupported data type " << xtype << std::endl;
-      exit(1);
+      std::ostringstream oss; oss << "unsupported data type " << xtype; throw MyException(oss.str());
   }
   return *this;
 }
@@ -531,8 +544,7 @@ SGMerge::Data::operator += (const Data& rhs)
     case NC_FLOAT:  fVal.insert(fVal.end(), rhs.fVal.begin(), rhs.fVal.end()); break;
     case NC_DOUBLE: dVal.insert(dVal.end(), rhs.dVal.begin(), rhs.dVal.end()); break;
     default: 
-      std::cerr << "unsupported data type " << xtype << std::endl;
-      exit(1);
+      std::ostringstream oss; oss << "unsupported data type " << xtype; throw MyException(oss.str());
   }
   return *this;
 }
@@ -547,8 +559,7 @@ SGMerge::Data::size() const
     case NC_FLOAT: return fVal.size();
     case NC_DOUBLE: return dVal.size();
     default: 
-      std::cerr << "unsupported data type " << xtype << std::endl;
-      exit(1);
+      std::ostringstream oss; oss << "unsupported data type " << xtype; throw MyException(oss.str());
   }
   return 0;
 }
@@ -563,8 +574,7 @@ SGMerge::Data::resize(const size_t len)
     case NC_FLOAT: fVal.resize(len); break;
     case NC_DOUBLE: dVal.resize(len); break;
     default: 
-      std::cerr << "unsupported data type " << xtype << std::endl;
-      exit(1);
+      std::ostringstream oss; oss << "unsupported data type " << xtype; throw MyException(oss.str());
   }
 }
 
@@ -754,17 +764,19 @@ void
 SGMerge::Data::toArray(const size_t nSkip)
 {
   if (xtype != NC_CHAR) return;
-  const char *delim(",");
-  const size_t n(cVal.size());
-  size_t cnt(0);
-  char buffer[n + 1];
-  strncpy(buffer, cVal.data(), n);
-  buffer[n] = '\0';
 
-  for (char *ptr(strtok(buffer, delim)); ptr; ptr = strtok(NULL, delim)) {
-    if (nSkip >= ++cnt) continue; // Skip this field
-    dVal.push_back(strtod(ptr, NULL));
+  // Convert to string and use istringstream (no raw pointers)
+  std::string str(cVal.begin(), cVal.end());
+  std::istringstream iss(str);
+  std::string token;
+  size_t cnt(0);
+
+  while (std::getline(iss, token, ',')) {  // Split on comma
+    if (token.empty()) continue;
+    if (nSkip >= ++cnt) continue;  // Skip this field
+    dVal.push_back(std::strtod(token.c_str(), nullptr));
   }
+
   xtype = NC_DOUBLE;
   cVal.clear();
 }

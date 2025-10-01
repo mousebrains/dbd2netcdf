@@ -28,6 +28,7 @@
 #include <cerrno>
 #include <cstdio>
 #include <cstring>
+#include <vector>
 #include <unistd.h>
 #include <getopt.h>
 
@@ -57,9 +58,11 @@ namespace {
   }
 
   std::string mkOutputFilename(const char *dir, const std::string& ifn) {
-    const std::string fn(fs::filename(ifn));
+    const fs::path inPath(ifn);
+    const std::string fn(inPath.filename().string());
     std::string ofn(dir == NULL ? fn : (std::string(dir) + "/" + fn));
-    std::string ext(fs::extension(ofn));
+    fs::path outPath(ofn);
+    std::string ext(outPath.extension().string());
     if ((ext.size() == 4) && (tolower(ext[2]) == 'c')) {
       switch (ext[3]) {
 	case 'g': ext[2] = 'l'; break;
@@ -68,7 +71,8 @@ namespace {
 	case 'D': ext[2] = 'B'; break;
       }
     }
-    return fs::replace_extension(ofn, ext);
+    outPath.replace_extension(ext);
+    return outPath.string();
   }
 } // Anonymous namespace
 
@@ -81,7 +85,6 @@ main(int argc,
   bool qVerbose(false);
 
   while (true) { // Walk through the options
-    int thisOptionOptind = optind ? optind : 1;
     int optionIndex = 0;
     int c = getopt_long(argc, argv, options, optionsLong, &optionIndex);
     if (c == -1) break; // End of options
@@ -123,10 +126,11 @@ main(int argc,
     }
 
     if (qStdOut) {
+        constexpr size_t BUFFER_SIZE = 1024 * 1024;
+        std::vector<char> buffer(BUFFER_SIZE);  // RAII heap allocation (1MB)
         while (is) { // Loop unitl EOF
-            char buffer[1024*1024];
-            if (is.read(buffer, sizeof(buffer)) || is.gcount()) {
-		    std::cout.write(buffer, is.gcount());
+            if (is.read(buffer.data(), buffer.size()) || is.gcount()) {
+		    std::cout.write(buffer.data(), is.gcount());
 	    }
 	    std::cout.flush();
         }
@@ -143,10 +147,11 @@ main(int argc,
         std::cerr << "Error opening '" << tfn << "', " << strerror(errno) << std::endl;
 	return 1;
       }
+      constexpr size_t BUFFER_SIZE = 1024 * 1024;
+      std::vector<char> buffer(BUFFER_SIZE);  // RAII heap allocation (1MB)
       while (is) { // Loop until EOF
-          char buffer[1024*1024];
-          if (is.read(buffer, sizeof(buffer)) || is.gcount()) {
-	    os.write(buffer, is.gcount());
+          if (is.read(buffer.data(), buffer.size()) || is.gcount()) {
+	    os.write(buffer.data(), is.gcount());
 	  }
       }
       os.close();

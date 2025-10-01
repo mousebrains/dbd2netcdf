@@ -19,7 +19,7 @@
 
 #include "Sensor.H"
 #include "KnownBytes.H"
-#include <iostream>
+#include "MyException.H"
 #include <iostream>
 #include <sstream>
 #include <cerrno>
@@ -35,8 +35,9 @@ Sensor::Sensor(std::istream& is)
   std::string line;
 
   if (!getline(is, line)) {
-    std::cerr << "Invalid getline while reading a sensor, " << strerror(errno) << std::endl;
-    exit(1);
+    std::ostringstream oss;
+    oss << "Invalid getline while reading a sensor, " << strerror(errno);
+    throw MyException(oss.str());
   }
 
   procLine(line);
@@ -59,13 +60,15 @@ Sensor::procLine(const std::string& line)
   int index;
 
   if (!(iss >> prefix >> qUsed >> index >> mIndex >> mSize >> mName >> mUnits)) {
-    std::cerr << "Malformed sensor line '" << line << "'" << std::endl;
-    exit(1);
+    std::ostringstream oss;
+    oss << "Malformed sensor line '" << line << "'";
+    throw MyException(oss.str());
   }
 
   if (prefix != "s:") {
-    std::cerr << "Malformed sensor line '" << line << "'" << std::endl;
-    exit(1);
+    std::ostringstream oss;
+    oss << "Malformed sensor line '" << line << "'";
+    throw MyException(oss.str());
   }
 
   mqAvailable = qUsed == "T";
@@ -83,8 +86,9 @@ Sensor::read(std::istream& is,
     case 4: val = (double) kb.read32(is); break;
     case 8: val = kb.read64(is); break;
     default:
-      std::cerr << "Unknown number of bytes(" << mSize << " for sensor " << mName << std::endl;
-      exit(1);
+      std::ostringstream oss;
+      oss << "Unknown number of bytes(" << mSize << " for sensor " << mName;
+      throw MyException(oss.str());
   }
 
   return val;

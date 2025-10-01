@@ -25,7 +25,7 @@
 namespace {
   std::string tolower(std::string str) {
     for (std::string::size_type i(0), e(str.size()); i < e; ++i) {
-      str[i] = std::tolower(str[i]);
+      str[i] = static_cast<char>(std::tolower(static_cast<unsigned char>(str[i])));
     }
     return str;
   }
@@ -51,7 +51,11 @@ Header::Header(std::istream& is, const char *fn)
     const std::string value(trim(line.substr(index + 1)));
     mRecords.insert(std::make_pair(key, value));
     if (key == "num_ascii_tags") {
-      nLines = atoi(value.c_str());
+      try {
+        nLines = std::stoi(value);
+      } catch (const std::exception&) {
+        nLines = 0;  // Default to 0 on parse error
+      }
     }
   }
 }
@@ -69,7 +73,13 @@ Header::findInt(const std::string& key) const
 {
   const std::string value(find(key));
 
-  return value.empty() ? 0 : atoi(value.c_str());
+  if (value.empty()) return 0;
+
+  try {
+    return std::stoi(value);
+  } catch (const std::exception&) {
+    return 0;  // Default to 0 on parse error
+  }
 }
 
 std::string 

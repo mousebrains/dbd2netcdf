@@ -20,6 +20,7 @@
 // Handle mapping variable names to netCDF variable numbers
 
 #include "Variables.H"
+#include "MyException.H"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -42,8 +43,9 @@ Variables::remapLoad(const std::string& fn)
 {
   std::ifstream is(fn.c_str());
   if (!is) {
-    std::cerr << "Error opening '" << fn << "', " << strerror(errno) << std::endl;
-    exit(1);
+    std::ostringstream oss;
+    oss << "Error opening '" << fn << "', " << strerror(errno);
+    throw MyException(oss.str());
   }
   for (std::string line; getline(is, line);) {
     std::istringstream iss(line);
@@ -74,34 +76,38 @@ Variables::typeInfo(const std::string& name,
   if (it != mTypeInfo.end()) { // an entry already exists for key
     if ((t != -1) && (it->second.nctype != t)) { // Need to change ncytpe
       if (it->second.nctype != -1) { // Conflicting types
-        std::cerr << "typeInfo nc_type mismatch, original (" 
-                  << NetCDF::typeToStr(it->second.nctype)
-                  << ") new (" << NetCDF::typeToStr(t) << ")" << std::endl;
-        exit(1);
+        std::ostringstream oss;
+        oss << "typeInfo nc_type mismatch, original ("
+            << NetCDF::typeToStr(it->second.nctype)
+            << ") new (" << NetCDF::typeToStr(t) << ")";
+        throw MyException(oss.str());
       }
       it->second.nctype = t;
     }
     if (!units.empty() && (it->second.units != units)) { // Need to change units
       if (!it->second.units.empty()) { // Conflicting units
-        std::cerr << "typeInfo units mismatch, original (" 
-                  << it->second.units << ") new (" << units << ")" << std::endl;
-        exit(1);
+        std::ostringstream oss;
+        oss << "typeInfo units mismatch, original ("
+            << it->second.units << ") new (" << units << ")";
+        throw MyException(oss.str());
       }
       it->second.units = units;
     }
     if (!prefix.empty() && (it->second.prefix != prefix)) { // Need to change prefix
       if (!it->second.prefix.empty()) { // Conflicting prefix
-        std::cerr << "typeInfo prefix mismatch, original (" 
-                  << it->second.prefix << ") new (" << prefix << ")" << std::endl;
-        exit(1);
+        std::ostringstream oss;
+        oss << "typeInfo prefix mismatch, original ("
+            << it->second.prefix << ") new (" << prefix << ")";
+        throw MyException(oss.str());
       }
       it->second.prefix = prefix;
     }
     if (!dimName.empty() && (it->second.dimName != dimName)) { // Need to change dimName
       if (!it->second.dimName.empty()) { // Conflicting dimName
-        std::cerr << "typeInfo dimension name mismatch, original (" 
-                  << it->second.dimName << ") new (" << dimName << ")" << std::endl;
-        exit(1);
+        std::ostringstream oss;
+        oss << "typeInfo dimension name mismatch, original ("
+            << it->second.dimName << ") new (" << dimName << ")";
+        throw MyException(oss.str());
       }
       it->second.dimName = dimName;
     }
@@ -115,8 +121,9 @@ Variables::typeInfoLoad(const std::string& fn)
 {
   std::ifstream is(fn.c_str());
   if (!is) {
-    std::cerr << "Error opening '" << fn << "', " << strerror(errno) << std::endl;
-    exit(1);
+    std::ostringstream oss;
+    oss << "Error opening '" << fn << "', " << strerror(errno);
+    throw MyException(oss.str());
   }
   for (std::string line; getline(is, line);) {
     std::istringstream iss(line);
@@ -140,8 +147,9 @@ Variables::typeInfoLoad(const std::string& fn)
       } else if (dataType == "int8") {
         nctype = NC_BYTE;
       } else {
-        std::cerr << "Unrecognized data type '" << dataType << "' in " << fn << std::endl;
-        exit(1);
+        std::ostringstream oss;
+        oss << "Unrecognized data type '" << dataType << "' in " << fn;
+        throw MyException(oss.str());
       }
       typeInfo(name, nctype, units, std::string(), std::string());
     }

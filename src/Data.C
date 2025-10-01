@@ -24,6 +24,7 @@
 #include <iostream>
 #include <sstream>
 #include <cmath>
+#include <vector>
 
 Data::Data(std::istream& is,
            const KnownBytes& kb,
@@ -44,7 +45,7 @@ Data::load(std::istream& is,
 {
   const size_t nSensors(sensors.size());
   const size_t nHeader((nSensors + 3) / 4);
-  int8_t *bits(new int8_t[nHeader]);
+  std::vector<int8_t> bits(nHeader);  // RAII - automatic cleanup
   const tRow empty(sensors.nToStore(), NAN);
   tRow prevValue(empty);
   tData::size_type nRows(0);
@@ -55,7 +56,7 @@ Data::load(std::istream& is,
 
   while (true) { // Walk through the file
     int8_t tag;
-    if (!is.read((char *) &tag, 1)) { // EOF while reading tag byte
+    if (!is.read(reinterpret_cast<char*>(&tag), 1)) { // EOF while reading tag byte
       break;
     }
 
@@ -69,7 +70,7 @@ Data::load(std::istream& is,
       bool qContinue = false;
       while (true) { // look for the next d
           int8_t c;
-	  if (!is.read((char *) &c, 1)) { // EOF looking for the next 'd'
+	  if (!is.read(reinterpret_cast<char*>(&c), 1)) { // EOF looking for the next 'd'
 	    break;
 	  }
 	  if (c == 'd') {
@@ -83,33 +84,33 @@ Data::load(std::istream& is,
         oss << "Unknown data tag(0x"
             << std::hex << (tag & 0xff) << std::dec
             << ") '";
-        if (tag >= 0x20 & tag <= 0x7E) {
-          oss << (char) (tag & 0xff);
+        if (tag >= 0x20 && tag <= 0x7E) {
+          oss << static_cast<char>(tag & 0xff);
         } else {
           oss << "GotMe";
         }
         oss << "' should be either 'd' or 'X' at offset " << pos;
 	oss << ", No more 'd' characters found";
-        delete[] bits;
+        // bits vector automatically cleaned up
         throw(MyException(oss.str()));
       } // if !qContinue
       const size_t nPos = is.tellg();
       std::cerr << "Skipped " << (nPos-pos) << " bytes due to bad data tag (0x"
 	      << std::hex << (tag & 0xff) << std::dec
 	      << ") '";
-      if (tag >= 0x20 & tag <= 0x7E) {
-        std::cerr << (char) (tag & 0xff);
+      if (tag >= 0x20 && tag <= 0x7E) {
+        std::cerr << static_cast<char>(tag & 0xff);
       } else {
         std::cerr << "GotMe";
       }
       std::cerr << "' at " << pos << std::endl;
     }
 
-    if (!is.read((char *) bits, nHeader)) {
+    if (!is.read(reinterpret_cast<char*>(bits.data()), nHeader)) {
       mData.resize(nRows); // Prune off unused rows
       std::ostringstream oss;
       oss << "EOF reading " << nHeader << " bytes for header bits";
-      delete[] bits;
+      // bits vector automatically cleaned up
       throw(MyException(oss.str()));
     }
 
@@ -120,16 +121,16 @@ Data::load(std::istream& is,
 
     for (size_t i(0); i < nSensors; ++i) {
       const size_t offIndex(i >> 2);
-      const size_t offBits(6 - ((i & 0x3) << 1));
-      const unsigned int code((bits[offIndex] >> offBits) & 0x03);
       if (offIndex >= nHeader) {
         mData.resize(nRows); // Prune off unused rows
         std::ostringstream oss;
         oss << "offIndex issue " << offIndex << " >= " << nHeader
             << " at " << is.tellg();
-        delete[] bits;
+        // bits vector automatically cleaned up
         throw(MyException(oss.str()));
       }
+      const size_t offBits(6 - ((i & 0x3) << 1));
+      const unsigned int code((bits[offIndex] >> offBits) & 0x03);
       if (code == 1) { // Repeat previous value
         const Sensor& sensor(sensors[i]);
         const size_t index(sensor.index());
@@ -154,8 +155,7 @@ Data::load(std::istream& is,
   }
 
   mData.resize(nRows); // Prune off unused rows
-
-  delete[] bits;
+  // bits vector automatically cleaned up on function exit
 }
 
 std::ostream&

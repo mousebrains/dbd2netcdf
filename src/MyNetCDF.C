@@ -21,10 +21,13 @@
 // output them into a netCDF file
 
 #include "MyNetCDF.H"
+#include "MyException.H"
 #include "FileInfo.H"
 #include <iostream>
+#include <sstream>
 #include <cmath>
 #include <vector>
+#include <algorithm>
 #include <cstdlib>
 
 void
@@ -34,8 +37,9 @@ NetCDF::basicOp(int retval,
   if (!retval) {
     return;
   }
-  std::cerr << "Error " << label << " '" << mFilename << "', " << nc_strerror(retval) << std::endl;
-  exit(2);
+  std::ostringstream oss;
+  oss << "Error " << label << " '" << mFilename << "', " << nc_strerror(retval);
+  throw MyException(oss.str());
 }
 
 NetCDF::NetCDF(const std::string& fn, const bool qAppend)
@@ -45,8 +49,7 @@ NetCDF::NetCDF(const std::string& fn, const bool qAppend)
   , mChunkSize(5000)
   , mChunkPriority(true)
   , mCompressionLevel(9)
-  , mCountOne(0)
-  , mCountLength(0)
+  , mCountOne()
 {
   if (qAppend && fs::exists(fn)) {
     basicOp(nc_open(fn.c_str(), NC_WRITE, &mId), "opening");
@@ -59,7 +62,7 @@ NetCDF::NetCDF(const std::string& fn, const bool qAppend)
 NetCDF::~NetCDF()
 {
   close();
-  delete mCountOne;
+  // mCountOne automatically cleaned up via RAII
 }
 
 int
@@ -91,15 +94,9 @@ NetCDF::createDim(const std::string& name,
                   const size_t maxLength)
 {
   int dimId;
-  const int retval(nc_def_dim(mId, name.c_str(), len, &dimId));
-  if (retval) {
-    std::cerr << "Error creating dimension '" << name << "' in '" << mFilename << "', "
-              << nc_strerror(retval) << std::endl;
-    exit(2);
-  }
-
+  basicOp(nc_def_dim(mId, name.c_str(), len, &dimId),
+          "creating dimension '" + name + "'");
   mDimensionLimits.insert(std::make_pair(dimId, (len != NC_UNLIMITED) ? len : maxLength));
-
   return dimId;
 }
 
@@ -107,12 +104,8 @@ size_t
 NetCDF::lengthDim(const int dimId) {
   char name[NC_MAX_NAME + 1];
   size_t length;
-  const int retval(nc_inq_dim(mId, dimId, name, &length));
-  if (retval) {
-    std::cerr << "Error getting dimension '" << name << "' length in '" << mFilename << "', "
-              << nc_strerror(retval) << std::endl;
-    exit(2);
-  }
+  basicOp(nc_inq_dim(mId, dimId, name, &length),
+          "getting dimension length");
   return length;
 } // lengthDim
 
@@ -148,11 +141,8 @@ NetCDF::createVar(const std::string& name,
   int varId;
   int retval;
 
-  if ((retval = nc_def_var(mId, name.c_str(), idType, nDims, dims, &varId))) {
-    std::cerr << "Error creating variable '" << name << "' in '" << mFilename << "', "
-              << nc_strerror(retval) << std::endl;
-    exit(2);
-  }
+  basicOp(nc_def_var(mId, name.c_str(), idType, nDims, dims, &varId),
+          "creating variable '" + name + "'");
 
   { // Deal with chunking for multiple dimensions
     typedef std::vector<size_t> tLengths;
@@ -161,7 +151,7 @@ NetCDF::createVar(const std::string& name,
       basicOp(nc_inq_dimlen(mId, dims[i], &lengths[i]), "Get dimension length");
     }
 
-    size_t *chunkSizes(new size_t[nDims]);
+    std::vector<size_t> chunkSizes(nDims);  // RAII - automatic cleanup
     size_t availSize(mChunkSize);
 
     for (size_t i(nDims - 1); i < nDims; --i) { // Use wrap of unsigned ops
@@ -194,68 +184,47 @@ NetCDF::createVar(const std::string& name,
         }
       }
 
-      if ((retval = nc_def_var_chunking(mId, varId, NC_CHUNKED, chunkSizes))) {
-        std::cerr << "Error setting chunk size to {";
+      if ((retval = nc_def_var_chunking(mId, varId, NC_CHUNKED, chunkSizes.data()))) {
+        std::ostringstream oss;
+        oss << "Error setting chunk size to {";
         for (tLengths::size_type i(0), e(lengths.size()); i < e; ++i) {
           if (i != 0) {
-            std::cerr << ", ";
+            oss << ", ";
           }
-          std::cerr << lengths[i];
+          oss << lengths[i];
         }
-        std::cerr << "} for '" << name << "' in '" << mFilename << "', "
-                  << nc_strerror(retval) << std::endl;
-        exit(2);
+        oss << "} for '" << name << "' in '" << mFilename << "', "
+            << nc_strerror(retval);
+        throw MyException(oss.str());  // chunkSizes automatically cleaned up
       }
 
-      delete[] chunkSizes;
+      // chunkSizes automatically cleaned up on scope exit
     } // Chunking
 
   const bool qShuffle((idType == NC_SHORT) || (idType == NC_INT) || (idType == NC_INT64));
   const bool qCompress(idType != NC_STRING);
 
-  if ((qShuffle || qCompress) &&
-		  (retval = nc_def_var_deflate(mId, varId, qShuffle, qCompress, mCompressionLevel))
-		  ) {
-    std::cerr
-	    << "Error enabling compression and shuffle("
-	    << qShuffle
-	    << ","
-	    << mCompressionLevel
-	    << ") for '"
-	    << name
-	    << "' in '"
-	    << mFilename
-	    << "', "
-	    << nc_strerror(retval)
-	    << std::endl;
-    exit(2);
+  if (qShuffle || qCompress) {
+    std::ostringstream oss;
+    oss << "enabling compression and shuffle(" << qShuffle << "," << mCompressionLevel
+        << ") for '" << name << "'";
+    basicOp(nc_def_var_deflate(mId, varId, qShuffle, qCompress, mCompressionLevel),
+            oss.str());
   }
 
   if (idType == NC_FLOAT) {
     const float badValue(nan(""));
-    if ((retval = nc_def_var_fill(mId, varId, NC_FILL, &badValue))) {
-      std::cerr << "Error setting fill value, " << badValue
-                << " for '" << name << "' in '" << mFilename
-                << "', " << nc_strerror(retval) << std::endl;
-      exit(2);
-    }
+    basicOp(nc_def_var_fill(mId, varId, NC_FILL, &badValue),
+            "setting fill value for '" + name + "'");
   } else if (idType == NC_DOUBLE) {
     const double badValue(nan(""));
-    if ((retval = nc_def_var_fill(mId, varId, NC_FILL, &badValue))) {
-      std::cerr << "Error setting fill value, " << badValue
-                << " for '" << name << "' in '" << mFilename
-                << "', " << nc_strerror(retval) << std::endl;
-      exit(2);
-    }
+    basicOp(nc_def_var_fill(mId, varId, NC_FILL, &badValue),
+            "setting fill value for '" + name + "'");
   }
 
   if (!units.empty()) {
-    if ((retval = nc_put_att_text(mId, varId, "units", units.size(), units.c_str()))) {
-      std::cerr << "Error setting units attribute, '" << units << "' for '"
-                << name << "' in '" << mFilename << "', " << nc_strerror(retval)
-                << std::endl;
-      exit(2);
-    }
+    basicOp(nc_put_att_text(mId, varId, "units", units.size(), units.c_str()),
+            "setting units attribute for '" + name + "'");
   }
 
   return varId;
@@ -402,24 +371,20 @@ NetCDF::putVarError(const int retval,
 
   char varName[NC_MAX_NAME + 1];
   basicOp(nc_inq_varname(mId, varId, varName), "getting variable name");
-  std::cerr << "Error writing data to '" << varName << "' in '" << mFilename
-            << "', " << nc_strerror(retval) << std::endl;
-  exit(2);
+
+  std::ostringstream oss;
+  oss << "writing data to '" << varName << "'";
+  basicOp(retval, oss.str());
 }
 
 const size_t *
 NetCDF::mkCountOne(const size_t len)
 {
-  if (!mCountOne || (mCountLength < len)) {
-    delete mCountOne;
-    mCountLength = len;
-    mCountOne = new size_t[len];
-    for (size_t i(0); i < len; ++i) {
-      mCountOne[i] = 1;
+  if (mCountOne.size() < len) {
+    mCountOne.resize(len);
+    std::fill(mCountOne.begin(), mCountOne.end(), 1);
   }
-  }
-  return mCountOne;
-
+  return mCountOne.data();
 }
 
 std::string

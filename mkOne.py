@@ -17,8 +17,12 @@ import subprocess
 import logging
 import threading
 import time
+import queue
 
 class RunCommand(threading.Thread):
+    # Class-level queue to collect exceptions from all threads
+    __exception_queue = queue.Queue()
+
     def __init__(self, name:str, cmd:list, ofn:str, filenames:list) -> None:
         threading.Thread.__init__(self)
         self.name = name
@@ -31,8 +35,17 @@ class RunCommand(threading.Thread):
             stime = time.time()
             processCommand(self.__cmd, self.__ofn, self.__filenames)
             logging.info("Took %s wall clock seconds", "{:.2f}".format(time.time() - stime))
-        except:
+        except Exception as e:
             logging.exception("Executing")
+            # Push exception to queue so main thread can detect it
+            self.__exception_queue.put((self.name, e))
+
+    @classmethod
+    def check_exceptions(cls):
+        """Check if any thread raised an exception and re-raise it"""
+        if not cls.__exception_queue.empty():
+            name, exception = cls.__exception_queue.get()
+            raise RuntimeError(f"Thread {name} failed") from exception
         
 
 def printLines(lines:bytes, logger=logging.info) -> None:
@@ -40,7 +53,7 @@ def printLines(lines:bytes, logger=logging.info) -> None:
     for line in lines.split(b"\n"):
         try:
             logger("%s", str(line, "UTF-8"))
-        except:
+        except (UnicodeDecodeError, UnicodeError):
             logger("%s", line)
 
 def processCommand(cmd:list, ofn:str, filenames) -> int:
@@ -90,8 +103,8 @@ def extractSensors(filenames:list, args:ArgumentParser) -> list:
             line = str(line, "UTF-8")
             fields = line.split()
             sensors.append(fields[2])
-        except:
-            logging.warning("Unable to convert %s to a string", line)
+        except (UnicodeDecodeError, IndexError) as e:
+            logging.warning("Unable to parse line %s: %s", line, e)
     return sensors
 
 def processAll(filenames:list, args:ArgumentParser, suffix:str, sensorsFilename:str=None) -> None: 
@@ -226,3 +239,6 @@ processPD0(filter(lambda x: x.lower().endswith("pd0"), files), args) # Process P
 for thrd in threading.enumerate():
     if thrd != threading.main_thread():
         thrd.join()
+
+# Check if any thread failed
+RunCommand.check_exceptions()

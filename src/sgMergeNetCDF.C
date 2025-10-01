@@ -66,13 +66,12 @@ int
 main(int argc,
      char **argv)
 {
-  const char *ofn(0);
+  const char *ofn(nullptr);
   bool qVerbose(false);
   bool qAppend(false);
   bool qUnlimited(true);
 
     while (true) { // Walk through the options
-    int thisOptionOptind = optind ? optind : 1;
     int optionIndex = 0;
     int c = getopt_long(argc, argv, options, optionsLong, &optionIndex);
     if (c == -1) break; // End of options
@@ -116,13 +115,13 @@ main(int argc,
 
   SGMerge sg(ofn, qVerbose, qAppend, qUnlimited);
 
-  for (size_t i = optind; i < argc; ++i) { // Loop over input files
+  for (int i = optind; i < argc; ++i) { // Loop over input files
     if (!sg.loadFileHeader(argv[i])) return 1;
   }
- 
-  sg.updateHeader(); 
 
-  for (size_t i = optind; i < argc; ++i) { // Loop over input files
+  sg.updateHeader();
+
+  for (int i = optind; i < argc; ++i) { // Loop over input files
     if (!sg.mergeFile(argv[i])) return 1;
   }
 

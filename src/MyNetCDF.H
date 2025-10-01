@@ -23,6 +23,7 @@
 #include <netcdf.h>
 #include <string>
 #include <map>
+#include <vector>
 #include <stdint.h>
 
 class NetCDF {
@@ -34,8 +35,7 @@ private:
   bool mChunkPriority;
   int mCompressionLevel;
 
-  size_t *mCountOne;
-  size_t mCountLength;
+  std::vector<size_t> mCountOne;  // RAII memory management
 
   const size_t *mkCountOne(const size_t len);
  

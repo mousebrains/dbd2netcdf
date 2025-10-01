@@ -89,7 +89,7 @@ main(int argc,
 {
   std::string sensorCacheDirectory;
   Sensors::tNames toKeep, criteria;
-  const char *ofn(0);
+  const char *ofn(nullptr);
   bool qAppend(false);
   bool qSkipFirstRecord(false);
   bool qRepair(false);
@@ -99,7 +99,6 @@ main(int argc,
   Header::tMissions missionsToKeep;
 
   while (true) { // Walk through the options
-    int thisOptionOptind = optind ? optind : 1;
     int optionIndex = 0;
     int c = getopt_long(argc, argv, options, optionsLong, &optionIndex);
     if (c == -1) break; // End of options
@@ -190,10 +189,14 @@ main(int argc,
   typedef std::vector<int> tVars;
   tVars vars(smap.allSensors().nToStore());
 
-  NetCDF ncid(ofn, qAppend);
+  try {
+    NetCDF ncid(ofn, qAppend);
 
-  const int iDim(ncid.maybeCreateDim("i"));
-  const int jDim(ncid.maybeCreateDim("j"));
+  // NetCDF dimension names: "i" for data records, "j" for files
+  constexpr char DATA_DIMENSION[] = "i";
+  constexpr char FILE_DIMENSION[] = "j";
+  const int iDim(ncid.maybeCreateDim(DATA_DIMENSION));
+  const int jDim(ncid.maybeCreateDim(FILE_DIMENSION));
 
   // Setup variables
   const Sensors& all(smap.allSensors());
@@ -277,7 +280,7 @@ main(int argc,
       const size_t n(data.size());
       const size_t kStart(ii == 0 ? 0 : k0);
 
-      double *values(new double[n * sizeof(double)]);
+      std::vector<double> values(n);  // RAII - automatic cleanup
 
       { // Update file info
         for (tVars::size_type i(0), e(hdrVars.size()); i < e; ++i) {
@@ -326,8 +329,8 @@ main(int argc,
           ncid.putVars(var, start, count, &values[iFirst]);
         }
       }
-      
-      delete[] values;
+
+      // values automatically cleaned up on scope exit
 
       indexOffset += data.size() - kStart;
 
@@ -338,8 +341,16 @@ main(int argc,
       std::cerr << "Error processing '" << argv[i] << "', " << e.what() << std::endl;
     }
   }
- 
+
   ncid.close();
+
+  } catch (MyException& e) {
+    std::cerr << "Fatal error: " << e.what() << std::endl;
+    return(2);
+  } catch (std::exception& e) {
+    std::cerr << "Unexpected error: " << e.what() << std::endl;
+    return(3);
+  }
 
   return(0);
 }

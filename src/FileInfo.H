@@ -1,19 +1,9 @@
 #ifndef INC_FileInfo_H_
 #define INC_FileInfo_H_
 
-#include <string>
+#include <filesystem>
 
-namespace fs {
-  bool create_directory(const std::string& fn);
-  bool rename(const std::string& src, const std::string& dest);
-  bool exists(const std::string& fn);
-  bool is_directory(const std::string& fn);
-  size_t file_size(const std::string& filename);
-  std::string dirname(const std::string& filename);
-  std::string filename(const std::string& filename);
-  std::string extension(const std::string& filename);
-  std::string replace_extension(const std::string& filename, const std::string& ext);
-};
+namespace fs = std::filesystem;
 
 #endif // INC_FileInfo_H_
 

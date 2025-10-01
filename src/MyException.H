@@ -9,9 +9,9 @@ private:
   const std::string mWhat;
 public:
   MyException(const std::string& msg) : mWhat(msg) {}
-  virtual ~MyException() throw() {}
+  virtual ~MyException() noexcept {}
 
-  virtual const char* what() const throw() {return mWhat.c_str();}
+  virtual const char* what() const noexcept {return mWhat.c_str();}
 }; // MyException
 
 #endif // INC_MyException_H_

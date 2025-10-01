@@ -2,13 +2,13 @@
 #
 # Mar-2012, Pat Welch, pat@mousebrains.com
 
-cmake_minimum_required(VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.10)
 
-project(dbd2netcdf)
+project(dbd2netcdf LANGUAGES CXX C)
 
 set(dbd2netcdf_VERSION_MAJOR 1)
 set(dbd2netcdf_VERSION_MINOR 6)
-set(dbd2netcdf_VERSION_PATCH 4)
+set(dbd2netcdf_VERSION_PATCH 5)
 set(dbd2netcdf_MAINTAINER pat@mousebrains.com) # output to config.h
 
 add_subdirectory(src)  # Source code location
@@ -16,6 +16,7 @@ add_subdirectory(test) # Tests
 add_subdirectory(doc)  # Documentation
 
 if (NOT CMAKE_BUILD_TYPE)
+	message(STATUS "No build type specified, defaulting to Release")
 	set(CMAKE_BUILD_TYPE Release)
 endif()
 

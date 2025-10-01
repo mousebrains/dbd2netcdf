@@ -84,8 +84,8 @@ main(int argc,
 {
   std::string sensorCacheDirectory;
   Sensors::tNames toKeep, criteria;
+  std::unique_ptr<std::ofstream> outputFile;  // RAII - automatic cleanup
   std::ostream *osp(&std::cout);
-  bool qUsingStdOut(true);
 
   bool qSkipFirstRecord(false);
   bool qRepair(false);
@@ -95,7 +95,6 @@ main(int argc,
   Header::tMissions missionsToKeep;
 
     while (true) { // Walk through the options
-    int thisOptionOptind = optind ? optind : 1;
     int optionIndex = 0;
     int c = getopt_long(argc, argv, options, optionsLong, &optionIndex);
     if (c == -1) break; // End of options
@@ -117,18 +116,12 @@ main(int argc,
         Header::addMission(optarg, missionsToKeep);
         break;
       case 'o': // Output filename
-        osp = new std::ofstream(optarg);
-        if (!osp) {
-          std::cerr << "Error creating a new ofstream for '" << optarg << "', "
-		  << strerror(errno) << std::endl;
-	  return(1);
-	}
-
-        if (!(*osp)) {
+        outputFile = std::make_unique<std::ofstream>(optarg);
+        if (!outputFile || !(*outputFile)) {
           std::cerr << "Error opening '" << optarg << "', " << strerror(errno) << std::endl;
           return(1);
         }
-        qUsingStdOut = false;
+        osp = outputFile.get();
         break;
       case 'r': // Attempt to repair DBD files for missing data cycles
         qRepair = true;
@@ -260,10 +253,7 @@ main(int argc,
     }
   }
 
-  if (!qUsingStdOut && osp) {
-    delete(osp);
-    osp = 0;
-  }
+  // outputFile automatically cleaned up on function exit
 
   return(0);
 }

@@ -59,11 +59,10 @@ int
 main(int argc,
      char **argv)
 {
-  const char *ofn(0);
+  const char *ofn(nullptr);
   bool qVerbose(false);
 
   while (true) { // Walk through the options
-    int thisOptionOptind = optind ? optind : 1;
     int optionIndex = 0;
     int c = getopt_long(argc, argv, options, optionsLong, &optionIndex);
     if (c == -1) break; // End of options

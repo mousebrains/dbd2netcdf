@@ -6,6 +6,7 @@
 #include <iosfwd>
 #include <string>
 #include <vector>
+#include <set>
 #include <stdint.h>
 
 class NetCDF;
@@ -133,11 +134,7 @@ private:
 
   std::string mFilename;
   uint8_t mMaxNumberOfCells;
-
-  int miDim;
-  int mjDim;
-  int mk4Dim;
-  int mk8Dim;
+  std::set<size_t> mSeenHeaderTypes;  // Track unsupported header types to avoid duplicate warnings
 
   size_t load(std::istream& is, NetCDF& nc, size_t index);
   bool loadBlock(std::istream& is);

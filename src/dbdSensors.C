@@ -25,6 +25,7 @@
 #include "config.h"
 #include <iostream>
 #include <fstream>
+#include <memory>
 #include <cstring>
 #include <cstdlib>
 #include <cerrno>
@@ -66,14 +67,13 @@ main(int argc,
      char **argv)
 {
   std::string sensorCacheDirectory;
+  std::unique_ptr<std::ofstream> outputFile;  // RAII - automatic cleanup
   std::ostream *osp(&std::cout);
-  bool qUsingStdOut(true);
 
   Header::tMissions missionsToSkip;
   Header::tMissions missionsToKeep;
 
   while (true) { // Walk through the options
-    int thisOptionOptind = optind ? optind : 1;
     int optionIndex = 0;
     int c = getopt_long(argc, argv, options, optionsLong, &optionIndex);
     if (c == -1) break; // End of options
@@ -89,17 +89,12 @@ main(int argc,
         Header::addMission(optarg, missionsToKeep);
         break;
       case 'o': // Output filename
-        osp = new std::ofstream(optarg);
-        if (!osp) {
-          std::cerr << "Error creating a new ofstream for '" << optarg << "', " 
-		  << strerror(errno) << std::endl;
-          return(1);
-        }
-        if (!(*osp)) {
+        outputFile = std::make_unique<std::ofstream>(optarg);
+        if (!outputFile || !(*outputFile)) {
           std::cerr << "Error opening '" << optarg << "', " << strerror(errno) << std::endl;
           return(1);
         }
-        qUsingStdOut = false;
+        osp = outputFile.get();
         break;
       case 'V': // Print out version string
         std::cerr << VERSION << std::endl;
@@ -175,10 +170,7 @@ main(int argc,
 
   *osp << smap.allSensors();
 
-  if (!qUsingStdOut && osp) {
-    delete(osp);
-    osp = 0;
-  }
+  // outputFile automatically cleaned up on function exit
 
   return(0);
 }

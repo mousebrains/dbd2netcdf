@@ -22,6 +22,7 @@
 #include "FileInfo.H"
 #include <cerrno>
 #include <cstdio>
+#include <vector>
 
 int DecompressTWRBuf::underflow() {
   // We are only called if the buffer has been consumed
@@ -32,11 +33,11 @@ int DecompressTWRBuf::underflow() {
       return std::char_traits<char>::eof();
     }
     const size_t n(((sz[0] << 8) & 0xff00) | (sz[1] & 0xff)); // unsigned Big endian
-    char frame[n];
-    if (!this->mIS.read(frame, n)) { // EOF
+    std::vector<char> frame(n);  // RAII heap allocation instead of VLA
+    if (!this->mIS.read(frame.data(), n)) { // EOF
       return std::char_traits<char>::eof();
     }
-    const size_t j(LZ4_decompress_safe(frame, this->mBuffer, n, sizeof(this->mBuffer)));
+    const size_t j(LZ4_decompress_safe(frame.data(), this->mBuffer, n, sizeof(this->mBuffer)));
     if (j > sizeof(this->mBuffer)) { // Probably a corrupted file
       std::cerr << "Attempt to decompress lz4 block with too much data, "
 	      << j << " > " << sizeof(this->mBuffer) 
@@ -58,7 +59,7 @@ int DecompressTWRBuf::underflow() {
 }
 
 bool qCompressed(const std::string& fn) {
-  const std::string suffix(fs::extension(fn));
-  const bool q((suffix.size() == 4) & (std::tolower(suffix[2]) == 'c')); 
+  const std::string suffix(fs::path(fn).extension().string());
+  const bool q((suffix.size() == 4) && (std::tolower(static_cast<unsigned char>(suffix[2])) == 'c'));
   return q;
 }

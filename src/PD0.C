@@ -8,11 +8,6 @@
 #include <vector>
 #include <cstring>
 #include <cstdlib>
-#include <set>
-
-namespace { // Anonymous namespace
-	std::set<size_t> qSeen;
-}
 
 size_t
 PD0::load(const std::string& fn,
@@ -65,7 +60,7 @@ PD0::loadBlock(std::istream& is)
 
   const size_t nBytes(readUInt16(is)); // Number of bytes in ensemble
 
-  char *buffer(new char[nBytes]);
+  std::vector<char> buffer(nBytes);  // RAII - automatic cleanup
 
   buffer[0] = 0x7f;
   buffer[1] = 0x7f;
@@ -80,7 +75,7 @@ PD0::loadBlock(std::istream& is)
     oss << "Error reading " << nBytes << " bytes from '" << mFilename << "', " << reason;
     std::cerr << oss.str() << std::endl;
     if (!is.eof())
-      throw(MyException(oss.str()));
+      throw(MyException(oss.str()));  // buffer automatically cleaned up
     return false;
   }
 
@@ -100,11 +95,11 @@ PD0::loadBlock(std::istream& is)
         << " file's checksum 0x" << chkSum
         << std::dec;
     std::cerr << oss.str() << std::endl;
-    throw(MyException(oss.str()));
+    throw(MyException(oss.str()));  // buffer automatically cleaned up
   }
 
-  const std::string data(buffer, nBytes);
-  delete[] buffer;
+  const std::string data(buffer.data(), nBytes);
+  // buffer automatically cleaned up on function exit
 
   std::istringstream iss(data, std::ios_base::in | std::ios_base::binary);
   iss.seekg(5, std::ios::beg);
@@ -119,7 +114,6 @@ PD0::loadBlock(std::istream& is)
   }
 
   for (size_t i(0); i < nDataTypes; ++i) { // Load in data blocks
-    const std::streampos opos(iss.tellg());
     iss.seekg(offsets[i], std::ios::beg);
     // const std::streampos npos(iss.tellg());
     const size_t hdr(readUInt16(iss));
@@ -161,9 +155,9 @@ PD0::loadBlock(std::istream& is)
           return false;
         break;
       default:
-	if (qSeen.find(hdr) == qSeen.end()) {
-		qSeen.insert(hdr);
-		std::cerr << "Unsupported header type 0x" << std::hex << hdr 
+	if (mSeenHeaderTypes.find(hdr) == mSeenHeaderTypes.end()) {
+		mSeenHeaderTypes.insert(hdr);
+		std::cerr << "Unsupported header type 0x" << std::hex << hdr
 			<< " in " << mFilename
 			<< std::endl;
         }
@@ -344,8 +338,7 @@ PD0::Common::load(std::istream& is,
             break;
           case dtInt32:
           case dtUInt32:
-            std::cerr << "Unable to meld 32 bits" << std::endl;
-            exit(1);
+            throw MyException("Unable to meld 32 bits");
         }
       }
     }
@@ -592,7 +585,7 @@ PD0::Velocity::ncDump(NetCDF& nc,
                       size_t index)
 {
   size_t n(mItems[0].mArray.size());
-  int32_t *ptr(new int32_t[n]);
+  std::vector<int32_t> ptr(n);  // RAII - automatic cleanup
   const size_t dims[3] = {index, 0, 0};
   const size_t cnt[3] = {1, n / 4, 4};
 
@@ -600,9 +593,8 @@ PD0::Velocity::ncDump(NetCDF& nc,
     ptr[j] = mItems[0].mArray[j].i16;
   }
 
-  nc.putVars(mVarId, dims, cnt, ptr);
-
-  delete[] ptr;
+  nc.putVars(mVarId, dims, cnt, ptr.data());
+  // ptr automatically cleaned up on function exit
 }
 
 bool
@@ -635,7 +627,7 @@ PD0::Correlation::ncDump(NetCDF& nc,
                          size_t index)
 {
   size_t n(mItems[0].mArray.size());
-  uint32_t *ptr(new uint32_t[n]);
+  std::vector<uint32_t> ptr(n);  // RAII - automatic cleanup
   const size_t dims[3] = {index, 0, 0};
   const size_t cnt[3] = {1, n / 4, 4};
 
@@ -643,9 +635,8 @@ PD0::Correlation::ncDump(NetCDF& nc,
     ptr[j] = mItems[0].mArray[j].ui8;
   }
 
-  nc.putVars(mVarId, dims, cnt, ptr);
-
-  delete[] ptr;
+  nc.putVars(mVarId, dims, cnt, ptr.data());
+  // ptr automatically cleaned up on function exit
 }
 
 PD0::BottomTrack::BottomTrack()

@@ -92,12 +92,11 @@ private:
                 const std::string& fn) const;
 
   const std::string mFilename;
-  const bool mqVerbose;
   bool mqAppend;
   bool mqUnlimited;
   int mNCID;
 public:
-  SGMerge(const char *fn, const bool qVerbose, const bool qAppend, const bool qUnlimited);
+  SGMerge(const char *fn, const bool /* qVerbose */, const bool qAppend, const bool qUnlimited);
   ~SGMerge();
   bool loadFileHeader(const char *fn);
   void updateHeader();

@@ -20,6 +20,8 @@
 #include "KnownBytes.H"
 #include "MyException.H"
 #include <iostream>
+#include <sstream>
+#include <iomanip>
 #include <cerrno>
 #include <cmath>
 #include <cstring>
@@ -58,36 +60,36 @@ KnownBytes::KnownBytes(std::istream& is)
 
   
   if (int8 != 'a') {
-    char buffer[256];
-    snprintf(buffer, sizeof(buffer), "Error known bytes first byte(0x%x, '%c') != 'a'", 
-             int8, int8);
-    throw(MyException(buffer));
+    std::ostringstream oss;
+    oss << "Error known bytes first byte(0x" << std::hex << static_cast<int>(int8)
+        << ", '" << int8 << "') != 'a'";
+    throw MyException(oss.str());
   }
 
   if (int16 != 0x1234) {
     mFlip = true;
     int16 = ntohs(int16);
     if (int16 != 0x1234) {
-      char buffer[256];
-      snprintf(buffer, sizeof(buffer), "Error known bytes int16(0x%x) ~= 0x1234", int16);
-      throw(MyException(buffer));
+      std::ostringstream oss;
+      oss << "Error known bytes int16(0x" << std::hex << int16 << ") ~= 0x1234";
+      throw MyException(oss.str());
     }
   }
 
   fnum = read32(is);
 
   if (fabs(fnum - 123.456) > 0.00001) {
-    char buffer[256];
-    snprintf(buffer, sizeof(buffer), "Error known bytes float(%.17g) != 123.456", fnum);
-    throw(MyException(buffer));
+    std::ostringstream oss;
+    oss << std::setprecision(17) << "Error known bytes float(" << fnum << ") != 123.456";
+    throw MyException(oss.str());
   }
 
   dnum = read64(is);
 
   if (fabs(dnum - 123456789.12345) > 0.000000001) {
-    char buffer[256];
-    snprintf(buffer, sizeof(buffer), "Error known bytes double(%.17g) != 123456789.12345", dnum);
-    throw(MyException(buffer));
+    std::ostringstream oss;
+    oss << std::setprecision(17) << "Error known bytes double(" << dnum << ") != 123456789.12345";
+    throw MyException(oss.str());
   }
 }
 
@@ -96,10 +98,10 @@ KnownBytes::read8(std::istream& is) const
 {
   int8_t val;
 
-  if (!is.read((char *) &val, 1)) {
-    char buffer[2048];
-    snprintf(buffer, sizeof(buffer), "Error reading a byte, %s", strerror(errno));
-    throw(MyException(buffer));
+  if (!is.read(reinterpret_cast<char*>(&val), 1)) {
+    std::ostringstream oss;
+    oss << "Error reading a byte, " << strerror(errno);
+    throw MyException(oss.str());
   }
 
   return val;
@@ -110,10 +112,10 @@ KnownBytes::read16(std::istream& is) const
 {
   int16_t val;
 
-  if (!is.read((char *) &val, 2)) {
-    char buffer[2048];
-    snprintf(buffer, sizeof(buffer), "Error reading two bytes, %s", strerror(errno));
-    throw(MyException(buffer));
+  if (!is.read(reinterpret_cast<char*>(&val), 2)) {
+    std::ostringstream oss;
+    oss << "Error reading two bytes, " << strerror(errno);
+    throw MyException(oss.str());
   }
 
   return mFlip ? ntohs(val) : val;
@@ -127,10 +129,10 @@ KnownBytes::read32(std::istream& is) const
     int32_t inum;
   } val;
 
-  if (!is.read((char *) &val, 4)) {
-    char buffer[2048];
-    snprintf(buffer, sizeof(buffer), "Error reading four bytes, %s", strerror(errno));
-    throw(MyException(buffer));
+  if (!is.read(reinterpret_cast<char*>(&val), 4)) {
+    std::ostringstream oss;
+    oss << "Error reading four bytes, " << strerror(errno);
+    throw MyException(oss.str());
   }
 
   if (mFlip)
@@ -147,10 +149,10 @@ KnownBytes::read64(std::istream& is) const
     int32_t i32[2];
   } val;
 
-  if (!is.read((char *) &val, 8)) {
-    char buffer[2048];
-    snprintf(buffer, sizeof(buffer), "Error reading eight bytes, %s", strerror(errno));
-    throw(MyException(buffer));
+  if (!is.read(reinterpret_cast<char*>(&val), 8)) {
+    std::ostringstream oss;
+    oss << "Error reading eight bytes, " << strerror(errno);
+    throw MyException(oss.str());
   }
 
   if (mFlip) {

@@ -14,14 +14,12 @@ add_executable(dbd2netCDF
        	KnownBytes.C
        	Decompress.C
 	lz4.c
-	FileInfo.C
 	)
 
-add_executable(pd02netCDF 
+add_executable(pd02netCDF
 	pd02netCDF.C
 	PD0.C
 	MyNetCDF.C
-	FileInfo.C
 	)
 
 add_executable(dbd2csv
@@ -34,7 +32,6 @@ add_executable(dbd2csv
        	KnownBytes.C
 	Decompress.C
        	lz4.c
-       	FileInfo.C
 	)
 
 add_executable(dbdSensors
@@ -46,27 +43,30 @@ add_executable(dbdSensors
 	KnownBytes.C
 	Decompress.C
 	lz4.c
-	FileInfo.C
 	)
 
 add_executable(decompressTWR
 	decompressTWR.C
        	Decompress.C
 	lz4.c
-	FileInfo.C
 	)
 
 set_target_properties(sgMergeNetCDF dbd2netCDF dbd2csv dbdSensors pd02netCDF decompressTWR
 	PROPERTIES
 	  RUNTIME_OUTPUT_DIRECTORY ${dbd2netcdf_SOURCE_DIR}/bin
 	  LINKER_LANGUAGE CXX
-	  CXX_STANDARD 11
+	  CXX_STANDARD 17
 	  CXX_STANDARD_REQUIRED ON
-	  CMAKE_CXX_FLAGS "-Wall -Wextra -pedantic"
+	  CXX_EXTENSIONS OFF
 )
 
-set(CMAKE_CXX_FLAGS_DEBUG "-g")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+# Set compiler flags for all targets
+target_compile_options(sgMergeNetCDF PRIVATE -Wall -Wextra -pedantic)
+target_compile_options(dbd2netCDF PRIVATE -Wall -Wextra -pedantic)
+target_compile_options(dbd2csv PRIVATE -Wall -Wextra -pedantic)
+target_compile_options(dbdSensors PRIVATE -Wall -Wextra -pedantic)
+target_compile_options(pd02netCDF PRIVATE -Wall -Wextra -pedantic)
+target_compile_options(decompressTWR PRIVATE -Wall -Wextra -pedantic)
 
 # Get where NetCDF is installed using the nc-config command
 execute_process(COMMAND nc-config --includedir 
