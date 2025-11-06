@@ -141,6 +141,7 @@ main(int argc,
 	std::cerr << "Unsupported option 0x" << std::hex << c << std::dec;
         if ((c >= 0x20) && (c <= 0x7e)) std::cerr << " '" << ((char) (c & 0xff)) << "'";
         std::cerr << std::endl;
+        [[fallthrough]];
       case '?': // Unsupported option
       case 'h': // Help
 	return usage(argv[0]);
