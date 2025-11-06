@@ -152,6 +152,10 @@ jobs:
       image: almalinux:8
 
     steps:
+    - name: Install git (required for checkout)
+      run: |
+        dnf install -y git
+
     - name: Checkout code
       uses: actions/checkout@v4
 
