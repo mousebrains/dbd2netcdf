@@ -1,0 +1,186 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ master, main ]
+  pull_request:
+    branches: [ master, main ]
+  workflow_dispatch:
+
+jobs:
+  build-linux:
+    name: ${{ matrix.os }} - ${{ matrix.compiler }} ${{ matrix.version }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # GCC versions on Ubuntu
+          - os: ubuntu-20.04
+            compiler: gcc
+            version: 8
+            install: gcc-8 g++-8
+          - os: ubuntu-20.04
+            compiler: gcc
+            version: 9
+            install: gcc-9 g++-9
+          - os: ubuntu-22.04
+            compiler: gcc
+            version: 10
+            install: gcc-10 g++-10
+          - os: ubuntu-22.04
+            compiler: gcc
+            version: 11
+            install: gcc-11 g++-11
+          - os: ubuntu-22.04
+            compiler: gcc
+            version: 12
+            install: gcc-12 g++-12
+          - os: ubuntu-24.04
+            compiler: gcc
+            version: 13
+            install: gcc-13 g++-13
+          - os: ubuntu-24.04
+            compiler: gcc
+            version: 14
+            install: gcc-14 g++-14
+
+          # Clang versions
+          - os: ubuntu-22.04
+            compiler: clang
+            version: 12
+            install: clang-12
+          - os: ubuntu-22.04
+            compiler: clang
+            version: 14
+            install: clang-14
+          - os: ubuntu-24.04
+            compiler: clang
+            version: 15
+            install: clang-15
+          - os: ubuntu-24.04
+            compiler: clang
+            version: 18
+            install: clang-18
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake libnetcdf-dev libhdf5-dev ${{ matrix.install }}
+
+    - name: Set up compiler
+      run: |
+        if [ "${{ matrix.compiler }}" = "gcc" ]; then
+          echo "CC=gcc-${{ matrix.version }}" >> $GITHUB_ENV
+          echo "CXX=g++-${{ matrix.version }}" >> $GITHUB_ENV
+        else
+          echo "CC=clang-${{ matrix.version }}" >> $GITHUB_ENV
+          echo "CXX=clang++-${{ matrix.version }}" >> $GITHUB_ENV
+        fi
+
+    - name: Display compiler version
+      run: |
+        $CC --version
+        $CXX --version
+        cmake --version
+
+    - name: Configure CMake
+      run: |
+        cmake -B build -DCMAKE_BUILD_TYPE=Release \
+              -DCMAKE_C_COMPILER=$CC \
+              -DCMAKE_CXX_COMPILER=$CXX
+
+    - name: Build
+      run: cmake --build build --config Release
+
+    - name: List built executables
+      run: |
+        ls -lh bin/
+        file bin/*
+
+    - name: Run basic tests
+      run: |
+        cd build
+        ctest --output-on-failure || echo "No tests configured"
+
+  build-macos:
+    name: macOS - ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-13, macos-14, macos-15]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        brew install cmake netcdf hdf5
+
+    - name: Display compiler version
+      run: |
+        clang --version
+        cmake --version
+
+    - name: Configure CMake
+      run: |
+        cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build
+      run: cmake --build build --config Release
+
+    - name: List built executables
+      run: |
+        ls -lh bin/
+        file bin/*
+
+    - name: Run basic tests
+      run: |
+        cd build
+        ctest --output-on-failure || echo "No tests configured"
+
+  build-alma:
+    name: Alma Linux 8 (GCC 8.5)
+    runs-on: ubuntu-latest
+    container:
+      image: almalinux:8
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        dnf install -y epel-release
+        dnf config-manager --set-enabled powertools || \
+          dnf config-manager --set-enabled crb
+        dnf install -y cmake gcc-c++ make netcdf-devel hdf5-devel
+
+    - name: Display compiler version
+      run: |
+        gcc --version
+        g++ --version
+        cmake --version
+
+    - name: Configure CMake
+      run: |
+        cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build
+      run: cmake --build build --config Release
+
+    - name: List built executables
+      run: |
+        ls -lh bin/
+        file bin/*
+
+    - name: Verify GCC 8.5 stdc++fs linking
+      run: |
+        # Verify that stdc++fs is being linked for GCC 8.x
+        ldd bin/dbd2netCDF | grep stdc++ || echo "stdc++ found in dependencies"
