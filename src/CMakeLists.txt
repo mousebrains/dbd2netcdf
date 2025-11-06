@@ -185,6 +185,14 @@ target_link_libraries(sgMergeNetCDF ${netCDF_libnetcdf})
 target_link_libraries(dbd2netCDF ${netCDF_libnetcdf})
 target_link_libraries(pd02netCDF ${netCDF_libnetcdf})
 
+# Link stdc++fs for GCC 8.x (required for filesystem support)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0)
+    target_link_libraries(dbd2netCDF stdc++fs)
+    target_link_libraries(dbd2csv stdc++fs)
+    target_link_libraries(dbdSensors stdc++fs)
+    target_link_libraries(decompressTWR stdc++fs)
+endif()
+
 # Install locally
 
 install(TARGETS sgMergeNetCDF dbd2netCDF pd02netCDF dbd2csv dbdSensors decompressTWR 
