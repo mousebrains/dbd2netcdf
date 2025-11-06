@@ -6,6 +6,35 @@ cmake_minimum_required(VERSION 3.10)
 
 project(dbd2netcdf LANGUAGES CXX C)
 
+# Check for minimum compiler versions (C++17 support required)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 8.0)
+        message(FATAL_ERROR "GCC version must be at least 8.0 for C++17 support. "
+                "Current version: ${CMAKE_CXX_COMPILER_VERSION}")
+    endif()
+    message(STATUS "GCC version ${CMAKE_CXX_COMPILER_VERSION} detected")
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 5.0)
+        message(FATAL_ERROR "Clang version must be at least 5.0 for C++17 support. "
+                "Current version: ${CMAKE_CXX_COMPILER_VERSION}")
+    endif()
+    message(STATUS "Clang version ${CMAKE_CXX_COMPILER_VERSION} detected")
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.1)
+        message(FATAL_ERROR "AppleClang version must be at least 9.1 for C++17 support. "
+                "Current version: ${CMAKE_CXX_COMPILER_VERSION}")
+    endif()
+    message(STATUS "AppleClang version ${CMAKE_CXX_COMPILER_VERSION} detected")
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    if(CMAKE_CXX_COMPILER_VERSION VERSION_LESS 19.14)
+        message(FATAL_ERROR "MSVC version must be at least 19.14 (Visual Studio 2017 15.7) for C++17 support. "
+                "Current version: ${CMAKE_CXX_COMPILER_VERSION}")
+    endif()
+    message(STATUS "MSVC version ${CMAKE_CXX_COMPILER_VERSION} detected")
+else()
+    message(WARNING "Unknown compiler ${CMAKE_CXX_COMPILER_ID}. C++17 support cannot be verified.")
+endif()
+
 set(dbd2netcdf_VERSION_MAJOR 1)
 set(dbd2netcdf_VERSION_MINOR 6)
 set(dbd2netcdf_VERSION_PATCH 5)
