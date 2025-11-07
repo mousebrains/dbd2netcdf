@@ -113,7 +113,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-13, macos-14, macos-15]
+        os: [macos-14, macos-15]
 
     steps:
     - name: Checkout code
@@ -121,7 +121,9 @@ jobs:
 
     - name: Install dependencies
       run: |
-        brew install cmake netcdf hdf5
+        for pkg in cmake netcdf hdf5; do
+          brew list $pkg &>/dev/null || brew install $pkg
+        done
 
     - name: Display compiler version
       run: |
