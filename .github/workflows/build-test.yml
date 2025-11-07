@@ -16,14 +16,6 @@ jobs:
       matrix:
         include:
           # GCC versions on Ubuntu
-          - os: ubuntu-20.04
-            compiler: gcc
-            version: 8
-            install: gcc-8 g++-8
-          - os: ubuntu-20.04
-            compiler: gcc
-            version: 9
-            install: gcc-9 g++-9
           - os: ubuntu-22.04
             compiler: gcc
             version: 10
