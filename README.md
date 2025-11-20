@@ -1,3 +1,7 @@
+# dbd2netcdf
+
+**Version: 1.6.5**
+
 This software is designed to translate a set of Dinkum Binary Data files into
 a netCDF file.
 
