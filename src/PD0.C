@@ -241,8 +241,8 @@ uint16_t
 PD0::readUInt16(std::istream& is,
                 const bool qThrow)
 {
-  char c[2];
-  is.read(c, sizeof(c));
+  unsigned char c[2];
+  is.read(reinterpret_cast<char*>(c), sizeof(c));
 
   if (!is) { // EOF
     if (qThrow) {
@@ -254,15 +254,15 @@ PD0::readUInt16(std::istream& is,
     return 0;
   }
 
-  return (c[0] & 0xff) | ((c[1] << 8) & 0xff00);
+  return c[0] | (c[1] << 8);
 }
 
 uint32_t
 PD0::readUInt32(std::istream& is,
                 const bool qThrow)
 {
-  char c[4];
-  is.read(c, sizeof(c));
+  unsigned char c[4];
+  is.read(reinterpret_cast<char*>(c), sizeof(c));
 
   if (!is) { // EOF
     if (qThrow) {
@@ -274,10 +274,10 @@ PD0::readUInt32(std::istream& is,
     return 0;
   }
 
-  return (c[0]         &       0xff) | 
-         ((c[1] <<  8) &     0xff00) |
-         ((c[2] << 16) &   0xff0000) |
-         ((c[3] << 24) & 0xff000000);
+  return static_cast<uint32_t>(c[0]) |
+         (static_cast<uint32_t>(c[1]) <<  8) |
+         (static_cast<uint32_t>(c[2]) << 16) |
+         (static_cast<uint32_t>(c[3]) << 24);
 }
 
 bool
