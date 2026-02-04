@@ -495,28 +495,36 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Setup vcpkg
-      uses: lukka/run-vcpkg@v11
+    - name: Setup Miniconda
+      uses: conda-incubator/setup-miniconda@v3
       with:
-        vcpkgGitCommitId: '01f602195983451bc83e72f4214af2cbc495aa94'
+        auto-update-conda: true
+        python-version: '3.11'
+        channels: conda-forge
+        channel-priority: strict
 
-    - name: Install dependencies via vcpkg
+    - name: Install dependencies via conda
+      shell: bash -el {0}
       run: |
-        vcpkg install netcdf-c:x64-windows hdf5:x64-windows
+        conda install -y libnetcdf hdf5 cmake ninja
 
     - name: Configure CMake
+      shell: bash -el {0}
       run: |
-        cmake -B build -DCMAKE_BUILD_TYPE=Release `
-          -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
+        cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_PREFIX_PATH="$CONDA_PREFIX/Library"
 
     - name: Build
+      shell: bash -el {0}
       run: cmake --build build --config Release
 
     - name: List built executables
+      shell: bash -el {0}
       run: |
-        Get-ChildItem -Path bin -Recurse | Format-Table Name, Length
+        ls -la bin/
 
     - name: Run tests
+      shell: bash -el {0}
       run: |
         cd build
         ctest -C Release --output-on-failure
