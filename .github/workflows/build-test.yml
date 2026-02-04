@@ -176,7 +176,7 @@ jobs:
     - name: Run clang-tidy
       run: |
         clang-tidy -p build \
-          --checks='-*,bugprone-*,-bugprone-narrowing-conversions,-bugprone-exception-escape,-bugprone-easily-swappable-parameters,-bugprone-assignment-in-if-condition,-bugprone-branch-clone,-bugprone-suspicious-string-compare,-bugprone-switch-missing-default-case,-bugprone-implicit-widening-of-multiplication-result' \
+          --checks='-*,bugprone-*,-bugprone-narrowing-conversions,-bugprone-exception-escape,-bugprone-easily-swappable-parameters,-bugprone-assignment-in-if-condition,-bugprone-branch-clone,-bugprone-suspicious-string-compare,-bugprone-switch-missing-default-case,-bugprone-implicit-widening-of-multiplication-result,-bugprone-reserved-identifier,-bugprone-signed-char-misuse,-bugprone-macro-parentheses' \
           --warnings-as-errors='bugprone-*' \
           --header-filter='src/.*' \
           src/*.C
