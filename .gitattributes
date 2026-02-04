@@ -1,0 +1,13 @@
+# Ensure shell scripts always use Unix line endings
+test/dbd2csv text eol=lf
+test/dbd2netCDF text eol=lf
+test/dbdSensors text eol=lf
+test/pd02netCDF text eol=lf
+
+# Shell scripts anywhere in the repo
+*.sh text eol=lf
+
+# Binary data files should not be modified
+*.sbd binary
+*.tbd binary
+*.pd0 binary
