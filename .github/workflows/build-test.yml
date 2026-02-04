@@ -313,8 +313,8 @@ jobs:
         rm -rf "$work"
         mkdir -p "$work"
 
-        # Use cp without -a to avoid symlink issues on Windows
-        cp -r "$src"/. "$work"/
+        # Use tar to copy files - avoids permission preservation issues on Cygwin
+        (cd "$src" && tar cf - --exclude='.git' .) | (cd "$work" && tar xf -)
 
         echo "CYGWIN_WORKSPACE=$work" >> $GITHUB_ENV
 
