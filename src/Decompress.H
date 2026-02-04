@@ -13,7 +13,7 @@ class DecompressTWRBuf: public std::streambuf {
   const std::string mFilename;
 public:
   DecompressTWRBuf(const std::string& fn, const bool qCompressed)
-    : mIS(fn.c_str())
+    : mIS(fn.c_str(), std::ios::binary)
     , mqCompressed(qCompressed)
     , mFilename(fn)
 

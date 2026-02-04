@@ -101,7 +101,7 @@ main(int argc,
     const std::string ofn(mkOutputFilename(directory, ifn));
     const std::string tfn(ofn + "." + uniqueSuffix());
     try {
-      std::ofstream os(tfn.c_str());
+      std::ofstream os(tfn.c_str(), std::ios::binary);
       if (!os) {
         std::cerr << "Error opening '" << tfn << "', " << strerror(errno) << std::endl;
 	return 1;

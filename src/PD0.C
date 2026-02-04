@@ -24,7 +24,7 @@ PD0::load(const std::string& fn,
   mBottomTrack.clear();
   mVMDAS.clear();
 
-  std::ifstream is(fn.c_str());
+  std::ifstream is(fn.c_str(), std::ios::binary);
 
   if (!is) {
     const std::string msg("Error opening '" + fn + "', " + strerror(errno));
@@ -712,7 +712,7 @@ PD0::VMDAS::load(std::istream& is,
 uint8_t
 PD0::maxNumberOfCells(const std::string& fn)
 {
-  std::ifstream is(fn.c_str());
+  std::ifstream is(fn.c_str(), std::ios::binary);
 
   if (!is) {
     const std::string msg("Error opening '" + fn + "', " + strerror(errno));
