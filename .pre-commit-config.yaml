@@ -5,6 +5,8 @@ repos:
     rev: v6.0.0
     hooks:
     -   id: trailing-whitespace
+        exclude: '\.(netCDF|ncdump|sbd|tbd|dbd|ebd|mbd|scd|tcd|dcd|ecd|mcd|csv)$'
     -   id: end-of-file-fixer
+        exclude: '\.(netCDF|ncdump|sbd|tbd|dbd|ebd|mbd|scd|tcd|dcd|ecd|mcd|csv)$'
     -   id: check-yaml
     -   id: check-added-large-files
