@@ -5,7 +5,7 @@
 [![Latest Release](https://img.shields.io/github/v/release/mousebrains/dbd2netcdf)](https://github.com/mousebrains/dbd2netcdf/releases/latest)
 
 This software is designed to translate a set of Dinkum Binary Data files into
-a netCDF file.
+a netCDF file. See [Architecture Documentation](doc/ARCHITECTURE.md) for technical details.
 
 You must have installed hdf5 and netCDF,
 prior to configuring, building, and installing this software!
