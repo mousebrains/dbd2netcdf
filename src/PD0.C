@@ -744,7 +744,7 @@ PD0::maxNumberOfCells(const std::string& fn)
       const size_t hdr(hdrLo | (hdrHi << 8));
       if (hdr == 0x0000) { // Fixed
         is.seekg(7, std::ios::cur); // Move to number of cells
-        const uint8_t nCells(is.get());
+        const uint8_t nCells(static_cast<uint8_t>(is.get()));
         maxnCells = (maxnCells > nCells) ? maxnCells : nCells;
         break; // Go to next block
       }
