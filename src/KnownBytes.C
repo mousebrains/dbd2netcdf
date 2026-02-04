@@ -42,21 +42,10 @@ KnownBytes::KnownBytes(std::istream& is)
   float fnum(0);
   double dnum(0);
 
-  if (sizeof(int8) != 1) {
-    throw(MyException("sizeof(int8) != 1"));
-  }
-
-  if (sizeof(int16) != 2) {
-    throw(MyException("sizeof(int16) !=2"));
-  }
-
-  if (sizeof(fnum) != 4) {
-    throw(MyException("sizeof(fnum) != 4"));
-  }
-
-  if (sizeof(dnum) != 8) {
-    throw(MyException("sizeof(dnum) != 8"));
-  }
+  static_assert(sizeof(int8_t) == 1, "sizeof(int8_t) != 1");
+  static_assert(sizeof(int16_t) == 2, "sizeof(int16_t) != 2");
+  static_assert(sizeof(float) == 4, "sizeof(float) != 4");
+  static_assert(sizeof(double) == 8, "sizeof(double) != 8");
 
   if (tag != 's') {
     throw(MyException("Error known bytes cycle tag(%c) != 's'"));

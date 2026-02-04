@@ -71,17 +71,17 @@ Sensors::loadNames(const char *fn,
 
   for (std::string line; getline(is, line);) {
     for (std::string::size_type i(0), e(line.size()); i < e; ) {
-      const std::string::size_type is(line.find_first_not_of(whiteSpace, i));
-      if (is == line.npos) { // Nothing but whitespace left
+      const std::string::size_type tokenStart(line.find_first_not_of(whiteSpace, i));
+      if (tokenStart == line.npos) { // Nothing but whitespace left
         break;
       }
-      const std::string::size_type ie(line.find_first_of(whiteSpace, is));
+      const std::string::size_type ie(line.find_first_of(whiteSpace, tokenStart));
       if (ie == line.npos) { // Only a token left
-        const std::string sensor(line.substr(is));
+        const std::string sensor(line.substr(tokenStart));
         names.insert(sensor);
         break;
       }
-      const std::string sensor(line.substr(is, ie - is));
+      const std::string sensor(line.substr(tokenStart, ie - tokenStart));
       names.insert(sensor);
       i = ie + 1; // Point to first character after white space that was found
     }

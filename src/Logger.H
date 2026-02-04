@@ -43,7 +43,7 @@ public:
             mLogger->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%^%l%$] %v");
             mLogger->set_level(static_cast<spdlog::level::level_enum>(level));
             mInitialized = true;
-        } catch (const spdlog::spdlog_ex& ex) {
+        } catch (const spdlog::spdlog_ex&) {
             // Logger already exists, get it
             mLogger = spdlog::get(name);
             if (mLogger) {
