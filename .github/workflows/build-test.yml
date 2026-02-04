@@ -374,11 +374,30 @@ jobs:
     - name: Configure CMake
       run: |
         cd "$CYGWIN_WORKSPACE"
-        cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_USE_RELATIVE_PATHS=ON
+        # Clean any existing build directory
+        rm -rf build
+        cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+    - name: Verify source files before build
+      run: |
+        cd "$CYGWIN_WORKSPACE"
+        echo "=== Checking critical source files ==="
+        for f in src/sgMergeNetCDF.C src/dbd2netCDF.C src/CMakeLists.txt; do
+          if [ -f "$f" ]; then
+            echo "OK: $f exists ($(wc -c < "$f") bytes)"
+          else
+            echo "MISSING: $f"
+            exit 1
+          fi
+        done
+        echo "=== All source files verified ==="
 
     - name: Build
       run: |
         cd "$CYGWIN_WORKSPACE"
+        echo "=== Build directory contents ==="
+        ls -la build/
+        echo "=== Starting build ==="
         cmake --build build --config Release
 
     - name: List built executables
