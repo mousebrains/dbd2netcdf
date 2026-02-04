@@ -195,7 +195,18 @@ jobs:
         if ncdump --version >/dev/null 2>&1; then
           ncdump --version
         else
-          ncdump -k test/test.sbd.netCDF
+          ref=""
+          for f in test/*.netCDF; do
+            if [ -f "$f" ]; then
+              ref="$f"
+              break
+            fi
+          done
+          if [ -n "$ref" ]; then
+            ncdump -k "$ref"
+          else
+            echo "No test/*.netCDF files found; skipping ncdump -k"
+          fi
         fi
 
     - name: Configure CMake
