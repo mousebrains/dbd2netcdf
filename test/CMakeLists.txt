@@ -10,6 +10,9 @@ add_subdirectory(unit)
 # Add fuzz tests subdirectory (optional, requires Clang with libFuzzer)
 add_subdirectory(fuzz)
 
+# Add benchmark tests subdirectory (optional)
+add_subdirectory(benchmark)
+
 find_program(SH_PROGRAM sh)
 
 if (SH_PROGRAM)
