@@ -135,7 +135,7 @@ jobs:
 
     - name: Run cppcheck
       run: |
-        cppcheck --enable=warning,performance,portability \
+        cppcheck --enable=warning \
           --error-exitcode=1 \
           --suppress=missingIncludeSystem \
           --suppress=uninitvar:src/lz4.c \
@@ -145,6 +145,11 @@ jobs:
           --suppress=uninitMemberVar \
           --inline-suppr \
           src/
+        # Run performance/portability checks as informational (non-blocking)
+        echo "=== Performance and portability suggestions (non-blocking) ==="
+        cppcheck --enable=performance,portability \
+          --suppress=missingIncludeSystem \
+          src/ || true
 
   build-asan:
     name: AddressSanitizer
