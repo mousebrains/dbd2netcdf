@@ -1,25 +1,29 @@
 INSTALLATION OF DBD2NETCDF ON WINDOWS 7 CYGWIN
 
 ::BEFORE INSTALLATION::
-the following packages should be installed on Cygwin:
-  gcc4-core
-  gcc4-g++
+the following packages should be installed on Cygwin
+(GCC 8+ is required for C++17 support):
+  gcc-core (>=8)
+  gcc-g++ (>=8)
   cmake
   make
-  netCDF
-  libnetCDF latest
-  libnetCDF-devel
+  netcdf (includes ncdump)
+  netcdf-devel (may be listed as libnetcdf-devel)
   hdf5
-  libhdf5 latest
-  libhdf5-devel
+  hdf5-devel (may be listed as libhdf5-devel)
+  diffutils (for tests)
+  coreutils (for tests: tail, etc.)
 
 to install the above packages, run the setup.exe installer for Cygwin
 and while in the packages selection screen, find the packages above
 using the following searches:
   gcc
   make
-  netCDF
+  cmake
+  netcdf
   hdf5
+  diffutils
+  coreutils
 
 click the circle with arrows next to each appropriate package to install
 the latest version.  Now finish the cygwin installation.

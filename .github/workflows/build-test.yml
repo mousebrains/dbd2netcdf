@@ -99,6 +99,23 @@ jobs:
         cd build
         ctest --output-on-failure || echo "No tests configured"
 
+  lint-shell:
+    name: Shellcheck
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install shellcheck
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y shellcheck
+
+    - name: Shellcheck test scripts
+      run: |
+        shellcheck -s sh test/dbd2netCDF test/dbd2csv test/dbdSensors test/pd02netCDF
+
   build-macos:
     name: macOS - ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -138,6 +155,56 @@ jobs:
       run: |
         cd build
         ctest --output-on-failure || echo "No tests configured"
+
+  build-cygwin:
+    name: Cygwin - windows-latest
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: C:\tools\cygwin\bin\bash.exe --login -o igncr -eo pipefail '{0}'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Cygwin
+      uses: egor-tensin/setup-cygwin@v4
+      with:
+        packages: >-
+          cmake
+          gcc-core
+          gcc-g++
+          make
+          netcdf
+          libnetcdf-devel
+          hdf5
+          libhdf5-devel
+          diffutils
+          coreutils
+          grep
+
+    - name: Display compiler version
+      run: |
+        gcc --version
+        g++ --version
+        cmake --version
+
+    - name: Verify NetCDF tools
+      run: |
+        nc-config --version
+        ncdump --version
+
+    - name: Configure CMake
+      run: |
+        cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build
+      run: cmake --build build --config Release
+
+    - name: Run tests
+      run: |
+        cd build
+        ctest --output-on-failure
 
   build-alma:
     name: Alma Linux 8 (GCC 8.5)
