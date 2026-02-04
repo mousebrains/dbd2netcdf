@@ -21,32 +21,48 @@ jobs:
         include:
           # GCC versions on Ubuntu
           # Note: GCC 8.5 tested on AlmaLinux for legacy C++17 support
-          - os: ubuntu-22.04
+          - os: ubuntu-latest
+            compiler: gcc
+            version: 9
+            install: gcc-9 g++-9
+          - os: ubuntu-latest
+            compiler: gcc
+            version: 10
+            install: gcc-10 g++-10
+          - os: ubuntu-latest
+            compiler: gcc
+            version: 11
+            install: gcc-11 g++-11
+          - os: ubuntu-latest
             compiler: gcc
             version: 12
             install: gcc-12 g++-12
-          - os: ubuntu-24.04
+          - os: ubuntu-latest
             compiler: gcc
             version: 13
             install: gcc-13 g++-13
-          - os: ubuntu-24.04
+          - os: ubuntu-latest
             compiler: gcc
             version: 14
             install: gcc-14 g++-14
 
           # Clang versions
-          - os: ubuntu-22.04
+          - os: ubuntu-latest
             compiler: clang
-            version: 14
-            install: clang-14
-          - os: ubuntu-24.04
+            version: 16
+            install: clang-16
+          - os: ubuntu-latest
             compiler: clang
-            version: 15
-            install: clang-15
-          - os: ubuntu-24.04
+            version: 17
+            install: clang-17
+          - os: ubuntu-latest
             compiler: clang
             version: 18
             install: clang-18
+          - os: ubuntu-latest
+            compiler: clang
+            version: 19
+            install: clang-19
 
     steps:
     - name: Checkout code
@@ -274,7 +290,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [macos-14, macos-15]
+        os: [macos-14, macos-15, macos-26]
 
     steps:
     - name: Checkout code
