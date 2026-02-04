@@ -160,11 +160,12 @@ target_link_libraries(pd02netCDF PRIVATE ${NETCDF_LIBRARIES})
 
 # Link stdc++fs for GCC 8.x (required for filesystem support)
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0)
-    target_link_libraries(dbd2netCDF stdc++fs)
-    target_link_libraries(pd02netCDF stdc++fs)
-    target_link_libraries(dbd2csv stdc++fs)
-    target_link_libraries(dbdSensors stdc++fs)
-    target_link_libraries(decompressTWR stdc++fs)
+    target_link_libraries(dbd2netCDF PRIVATE stdc++fs)
+    target_link_libraries(pd02netCDF PRIVATE stdc++fs)
+    target_link_libraries(dbd2csv PRIVATE stdc++fs)
+    target_link_libraries(dbdSensors PRIVATE stdc++fs)
+    target_link_libraries(decompressTWR PRIVATE stdc++fs)
+    target_link_libraries(sgMergeNetCDF PRIVATE stdc++fs)
 endif()
 
 # Install locally
