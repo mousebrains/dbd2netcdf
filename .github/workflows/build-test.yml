@@ -6,15 +6,6 @@ on:
   pull_request:
     branches: [ master, main ]
   workflow_dispatch:
-    inputs:
-      job:
-        description: 'Job to run (leave empty for all)'
-        required: false
-        default: ''
-        type: choice
-        options:
-          - ''
-          - cygwin-only
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -22,7 +13,6 @@ concurrency:
 
 jobs:
   build-linux:
-    if: github.event_name != 'workflow_dispatch' || inputs.job == ''
     name: ${{ matrix.os }} - ${{ matrix.compiler }} ${{ matrix.version }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -114,7 +104,6 @@ jobs:
         ctest --output-on-failure || echo "No tests configured"
 
   lint-shell:
-    if: github.event_name != 'workflow_dispatch' || inputs.job == ''
     name: Shellcheck
     runs-on: ubuntu-latest
 
@@ -132,7 +121,6 @@ jobs:
         shellcheck -s sh test/dbd2netCDF test/dbd2csv test/dbdSensors test/pd02netCDF
 
   lint-cpp:
-    if: github.event_name != 'workflow_dispatch' || inputs.job == ''
     name: C++ Static Analysis
     runs-on: ubuntu-latest
 
@@ -164,7 +152,6 @@ jobs:
           src/ || true
 
   build-asan:
-    if: github.event_name != 'workflow_dispatch' || inputs.job == ''
     name: AddressSanitizer
     runs-on: ubuntu-latest
 
@@ -196,7 +183,6 @@ jobs:
         ctest --output-on-failure
 
   codeql:
-    if: github.event_name != 'workflow_dispatch' || inputs.job == ''
     name: CodeQL Security Analysis
     runs-on: ubuntu-latest
     permissions:
@@ -227,7 +213,6 @@ jobs:
       uses: github/codeql-action/analyze@v3
 
   build-macos:
-    if: github.event_name != 'workflow_dispatch' || inputs.job == ''
     name: macOS - ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -333,37 +318,18 @@ jobs:
     - name: Prepare Cygwin workspace
       shell: D:\cygwin\bin\bash.exe --login -o igncr -eo pipefail '{0}'
       run: |
-        echo "=== Environment diagnostics ==="
-        echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
         src="$(cygpath -u "$GITHUB_WORKSPACE")"
-        echo "Source path (Unix): $src"
-        echo "=== Source directory contents ==="
-        ls -la "$src" || { echo "Cannot list source directory"; exit 1; }
-        echo "=== Source src/ directory ==="
-        ls -la "$src/src/" || { echo "Cannot list src directory"; exit 1; }
-
         work="/tmp/dbd2netcdf-work"
-        echo "Work path: $work"
         rm -rf "$work"
         mkdir -p "$work"
 
         # Use tar to copy files - avoids permission preservation issues on Cygwin
-        echo "=== Copying files with tar ==="
         (cd "$src" && tar cf - --exclude='.git' .) | (cd "$work" && tar xf -)
 
         echo "CYGWIN_WORKSPACE=$work" >> $GITHUB_ENV
 
         # Verify copy succeeded
-        echo "=== Workspace contents ==="
-        ls -la "$work"
-        echo "=== Workspace src/ directory ==="
-        ls -la "$work/src/"
         test -f "$work/CMakeLists.txt" || { echo "ERROR: CMakeLists.txt not found"; exit 1; }
-        test -f "$work/src/sgMergeNetCDF.C" || { echo "ERROR: src/sgMergeNetCDF.C not found"; exit 1; }
-        echo "=== File count comparison ==="
-        echo "Source files: $(find "$src" -type f | wc -l)"
-        echo "Workspace files: $(find "$work" -type f | wc -l)"
-        echo "Workspace preparation successful"
 
     - name: Display compiler version
       run: |
@@ -391,36 +357,16 @@ jobs:
         cd "$CYGWIN_WORKSPACE"
         # Clean any existing build directory
         rm -rf build
-        cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
-
-    - name: Verify source files before build
-      run: |
-        cd "$CYGWIN_WORKSPACE"
-        echo "=== Checking critical source files ==="
-        for f in src/sgMergeNetCDF.C src/dbd2netCDF.C src/CMakeLists.txt; do
-          if [ -f "$f" ]; then
-            echo "OK: $f exists ($(wc -c < "$f") bytes)"
-          else
-            echo "MISSING: $f"
-            exit 1
-          fi
-        done
-        echo "=== All source files verified ==="
+        # Use Cygwin's make explicitly (not Strawberry Perl's gmake)
+        cmake -S . -B build \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_MAKE_PROGRAM=/usr/bin/make \
+          -G "Unix Makefiles"
 
     - name: Build
       run: |
         cd "$CYGWIN_WORKSPACE"
-        echo "=== Source directory contents ==="
-        ls -la src/
-        echo "=== Check sgMergeNetCDF.C ==="
-        ls -la src/sgMergeNetCDF.C || echo "FILE NOT FOUND!"
-        cat src/sgMergeNetCDF.C | head -5 || echo "CANNOT READ FILE!"
-        echo "=== CMakeCache paths ==="
-        grep -i "source_dir\|sgmerge" build/CMakeCache.txt || true
-        echo "=== Build directory contents ==="
-        ls -la build/
-        echo "=== Starting build ==="
-        cmake --build build --config Release -- VERBOSE=1
+        cmake --build build --config Release
 
     - name: List built executables
       run: |
@@ -439,7 +385,6 @@ jobs:
         }
 
   build-alma:
-    if: github.event_name != 'workflow_dispatch' || inputs.job == ''
     name: Alma Linux 8 (GCC 8.5)
     runs-on: ubuntu-latest
     container:
