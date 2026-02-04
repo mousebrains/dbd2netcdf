@@ -87,4 +87,8 @@ doCompare test.sbd.netCDF test.sbd
 doCompare test.tbd.netCDF test.tbd
 doCompare test.both.netCDF test.sbd test.tbd
 
+# Test with real DCD data (single file and combined)
+doCompare data/00300000.dcd.ncdump data/00300000.dcd
+doCompare data/00300000.combined.ncdump data/00300000.dcd data/00300000.scd data/00300000.tcd data/00300000.ecd
+
 exit 0

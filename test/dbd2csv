@@ -60,4 +60,7 @@ doCompare test.sbd.csv test.sbd
 doCompare test.tbd.csv test.tbd
 doCompare test.both.csv test.sbd test.tbd
 
+# Test with real DCD data
+doCompare data/00300000.dcd.csv data/00300000.dcd
+
 exit 0

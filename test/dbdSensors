@@ -60,5 +60,7 @@ doCompare test.sbd.sensors test.sbd
 doCompare test.tbd.sensors test.tbd
 doCompare test.both.sensors test.sbd test.tbd
 
+# Test with real DCD data
+doCompare data/00300000.dcd.sensors data/00300000.dcd
 
 exit 0

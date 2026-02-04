@@ -10,4 +10,9 @@ test/pd02netCDF text eol=lf
 # Binary data files should not be modified
 *.sbd binary
 *.tbd binary
+*.dbd binary
+*.dcd binary
+*.scd binary
+*.tcd binary
+*.ecd binary
 *.pd0 binary
