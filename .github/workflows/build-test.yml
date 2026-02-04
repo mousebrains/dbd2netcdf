@@ -207,7 +207,7 @@ jobs:
     - name: Configure CMake
       run: |
         cd "$(cygpath -u "$GITHUB_WORKSPACE")"
-        cmake -B build -DCMAKE_BUILD_TYPE=Release
+        cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_USE_RELATIVE_PATHS=ON
 
     - name: Build
       run: |
