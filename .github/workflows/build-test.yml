@@ -570,6 +570,7 @@ jobs:
         channels: conda-forge
         channel-priority: strict
         activate-environment: dbd2netcdf
+        conda-remove-defaults: true
 
     - name: Install dependencies via conda
       run: |
