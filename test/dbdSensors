@@ -46,9 +46,9 @@ doCompare() {
     exit 1
   fi
 
-  if ! diff -q "$tmpfn" "$ref" ; then
+  if ! diff -q --strip-trailing-cr "$tmpfn" "$ref" ; then
     echo "Failed on comparison of $* sensors"
-    diff "$tmpfn" "$ref"
+    diff --strip-trailing-cr "$tmpfn" "$ref"
     rm -f "$tmpfn"
     exit 1
   fi
