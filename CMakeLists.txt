@@ -2,9 +2,18 @@
 #
 # Mar-2012, Pat Welch, pat@mousebrains.com
 
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.14)
 
 project(dbd2netcdf LANGUAGES CXX C)
+
+# Fetch CLI11 for cross-platform command-line parsing
+include(FetchContent)
+FetchContent_Declare(
+  cli11
+  GIT_REPOSITORY https://github.com/CLIUtils/CLI11.git
+  GIT_TAG        v2.4.2
+)
+FetchContent_MakeAvailable(cli11)
 
 # Check for minimum compiler versions (C++17 support required)
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")

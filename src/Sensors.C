@@ -21,7 +21,6 @@
 #include "Sensors.H"
 #include "Header.H"
 #include "MyException.H"
-#include "StackDump.H"
 #include "Decompress.H"
 #include "FileInfo.H"
 #include <fstream>
@@ -31,10 +30,9 @@
 #include <cstdio>
 #include <cstring>
 #include <cstdlib>
-#include <dirent.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif // HAVE_UNISTD_H
+#include <random>
+#include <algorithm>
+#include <cctype>
 
 Sensors::Sensors(std::istream& is,
                  const Header& hdr)
@@ -122,44 +120,46 @@ Sensors::crcLower() const
 std::string
 Sensors::mkFilename(const std::string& dir) const
 {
-  // RAII wrapper for DIR* - automatically calls closedir()
-  struct DirHandle {
-    DIR* ptr;
-    explicit DirHandle(const char* path) : ptr(opendir(path)) {}
-    ~DirHandle() { if (ptr) closedir(ptr); }
-    operator bool() const { return ptr != nullptr; }
-    operator DIR*() const { return ptr; }
-    DirHandle(const DirHandle&) = delete;
-    DirHandle& operator=(const DirHandle&) = delete;
-  } directory(dir.c_str());
+  const fs::path dirPath(dir);
 
-  if (!directory) {
+  if (!fs::is_directory(dirPath)) {
     std::ostringstream oss;
-    oss << "Unable to open directory '" << dir << "', " << strerror(errno);
+    oss << "Unable to open directory '" << dir << "'";
     throw MyException(oss.str());
   }
 
-  struct dirent *entry;
   const std::string crc = crcLower();
 
-  while ((entry = readdir(directory)) != nullptr) {
-    const std::string name(entry->d_name);
+  for (const auto& entry : fs::directory_iterator(dirPath)) {
+    if (!entry.is_regular_file()) continue;
+
+    const std::string name = entry.path().filename().string();
     std::string lower(name);
-    for (std::string::size_type i(0), e(lower.size()); i < e; ++i) {
-      lower[i] = static_cast<char>(std::tolower(static_cast<unsigned char>(lower[i])));
-    }
+    std::transform(lower.begin(), lower.end(), lower.begin(),
+                   [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+
     if (lower == crc) {
-      return dir + "/" + name;  // Automatic cleanup via ~DirHandle()
+      return (dirPath / name).string();
     }
     if (lower == (crc + ".ccc")) {
-      return dir + "/" + name;  // Automatic cleanup via ~DirHandle()
+      return (dirPath / name).string();
     }
     if (lower == (crc + ".cac")) {
-      return dir + "/" + name;  // Automatic cleanup via ~DirHandle()
+      return (dirPath / name).string();
     }
   }
 
-  return dir + "/" + crc + ".cac";  // Automatic cleanup via ~DirHandle()
+  return (dirPath / (crc + ".cac")).string();
+}
+
+namespace {
+  // Generate a unique temporary filename suffix
+  std::string uniqueTempSuffix() {
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    static std::uniform_int_distribution<> dis(100000, 999999);
+    return std::to_string(dis(gen));
+  }
 }
 
 bool
@@ -169,17 +169,21 @@ Sensors::dump(const std::string& dir) const
     return true;
   }
 
-  if (!fs::is_directory(dir)) { // Not a directory, so see if I can make it
-    if (!fs::create_directory(dir)) {
-      std::cerr << "Error creating '" << dir << "', " << strerror(errno) << std::endl;
+  const fs::path dirPath(dir);
+
+  if (!fs::is_directory(dirPath)) { // Not a directory, so see if I can make it
+    std::error_code ec;
+    if (!fs::create_directories(dirPath, ec)) {
+      std::cerr << "Error creating '" << dir << "'" << std::endl;
       return false;
     }
     std::cerr << "Created directory '" << dir << "'" << std::endl;
   }
 
   const std::string filename(mkFilename(dir));
+  const fs::path filePath(filename);
 
-  if (!fs::exists(filename)) { // File doesn't exist, so dump it
+  if (!fs::exists(filePath)) { // File doesn't exist, so dump it
     std::string str;
     { // Build output string
       std::ostringstream oss;
@@ -188,45 +192,44 @@ Sensors::dump(const std::string& dir) const
       }
       str = oss.str();
     }
-    { // Now create a temporary file, which we'll move to the final filename, which is atomic
-      constexpr size_t MAX_PATH_LENGTH = 2048;  // Maximum path length for temporary files
-      char tempfn[MAX_PATH_LENGTH];
-      int ret = snprintf(tempfn, sizeof(tempfn), "%s.XXXXXXXX", filename.c_str());
-      if (ret < 0 || ret >= static_cast<int>(sizeof(tempfn))) {
-        throw MyException("Filename too long for temporary file: " + filename);
-      }
-      int fd(mkstemp(tempfn));
+    { // Now create a temporary file, which we'll move to the final filename
+      const std::string tempfn = filename + "." + uniqueTempSuffix();
 
-      if (fd == -1) {
+      std::ofstream ofs(tempfn, std::ios::binary);
+      if (!ofs) {
         std::ostringstream oss;
-        oss << "Error creating temporary filename for '" << tempfn << "', " << strerror(errno);
+        oss << "Error creating temporary file '" << tempfn << "'";
         throw MyException(oss.str());
       }
 
-      const int n(str.size());
+      ofs.write(str.c_str(), static_cast<std::streamsize>(str.size()));
 
-      if (write(fd, str.c_str(), n) != n) {
+      if (!ofs) {
         std::ostringstream oss;
-        oss << "Error writing " << n << " characters to '" << tempfn << "', " << strerror(errno);
+        oss << "Error writing " << str.size() << " characters to '" << tempfn << "'";
+        // Try to clean up the temp file
+        std::error_code ec;
+        fs::remove(tempfn, ec);
         throw MyException(oss.str());
       }
 
-      if (close(fd)) {
-        std::ostringstream oss;
-        oss << "Error closing '" << tempfn << "', " << strerror(errno);
-        throw MyException(oss.str());
-      }
+      ofs.close();
 
-      if (rename(tempfn, filename.c_str())) {
+      // Rename temp file to final filename (atomic on most filesystems)
+      std::error_code ec;
+      fs::rename(tempfn, filePath, ec);
+      if (ec) {
         std::ostringstream oss;
-        oss << "Error renaming '" << tempfn << "' to '" << filename << "', " << strerror(errno);
+        oss << "Error renaming '" << tempfn << "' to '" << filename << "'";
+        // Try to clean up the temp file
+        fs::remove(tempfn, ec);
         throw MyException(oss.str());
       } else {
         std::cerr << "Created '" << filename << "'" << std::endl;
       }
     }
   }
- 
+
   return true;
 }
 

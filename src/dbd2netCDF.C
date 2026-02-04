@@ -36,142 +36,78 @@
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
-#include <cstdlib>
-#include <getopt.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif // HAVE_UNISTD_H
-
-namespace {
-  const char *options("ac:C:hk:m:M:o:rsVv"); 
-  const struct option optionsLong[] = {
-	  {"sensors", required_argument, NULL, 'c'},
-	  {"cache", required_argument, NULL, 'C'},
-	  {"sensorOutput", required_argument, NULL, 'k'},
-	  {"skipMission", required_argument, NULL, 'm'},
-	  {"keepMission", required_argument, NULL, 'M'},
-	  {"output", required_argument, NULL, 'o'},
-	  {"skipFirst", no_argument, NULL, 's'},
-	  {"repair", no_argument, NULL, 'r'},
-	  {"append", no_argument, NULL, 'a'},
-	  {"verbose", no_argument, NULL, 'v'},
-	  {"version", no_argument, NULL, 'V'},
-	  {"help", no_argument, NULL, 'h'},
-	  {NULL, no_argument, NULL, 0}
-  };
-
-  int usage(const char *argv0) {
-    std::cerr << argv0 << " Version " << VERSION << std::endl;
-    std::cerr << std::endl;
-    std::cerr << "Usage: " << argv0 << " -[" << options << "] files" << std::endl;
-    std::cerr << std::endl;
-    std::cerr << " -a --append                 Append to the NetCDF file" << std::endl;
-    std::cerr << " -c --sensors      filename  file containing sensors to select on" << std::endl;
-    std::cerr << " -C --cache        directory directory to cache sensor list in" << std::endl;
-    std::cerr << " -h --help                   display the usage message" << std::endl;
-    std::cerr << " -k --sensorOutput filename  file containing sensors to output" << std::endl;
-    std::cerr << " -m --skipMission  mission   mission to skip, this can be repeated" << std::endl;
-    std::cerr << " -M --keepMission  mission   mission to keep, this can be repeated" << std::endl;
-    std::cerr << " -o --output       filename  where to store the data" << std::endl;
-    std::cerr << " -s --skipFirst              "
-	    << "Skip first record in each file, but the first" << std::endl;
-    std::cerr << " -r --repair                 attempt to repair bad data records" << std::endl;
-    std::cerr << " -V --version                print out version" << std::endl;
-    std::cerr << " -v --verbose                enable some diagnostic output" << std::endl;
-    std::cerr << "\nReport bugs to " << MAINTAINER << std::endl;
-    return 1;
-  } // usage
-} // Anonymous namespace
+#include <CLI/CLI.hpp>
 
 int
 main(int argc,
      char **argv)
 {
   std::string sensorCacheDirectory;
-  Sensors::tNames toKeep, criteria;
-  const char *ofn(nullptr);
+  std::string outputFilename;
+  std::string sensorsFile;
+  std::string sensorOutputFile;
+  std::vector<std::string> missionsToSkipVec;
+  std::vector<std::string> missionsToKeepVec;
+  std::vector<std::string> inputFiles;
   bool qAppend(false);
   bool qSkipFirstRecord(false);
   bool qRepair(false);
   bool qVerbose(false);
 
+  CLI::App app{"Convert Dinkum Binary Data files to NetCDF", "dbd2netCDF"};
+  app.footer(std::string("\nReport bugs to ") + MAINTAINER);
+
+  app.add_flag("-a,--append", qAppend, "Append to the NetCDF file");
+  app.add_option("-c,--sensors", sensorsFile, "File containing sensors to select on");
+  app.add_option("-C,--cache", sensorCacheDirectory, "Directory to cache sensor list in");
+  app.add_option("-k,--sensorOutput", sensorOutputFile, "File containing sensors to output");
+  app.add_option("-m,--skipMission", missionsToSkipVec, "Mission to skip (can be repeated)");
+  app.add_option("-M,--keepMission", missionsToKeepVec, "Mission to keep (can be repeated)");
+  app.add_option("-o,--output", outputFilename, "Where to store the data")->required();
+  app.add_flag("-s,--skipFirst", qSkipFirstRecord, "Skip first record in each file, but the first");
+  app.add_flag("-r,--repair", qRepair, "Attempt to repair bad data records");
+  app.add_flag("-v,--verbose", qVerbose, "Enable some diagnostic output");
+  app.add_option("files", inputFiles, "Input DBD files")->required()->check(CLI::ExistingFile);
+  app.set_version_flag("-V,--version", VERSION);
+
+  CLI11_PARSE(app, argc, argv);
+
+  const char *ofn = outputFilename.c_str();
+
+  // Load sensor names from files if specified
+  Sensors::tNames toKeep, criteria;
+  if (!sensorsFile.empty()) {
+    Sensors::loadNames(sensorsFile.c_str(), criteria);
+  }
+  if (!sensorOutputFile.empty()) {
+    Sensors::loadNames(sensorOutputFile.c_str(), toKeep);
+  }
+
+  // Convert mission vectors to the expected format
   Header::tMissions missionsToSkip;
   Header::tMissions missionsToKeep;
-
-  while (true) { // Walk through the options
-    int optionIndex = 0;
-    int c = getopt_long(argc, argv, options, optionsLong, &optionIndex);
-    if (c == -1) break; // End of options
-    
-    switch (c) {
-      case 'a': // Append to the NetCDF file, if it exists
-        qAppend = true;
-        break;
-      case 'c': // Sensors to select on
-        Sensors::loadNames(optarg, criteria);
-        break;
-      case 'k': // Sensors to keep
-        Sensors::loadNames(optarg, toKeep);
-        break;
-      case 'C': // directory to cache sensor lists in
-        sensorCacheDirectory = optarg;
-        break;
-      case 'm': // Missions to skip
-        Header::addMission(optarg, missionsToSkip);
-        break; 
-      case 'M': // Missions to keep
-        Header::addMission(optarg, missionsToKeep);
-        break; 
-      case 'o': // Output filename
-        ofn = optarg;
-        break;
-      case 'r': // Attempt to repair DBD files for missing data cycles
-        qRepair = true;
-        break;
-      case 's': // Skip first data record in the DBD file
-        qSkipFirstRecord = true;
-        break;
-      case 'V': // Print out version string
-        std::cerr << VERSION << std::endl;
-        return(0);
-      case 'v': // Verbose
-        qVerbose = !qVerbose;
-        break;
-      default:
-	std::cerr << "Unsupported option 0x" << std::hex << c << std::dec;
-        if ((c >= 0x20) && (c <= 0x7e)) std::cerr << " '" << ((char) (c & 0xff)) << "'";
-        std::cerr << std::endl;
-        [[fallthrough]];
-      case '?': // Unsupported option
-      case 'h': // Help
-	return usage(argv[0]);
-    }
+  for (const auto& m : missionsToSkipVec) {
+    Header::addMission(m.c_str(), missionsToSkip);
   }
-
-  if (!ofn) {
-    std::cerr << "ERROR: No output filename specified" << std::endl;
-    return usage(argv[0]);
-  }
-
-  if (optind >= argc) {
-    std::cerr << "No input files specified!" << std::endl;
-    return usage(argv[0]);
+  for (const auto& m : missionsToKeepVec) {
+    Header::addMission(m.c_str(), missionsToKeep);
   }
 
   SensorsMap smap(sensorCacheDirectory);
 
   // Go through and grab all the known sensors
 
-  typedef std::vector<int> tFileIndices;
+  typedef std::vector<size_t> tFileIndices;
   tFileIndices fileIndices;
 
-  for (int i = optind; i < argc; ++i) {
-    DecompressTWR is(argv[i], qCompressed(argv[i]));
+  for (size_t i = 0; i < inputFiles.size(); ++i) {
+    const char* fn = inputFiles[i].c_str();
+    DecompressTWR is(fn, qCompressed(fn));
     if (!is) {
-      std::cerr << "Error opening '" << argv[i] << "', " << strerror(errno) << std::endl;
+      std::cerr << "Error opening '" << fn << "', " << strerror(errno) << std::endl;
       return(1);
     }
-    const Header hdr(is, argv[i]);
+    const Header hdr(is, fn);
     if (!hdr.empty() && hdr.qProcessMission(missionsToSkip, missionsToKeep)) {
       smap.insert(is, hdr, false);
       fileIndices.push_back(i);
@@ -180,7 +116,7 @@ main(int argc,
 
   if (fileIndices.empty()) {
     std::cerr << "No input files found to process!" << std::endl;
-    return usage(argv[0]);
+    return(1);
   }
 
   smap.qKeep(toKeep);
@@ -254,25 +190,26 @@ main(int argc,
   const size_t jOffset(qAppend ? ncid.lengthDim(jDim) : 0);
 
   for (tFileIndices::size_type ii(0), iie(fileIndices.size()); ii < iie; ++ii) {
-    const int i(fileIndices[ii]);
-    DecompressTWR is(argv[i], qCompressed(argv[i]));
+    const size_t i(fileIndices[ii]);
+    const char* fn = inputFiles[i].c_str();
+    DecompressTWR is(fn, qCompressed(fn));
     if (!is) {
-      std::cerr << "Error opening '" << argv[i] << "', " 
+      std::cerr << "Error opening '" << fn << "', "
                 << strerror(errno) << std::endl;
       return(1);
     }
-    const Header hdr(is, argv[i]);             // Load up header
+    const Header hdr(is, fn);             // Load up header
     try {
       smap.insert(is, hdr, true);       // will move to the right position in the file
       const Sensors& sensors(smap.find(hdr));
       const KnownBytes kb(is);          // Get little/big endian
       Data data;
-      const size_t nBytes(fs::file_size(argv[i]));
+      const size_t nBytes(fs::file_size(fn));
 
       try {
         data.load(is, kb, sensors, qRepair, nBytes);
       } catch (MyException& e) {
-        std::cerr << "Error processing '" << argv[i] << "', " << e.what() 
+        std::cerr << "Error processing '" << fn << "', " << e.what()
                   << ", retaining " << data.size() << " records" << std::endl;
       }
 
@@ -336,10 +273,10 @@ main(int argc,
       indexOffset += data.size() - kStart;
 
       if (qVerbose) {
-        std::cerr << argv[i] << " " << data.size() - kStart << std::endl;
+        std::cerr << fn << " " << data.size() - kStart << std::endl;
       }
     } catch (MyException& e) { // Catch my exceptions, where I toss the whole file
-      std::cerr << "Error processing '" << argv[i] << "', " << e.what() << std::endl;
+      std::cerr << "Error processing '" << fn << "', " << e.what() << std::endl;
     }
   }
 

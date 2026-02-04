@@ -20,14 +20,7 @@ jobs:
       matrix:
         include:
           # GCC versions on Ubuntu
-          - os: ubuntu-22.04
-            compiler: gcc
-            version: 10
-            install: gcc-10 g++-10
-          - os: ubuntu-22.04
-            compiler: gcc
-            version: 11
-            install: gcc-11 g++-11
+          # Note: GCC 8.5 tested on AlmaLinux for legacy C++17 support
           - os: ubuntu-22.04
             compiler: gcc
             version: 12
@@ -42,10 +35,6 @@ jobs:
             install: gcc-14 g++-14
 
           # Clang versions
-          - os: ubuntu-22.04
-            compiler: clang
-            version: 12
-            install: clang-12
           - os: ubuntu-22.04
             compiler: clang
             version: 14
@@ -150,6 +139,71 @@ jobs:
         cppcheck --enable=performance,portability \
           --suppress=missingIncludeSystem \
           src/ || true
+
+  lint-clang-tidy:
+    name: clang-tidy
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang-tidy cmake libnetcdf-dev libhdf5-dev
+
+    - name: Configure CMake (generate compile_commands.json)
+      run: |
+        cmake -B build -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+
+    - name: Run clang-tidy
+      run: |
+        clang-tidy -p build \
+          --checks='-*,bugprone-*,performance-*,portability-*,modernize-*,-modernize-use-trailing-return-type' \
+          --warnings-as-errors='bugprone-*' \
+          src/*.C
+
+  coverage:
+    name: Code Coverage
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake libnetcdf-dev libhdf5-dev netcdf-bin lcov
+
+    - name: Configure CMake with coverage
+      run: |
+        cmake -B build -DCMAKE_BUILD_TYPE=Debug \
+          -DCMAKE_CXX_FLAGS="--coverage -fprofile-arcs -ftest-coverage" \
+          -DCMAKE_C_FLAGS="--coverage -fprofile-arcs -ftest-coverage"
+
+    - name: Build
+      run: cmake --build build
+
+    - name: Run tests
+      run: |
+        cd build
+        ctest --output-on-failure
+
+    - name: Generate coverage report
+      run: |
+        lcov --capture --directory build --output-file coverage.info
+        lcov --remove coverage.info '/usr/*' --output-file coverage.info
+        lcov --remove coverage.info '*/test/*' --output-file coverage.info
+        lcov --list coverage.info
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      with:
+        files: coverage.info
+        fail_ci_if_error: false
+        verbose: true
 
   build-asan:
     name: AddressSanitizer
@@ -432,3 +486,37 @@ jobs:
       run: |
         # Verify that stdc++fs is being linked for GCC 8.x
         ldd bin/dbd2netCDF | grep stdc++ || echo "stdc++ found in dependencies"
+
+  build-windows:
+    name: Windows (MSVC)
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup vcpkg
+      uses: lukka/run-vcpkg@v11
+      with:
+        vcpkgGitCommitId: '01f602195983451bc83e72f4214af2cbc495aa94'
+
+    - name: Install dependencies via vcpkg
+      run: |
+        vcpkg install netcdf-c:x64-windows hdf5:x64-windows
+
+    - name: Configure CMake
+      run: |
+        cmake -B build -DCMAKE_BUILD_TYPE=Release `
+          -DCMAKE_TOOLCHAIN_FILE="$env:VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake"
+
+    - name: Build
+      run: cmake --build build --config Release
+
+    - name: List built executables
+      run: |
+        Get-ChildItem -Path bin -Recurse | Format-Table Name, Length
+
+    - name: Run tests
+      run: |
+        cd build
+        ctest -C Release --output-on-failure

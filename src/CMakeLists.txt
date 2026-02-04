@@ -1,55 +1,48 @@
+# Define source file lists for reuse
+set(COMMON_SOURCES
+	SensorsMap.C
+	Sensors.C
+	Sensor.C
+	Header.C
+	KnownBytes.C
+	Decompress.C
+	lz4.c
+)
+
 add_executable(sgMergeNetCDF
 	sgMergeNetCDF.C
 	SGMerge.C
-	)
+)
 
 add_executable(dbd2netCDF
 	dbd2netCDF.C
-       	SensorsMap.C
-       	Sensors.C
-       	Sensor.C
-       	Header.C
+	${COMMON_SOURCES}
 	MyNetCDF.C
-       	Data.C
-       	KnownBytes.C
-       	Decompress.C
-	lz4.c
-	)
+	Data.C
+)
 
 add_executable(pd02netCDF
 	pd02netCDF.C
 	PD0.C
 	MyNetCDF.C
-	)
+)
 
 add_executable(dbd2csv
 	dbd2csv.C
-       	SensorsMap.C
-       	Sensors.C
-       	Sensor.C
-       	Header.C
-       	Data.C
-       	KnownBytes.C
-	Decompress.C
-       	lz4.c
-	)
+	${COMMON_SOURCES}
+	Data.C
+)
 
 add_executable(dbdSensors
 	dbdSensors.C
-	SensorsMap.C
-	Sensors.C
-	Sensor.C
-       	Header.C
-	KnownBytes.C
-	Decompress.C
-	lz4.c
-	)
+	${COMMON_SOURCES}
+)
 
 add_executable(decompressTWR
 	decompressTWR.C
-       	Decompress.C
+	Decompress.C
 	lz4.c
-	)
+)
 
 set_target_properties(sgMergeNetCDF dbd2netCDF dbd2csv dbdSensors pd02netCDF decompressTWR
 	PROPERTIES
@@ -61,90 +54,72 @@ set_target_properties(sgMergeNetCDF dbd2netCDF dbd2csv dbdSensors pd02netCDF dec
 )
 
 # Set compiler flags for all targets
-target_compile_options(sgMergeNetCDF PRIVATE -Wall -Wextra -pedantic)
-target_compile_options(dbd2netCDF PRIVATE -Wall -Wextra -pedantic)
-target_compile_options(dbd2csv PRIVATE -Wall -Wextra -pedantic)
-target_compile_options(dbdSensors PRIVATE -Wall -Wextra -pedantic)
-target_compile_options(pd02netCDF PRIVATE -Wall -Wextra -pedantic)
-target_compile_options(decompressTWR PRIVATE -Wall -Wextra -pedantic)
+set(ALL_TARGETS sgMergeNetCDF dbd2netCDF dbd2csv dbdSensors pd02netCDF decompressTWR)
 
-# Enable POSIX extensions on Cygwin (needed for mkstemp, etc.)
-if(CYGWIN)
-  add_compile_definitions(_GNU_SOURCE)
-endif()
+foreach(target ${ALL_TARGETS})
+  if(MSVC)
+    target_compile_options(${target} PRIVATE /W4)
+    # Disable warnings for third-party code (lz4)
+    set_source_files_properties(lz4.c PROPERTIES COMPILE_FLAGS "/W0")
+  else()
+    target_compile_options(${target} PRIVATE -Wall -Wextra -pedantic)
+  endif()
+  # Link CLI11 to all targets
+  target_link_libraries(${target} PRIVATE CLI11::CLI11)
+endforeach()
 
-# Get where NetCDF is installed using the nc-config command
-execute_process(COMMAND nc-config --includedir 
-	OUTPUT_VARIABLE NCINCDIR 
-	RESULT_VARIABLE RETURNCODE
-	ERROR_VARIABLE ERROROUTPUT
-	)
-if (RETURNCODE)
+# Find NetCDF - use different methods for different platforms
+if(WIN32 AND NOT CYGWIN)
+  # On Windows, use find_package (works with vcpkg)
+  find_package(netCDF CONFIG REQUIRED)
+  set(NETCDF_INCLUDE_DIRS "")
+  set(NETCDF_LIBRARIES netCDF::netcdf)
+  message(STATUS "Found NetCDF via CMake config")
+else()
+  # On Unix-like systems, use nc-config
+  execute_process(COMMAND nc-config --includedir
+    OUTPUT_VARIABLE NCINCDIR
+    RESULT_VARIABLE RETURNCODE
+    ERROR_VARIABLE ERROROUTPUT
+  )
+  if (RETURNCODE)
     message(FATAL_ERROR "Error finding NetCDF include directory ${ERROROUTPUT}")
-else (NOT RETURNCODE)
+  else()
     string(STRIP ${NCINCDIR} NCINCDIR)
     message(STATUS "NetCDF include directory ${NCINCDIR}")
-    include_directories(${NCINCDIR}) # Add NetCDF include directory into the search path
-endif (RETURNCODE)
+    set(NETCDF_INCLUDE_DIRS ${NCINCDIR})
+  endif()
 
-execute_process(COMMAND nc-config --libdir 
-	OUTPUT_VARIABLE NCLIBDIR 
-	RESULT_VARIABLE RETURNCODE
-	ERROR_VARIABLE ERROROUTPUT
-	)
-if (RETURNCODE)
+  execute_process(COMMAND nc-config --libdir
+    OUTPUT_VARIABLE NCLIBDIR
+    RESULT_VARIABLE RETURNCODE
+    ERROR_VARIABLE ERROROUTPUT
+  )
+  if (RETURNCODE)
     message(FATAL_ERROR "Error finding NetCDF lib directory ${ERROROUTPUT}")
-else (NOT RETURNCODE)
+  else()
     string(STRIP ${NCLIBDIR} NCLIBDIR)
     message(STATUS "NetCDF lib directory ${NCLIBDIR}")
-    link_directories(${NCLIBDIR}) # Add NetCDF library directory into the search path
-endif (RETURNCODE)
+    link_directories(${NCLIBDIR})
+  endif()
+
+  find_library(NETCDF_LIBRARIES NAMES netcdf PATHS ${NCLIBDIR})
+  if (NOT NETCDF_LIBRARIES)
+    message(FATAL_ERROR "Unable to locate libnetcdf")
+  endif()
+endif()
+
+# Add NetCDF include directories
+if(NETCDF_INCLUDE_DIRS)
+  include_directories(${NETCDF_INCLUDE_DIRS})
+endif()
 
 include_directories(${dbd2netcdf_SOURCE_DIR}/bin) #  ${dbd2netcdf_SOURCE_DIR}/src)
 include_directories(${CMAKE_INSTALL_PREFIX}/include)
 
-if(APPLE) # Define some settings for the Bundle
-  message(STATUS "ARCH ${CMAKE_OSX_ARCHITECTURES}")
-  
-  # set(MACOSX_BUNDLE_BUNDLE_NAME dbd2netcdf)
-  # set(MACOSX_BUNDLE_GUI_IDENTIFIER "dbd2netcdf")
-  # set(MACOSX_BUNDLE_ICON_FILE dbd2netcdf.icns)
-  # set(MACOSX_BUNDLE_SHORT_VERSION_STRING "${dbd2netcdf_VERSION_MAJOR}.${dbd2netcdf_VERSION_MINOR}")
-  # set(MACOSX_BUNDLE_LONG_VERSION_STRING "${MACOSX_BUNDLE_SHORT_VERSION_STRING}.${dbd2netcdf_VERSION_PATCH}" )
-  # set(MACOSX_BUNDLE_BUNDLE_VERSION "${MACOSX_BUNDLE_LONG_VERSION_STRING}")
-  # set(MACOSX_BUNDLE_COPYRIGHT "(C) 2012 Pat Welch")
-  # set(MACOSX_BUNDLE_INFO_STRING ""${MACOSX_BUNDLE_LONG_VERSION_STRING}",
-  #                               ${MACOSX_BUNDLE_COPYRIGHT}")
-  # create a bundle with an icon too!
-  # If you're not using Qt, uncomment the next line and comment the line below it:
-  # add_executable(dbd2netcdf MACOSX_BUNDLE ${dbd2netcdf_SRC_FILES})
-  # add_executable(dbd2netcdf MACOSX_BUNDLE ${SRC_FILES} ${MOC_SRCS} ${RC_SRC_FILES} ${UI_HDRS} )
-                              
-  # Allows for bundle re-creation just by running "make". Also installs bundle icon
-  # add_custom_target( osx_bundle_dirs
-                    # COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/dbd2netcdf.app/Contents/Resources
-                    # COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/dbd2netcdf.app/Contents/MacOS
-                    # COMMAND cp ${dbd2netcdf_SOURCE_DIR}/pixmaps/${MACOSX_BUNDLE_ICON_FILE}
-                               # ${CMAKE_CURRENT_BINARY_DIR}/dbd2netcdf.app/Contents/Resources/${MACOSX_BUNDLE_ICON_FILE}
-
-  # Qt translations - uncomment this line when you need to install them to the bundle
-  #COMMAND cp *.qm ${CMAKE_CURRENT_BINARY_DIR}/dbd2netcdf.app/Contents/Resources/
-  #                                                                   )
-  # add_dependencies(dbd2netCDF osx_bundle_dirs)
-  # add_dependencies(dbd2csv osx_bundle_dirs)
-  # add_dependencies(dbdSensors osx_bundle_dirs)
-
-  # This tells cmake where to place files inside the bundle
-  # set_source_files_properties(${dbd2netcdf_RESOURCES} ${dbd2netcdf_TRANSLATIONS}
-                              # PROPERTIES MACOSX_PACKAGE_LOCATION Resources )
-else(NOT APPLE)
-  # Builds a binary for windows (without cmdline showing), regular for Linux
-  # If you need the cmdline showing, remove the WIN32 attribute
-
-  # If you're not using Qt, uncomment the next line and comment the line below it:
-  # add_executable(dbd2netcdf WIN32 ${SRC_FILES})
-  # add_executable(dbd2netcdf WIN32 ${SRC_FILES} ${MOC_SRCS} ${RC_SRC_FILES} ${UI_HDRS} )
-endif(APPLE)
+if(APPLE)
+  message(STATUS "Building for macOS, ARCH: ${CMAKE_OSX_ARCHITECTURES}")
+endif()
 
 # Handle rpath
 set(CMAKE_SKIP_BUILD_RPATH FALSE)
@@ -174,21 +149,14 @@ CHECK_TYPE_SIZE(mode_t HAVE_mode_T)
 CHECK_TYPE_SIZE(off_t HAVE_off_T)
 CHECK_TYPE_SIZE(size_t HAVE_size_T)
 
-find_library(netCDF_libnetcdf NAMES netcdf)
-if (NOT netCDF_libnetcdf)
-    message(FATAL_ERROR "Unable to locate libnetcdf")
-endif (NOT netCDF_libnetcdf)
-
 # Write out config.h as derived from config.h.in
-
 configure_file(${dbd2netcdf_SOURCE_DIR}/src/config.h.in
                ${dbd2netcdf_SOURCE_DIR}/src/config.h)
 
-# We want netCDF libraries linked in
-
-target_link_libraries(sgMergeNetCDF ${netCDF_libnetcdf})
-target_link_libraries(dbd2netCDF ${netCDF_libnetcdf})
-target_link_libraries(pd02netCDF ${netCDF_libnetcdf})
+# Link NetCDF libraries to targets that need it
+target_link_libraries(sgMergeNetCDF PRIVATE ${NETCDF_LIBRARIES})
+target_link_libraries(dbd2netCDF PRIVATE ${NETCDF_LIBRARIES})
+target_link_libraries(pd02netCDF PRIVATE ${NETCDF_LIBRARIES})
 
 # Link stdc++fs for GCC 8.x (required for filesystem support)
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0)

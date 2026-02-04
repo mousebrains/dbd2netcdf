@@ -36,7 +36,6 @@ SensorsMap::find(const Header& hdr)
     }
     char buffer[2048];
     snprintf(buffer, sizeof(buffer), "Known sensors do not include '%s'", hdr.crc().c_str());
-    // std::cerr << hdr;
     throw(MyException(buffer));
   }
 

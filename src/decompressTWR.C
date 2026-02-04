@@ -29,50 +29,33 @@
 #include <cstdio>
 #include <cstring>
 #include <vector>
-#include <unistd.h>
-#include <getopt.h>
+#include <random>
+#include <CLI/CLI.hpp>
 
 namespace {
-  const char *options("o:sVv"); 
-  const struct option optionsLong[] = {
-	  {"output", required_argument, NULL, 'o'},
-	  {"stdout", no_argument, NULL, 's'},
-	  {"verbose", no_argument, NULL, 'v'},
-	  {"version", no_argument, NULL, 'V'},
-	  {"help", no_argument, NULL, 'h'},
-	  {NULL, no_argument, NULL, 0}
-  };
-
-  int usage(const char *argv0) {
-    std::cerr << argv0 << " Version " << VERSION << std::endl;
-    std::cerr << std::endl;
-    std::cerr << "Usage: " << argv0 << " -[" << options << "] files" << std::endl;
-    std::cerr << std::endl;
-    std::cerr << " -h --help              display the usage message" << std::endl;
-    std::cerr << " -o --output  directory where to store the data" << std::endl;
-    std::cerr << " -s --stdout            output to stdout" << std::endl;
-    std::cerr << " -V --version           print out version" << std::endl;
-    std::cerr << " -v --verbose           enable some diagnostic output" << std::endl;
-    std::cerr << "\nReport bugs to " << MAINTAINER << std::endl;
-    return 1;
-  }
-
-  std::string mkOutputFilename(const char *dir, const std::string& ifn) {
+  std::string mkOutputFilename(const std::string& dir, const std::string& ifn) {
     const fs::path inPath(ifn);
     const std::string fn(inPath.filename().string());
-    std::string ofn(dir == NULL ? fn : (std::string(dir) + "/" + fn));
-    fs::path outPath(ofn);
+    fs::path outPath = dir.empty() ? fs::path(fn) : (fs::path(dir) / fn);
     std::string ext(outPath.extension().string());
     if ((ext.size() == 4) && (tolower(ext[2]) == 'c')) {
       switch (ext[3]) {
-	case 'g': ext[2] = 'l'; break;
-	case 'G': ext[2] = 'L'; break;
-	case 'd': ext[2] = 'b'; break;
-	case 'D': ext[2] = 'B'; break;
+        case 'g': ext[2] = 'l'; break;
+        case 'G': ext[2] = 'L'; break;
+        case 'd': ext[2] = 'b'; break;
+        case 'D': ext[2] = 'B'; break;
       }
     }
     outPath.replace_extension(ext);
     return outPath.string();
+  }
+
+  // Cross-platform unique ID generation (replaces getpid())
+  std::string uniqueSuffix() {
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    static std::uniform_int_distribution<> dis(100000, 999999);
+    return std::to_string(dis(gen));
   }
 } // Anonymous namespace
 
@@ -80,45 +63,23 @@ int
 main(int argc,
      char **argv)
 {
-  const char *directory(NULL);
+  std::string directory;
+  std::vector<std::string> inputFiles;
   bool qStdOut(false);
   bool qVerbose(false);
 
-  while (true) { // Walk through the options
-    int optionIndex = 0;
-    int c = getopt_long(argc, argv, options, optionsLong, &optionIndex);
-    if (c == -1) break; // End of options
-    
-    switch (c) {
-      case 'o': // Output filename
-        directory = optarg;
-        break;
-      case 'V': // Print out version string
-        std::cerr << VERSION << std::endl;
-        return(0);
-      case 's': // stdout
-        qStdOut = !qStdOut;
-        break;
-      case 'v': // Verbose
-        qVerbose = !qVerbose;
-        break;
-      default:
-	std::cerr << "Unsupported option 0x" << std::hex << c << std::dec;
-        if ((c >= 0x20) && (c <= 0x7e)) std::cerr << " '" << ((char) (c & 0xff)) << "'";
-        std::cerr << std::endl;
-      case '?': // Unsupported option
-      case 'h': // Help
-	return usage(argv[0]);
-    }
-  }
+  CLI::App app{"Decompress TWR Slocum lz4 compressed files", "decompressTWR"};
+  app.footer(std::string("\nReport bugs to ") + MAINTAINER);
 
-  if (optind >= argc) {
-    std::cerr << "No input files specified!" << std::endl;
-    return usage(argv[0]);
-  }
+  app.add_option("-o,--output", directory, "Directory where to store the data");
+  app.add_flag("-s,--stdout", qStdOut, "Output to stdout");
+  app.add_flag("-v,--verbose", qVerbose, "Enable some diagnostic output");
+  app.add_option("files", inputFiles, "Input files")->required()->check(CLI::ExistingFile);
+  app.set_version_flag("-V,--version", VERSION);
 
-  for (int i = optind; i < argc; ++i) {
-    std::string ifn(argv[i]);
+  CLI11_PARSE(app, argc, argv);
+
+  for (const auto& ifn : inputFiles) {
     DecompressTWR is(ifn, qCompressed(ifn));
     if (!is) {
       std::cerr << "Error opening '" << ifn << "', " << strerror(errno) << std::endl;
@@ -138,9 +99,7 @@ main(int argc,
     }
 
     const std::string ofn(mkOutputFilename(directory, ifn));
-    std::ostringstream oss; // to_string not defined in CentOS 7
-    oss << getpid();
-    const std::string tfn(ofn + "." + oss.str());
+    const std::string tfn(ofn + "." + uniqueSuffix());
     try {
       std::ofstream os(tfn.c_str());
       if (!os) {

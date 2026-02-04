@@ -115,12 +115,7 @@ PD0::loadBlock(std::istream& is)
 
   for (size_t i(0); i < nDataTypes; ++i) { // Load in data blocks
     iss.seekg(offsets[i], std::ios::beg);
-    // const std::streampos npos(iss.tellg());
     const size_t hdr(readUInt16(iss));
-    // std::cout << std::dec << "TPW i " << i << " off " << offsets[i] 
-              // << " len " << ((((i + 1) < nDataTypes) ? offsets[i+1] : (nBytes + 1)) - offsets[i])
-              // << " opos " << opos << " npos " << npos 
-              // << " hdr " << std::hex << hdr << std::dec << std::endl;
     switch (hdr) {
       case 0x0000:  // Fixed leader
         if (!mFixed.load(iss, *this))
@@ -164,7 +159,6 @@ PD0::loadBlock(std::istream& is)
     }
   }
 
-  // std::cout << "TPW final " << iss.tellg() << std::endl;
   return true;
 }
 

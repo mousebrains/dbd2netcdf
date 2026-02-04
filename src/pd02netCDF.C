@@ -26,82 +26,32 @@
 #include "config.h"
 #include <iostream>
 #include <cstdlib>
-#include <getopt.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif // HAVE_UNISTD_H
-
-namespace {
-  const char *options("ho:Vv"); 
-  const struct option optionsLong[] = {
-          {"output", required_argument, NULL, 'o'},
-          {"verbose", no_argument, NULL, 'v'},
-          {"version", no_argument, NULL, 'V'},
-          {"help", no_argument, NULL, 'h'},
-          {NULL, no_argument, NULL, 0}
-  };
-
-  int usage(const char *argv0) {
-    std::cerr << argv0 << " Version " << VERSION << std::endl;
-    std::cerr << std::endl;
-    std::cerr << "Usage: " << argv0 << " -[" << options << "] files" << std::endl;
-    std::cerr << std::endl;
-    std::cerr << " -h --help             display the usage message" << std::endl;
-    std::cerr << " -o --output  filename where to store the data" << std::endl;
-    std::cerr << " -V --version          print out version" << std::endl;
-    std::cerr << " -v --verbose          some diagnostic output" << std::endl;
-    std::cerr << "\nReport bugs to " << MAINTAINER << std::endl;
-    return 1;
-  }
-} // Anonymous namespace
+#include <CLI/CLI.hpp>
 
 int
 main(int argc,
      char **argv)
 {
-  const char *ofn(nullptr);
+  std::string outputFilename;
+  std::vector<std::string> inputFiles;
   bool qVerbose(false);
 
-  while (true) { // Walk through the options
-    int optionIndex = 0;
-    int c = getopt_long(argc, argv, options, optionsLong, &optionIndex);
-    if (c == -1) break; // End of options
+  CLI::App app{"Convert PD0 files to NetCDF", "pd02netCDF"};
+  app.footer(std::string("\nReport bugs to ") + MAINTAINER);
 
-    switch (c) {
-      case 'o': // Output filename
-        ofn = optarg;
-        break;
-      case 'V': // Print out version string
-        std::cerr << VERSION << std::endl;
-        return(0);
-      case 'v': // Verbose
-        qVerbose = !qVerbose;
-        break;
-      default:
-        std::cerr << "Unsupported option 0x" << std::hex << c << std::dec;
-        if ((c >= 0x20) && (c <= 0x7e)) std::cerr << " '" << ((char) (c & 0xff)) << "'";
-        std::cerr << std::endl;
-        [[fallthrough]];
-      case '?': // Unsupported option
-      case 'h': // Help
-        return usage(argv[0]);
-    }
-  }
+  app.add_option("-o,--output", outputFilename, "Where to store the data")->required();
+  app.add_flag("-v,--verbose", qVerbose, "Enable some diagnostic output");
+  app.add_option("files", inputFiles, "Input PD0 files")->required()->check(CLI::ExistingFile);
+  app.set_version_flag("-V,--version", VERSION);
 
-  if (!ofn) {
-    std::cerr << "ERROR: No output filename specified" << std::endl;
-    return usage(argv[0]);
-  }
+  CLI11_PARSE(app, argc, argv);
 
-  if (optind >= argc) {
-    std::cerr << "No input files specified!" << std::endl;
-    return usage(argv[0]);
-  }
+  const char *ofn = outputFilename.c_str();
 
   uint8_t nCells(0);
 
-  for (int i(optind), hIndex(0); i < argc; ++i, ++hIndex) {
-    const uint8_t mCells(PD0::maxNumberOfCells(argv[i]));
+  for (size_t i = 0; i < inputFiles.size(); ++i) {
+    const uint8_t mCells(PD0::maxNumberOfCells(inputFiles[i].c_str()));
     nCells = (nCells >= mCells) ? nCells : mCells;
   }
 
@@ -123,19 +73,20 @@ main(int argc,
 
   size_t index(0);
 
-  for (int i(optind), hIndex(0); i < argc; ++i, ++hIndex) {
+  for (size_t i = 0, hIndex = 0; i < inputFiles.size(); ++i, ++hIndex) {
+    const char* fn = inputFiles[i].c_str();
     const size_t sIndex(index);
-    index = pd0.load(argv[i], nc, index);
+    index = pd0.load(fn, nc, index);
 
     if (index != sIndex) {
-      nc.putVar(hdrFilename, hIndex, argv[i]);
+      nc.putVar(hdrFilename, hIndex, fn);
       nc.putVar(hdrStartIndex, hIndex, (unsigned int) sIndex);
       nc.putVar(hdrStopIndex, hIndex, (unsigned int) index - 1);
-    
+
       if (qVerbose)
-        std::cout << "Found " << (index - sIndex) << " records in " << argv[i] << std::endl;
+        std::cout << "Found " << (index - sIndex) << " records in " << fn << std::endl;
     } else if (qVerbose) {
-        std::cout << "No records found in " << argv[i] << std::endl;
+        std::cout << "No records found in " << fn << std::endl;
     }
   }
 

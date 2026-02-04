@@ -26,104 +26,43 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <getopt.h>
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif // HAVE_UNISTD_H
-
-namespace {
-  const char *options("afho:uVv"); 
-  const struct option optionsLong[] = {
-	  {"append", no_argument, NULL, 'c'},
-          {"output", required_argument, NULL, 'o'},
-	  {"unlimited", no_argument, NULL, 'c'},
-          {"verbose", no_argument, NULL, 'v'},
-          {"version", no_argument, NULL, 'V'},
-          {"help", no_argument, NULL, 'h'},
-          {NULL, no_argument, NULL, 0}
-  };
-
-
-  int usage(const char *argv0) {
-    std::cerr << argv0 << " Version " << VERSION << std::endl;
-    std::cerr << std::endl;
-    std::cerr << "Usage: " << argv0 << " -[" << options << "] files" << std::endl;
-    std::cerr << std::endl;
-    std::cerr << " -a --append              append to output file if it exists" << std::endl;
-    std::cerr << " -h --help                display the usage message" << std::endl;
-    std::cerr << " -o --output    filename  where to store the data" << std::endl;
-    std::cerr << " -u --unlimited           do not use unlimited dimensions," << std::endl;
-    std::cerr << "                          so output can not be appended to." << std::endl;
-    std::cerr << "                          This will be faster and smaller output." << std::endl;
-    std::cerr << " -V --version             print out version" << std::endl;
-    std::cerr << " -v --verbose             enable some diagnostic output" << std::endl;
-    std::cerr << "\nReport bugs to " << MAINTAINER << std::endl;
-    return 1;
-  }
-} // Anonymous namespace
+#include <CLI/CLI.hpp>
 
 int
 main(int argc,
      char **argv)
 {
-  const char *ofn(nullptr);
+  std::string outputFilename;
+  std::vector<std::string> inputFiles;
   bool qVerbose(false);
   bool qAppend(false);
   bool qUnlimited(true);
 
-    while (true) { // Walk through the options
-    int optionIndex = 0;
-    int c = getopt_long(argc, argv, options, optionsLong, &optionIndex);
-    if (c == -1) break; // End of options
+  CLI::App app{"Merge Seaglider NetCDF files", "sgMergeNetCDF"};
+  app.footer(std::string("\nReport bugs to ") + MAINTAINER);
 
-    switch (c) {
-      case 'a': // Append
-        qAppend = !qAppend;
-        break;
-      case 'o': // Output filename
-        ofn = optarg;
-        break;
-      case 'u': // Unlimited
-        qUnlimited = !qUnlimited;
-        break;
-      case 'V': // Print out version string
-        std::cerr << VERSION << std::endl;
-        return(0);
-      case 'v': // Verbose
-        qVerbose = !qVerbose;
-        break;
-      default:
-        std::cerr << "Unsupported option 0x" << std::hex << c << std::dec;
-        if ((c >= 0x20) && (c <= 0x7e)) std::cerr << " '" << ((char) (c & 0xff)) << "'";
-        std::cerr << std::endl;
-        [[fallthrough]];
-      case '?': // Unsupported option
-      case 'h': // Help
-        return usage(argv[0]);
-    }
-  }
+  app.add_flag("-a,--append", qAppend, "Append to output file if it exists");
+  app.add_option("-o,--output", outputFilename, "Where to store the data")->required();
+  app.add_flag("-u,--unlimited", [&qUnlimited](int64_t) { qUnlimited = !qUnlimited; },
+               "Do not use unlimited dimensions (faster, smaller output, but cannot append)");
+  app.add_flag("-v,--verbose", qVerbose, "Enable some diagnostic output");
+  app.add_option("files", inputFiles, "Input NetCDF files")->required()->check(CLI::ExistingFile);
+  app.set_version_flag("-V,--version", VERSION);
 
-  if (!ofn) {
-    std::cerr << "ERROR: No output filename specified" << std::endl;
-    return usage(argv[0]);
-  }
+  CLI11_PARSE(app, argc, argv);
 
-  if (optind >= argc) {
-    std::cerr << "No input files specified!" << std::endl;
-    usage(argv[0]);
-    return 1;
-  }
+  const char *ofn = outputFilename.c_str();
 
   SGMerge sg(ofn, qVerbose, qAppend, qUnlimited);
 
-  for (int i = optind; i < argc; ++i) { // Loop over input files
-    if (!sg.loadFileHeader(argv[i])) return 1;
+  for (const auto& file : inputFiles) { // Loop over input files
+    if (!sg.loadFileHeader(file.c_str())) return 1;
   }
 
   sg.updateHeader();
 
-  for (int i = optind; i < argc; ++i) { // Loop over input files
-    if (!sg.mergeFile(argv[i])) return 1;
+  for (const auto& file : inputFiles) { // Loop over input files
+    if (!sg.mergeFile(file.c_str())) return 1;
   }
 
   return(0);
