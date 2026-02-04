@@ -489,6 +489,49 @@ jobs:
         # Verify that stdc++fs is being linked for GCC 8.x
         ldd bin/dbd2netCDF | grep stdc++ || echo "stdc++ found in dependencies"
 
+  build-rocky:
+    name: Rocky Linux 9
+    runs-on: ubuntu-latest
+    container:
+      image: rockylinux:9
+
+    steps:
+    - name: Install git (required for checkout)
+      run: |
+        dnf install -y git
+
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        dnf install -y epel-release
+        dnf config-manager --set-enabled crb
+        dnf install -y cmake gcc-c++ make netcdf netcdf-devel hdf5-devel file diffutils
+
+    - name: Display compiler version
+      run: |
+        gcc --version
+        g++ --version
+        cmake --version
+
+    - name: Configure CMake
+      run: |
+        cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build
+      run: cmake --build build --config Release
+
+    - name: List built executables
+      run: |
+        ls -lh bin/
+        file bin/*
+
+    - name: Run tests
+      run: |
+        cd build
+        ctest --output-on-failure
+
   build-windows:
     name: Windows (MSVC)
     runs-on: windows-latest
