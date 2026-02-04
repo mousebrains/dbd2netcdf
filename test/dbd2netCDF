@@ -91,4 +91,42 @@ doCompare test.both.netCDF test.sbd test.tbd
 doCompare data/00300000.dcd.ncdump data/00300000.dcd
 doCompare data/00300000.combined.ncdump data/00300000.dcd data/00300000.scd data/00300000.tcd data/00300000.ecd
 
+# Test command-line options
+echo "Testing version flag..."
+if ! "$CMD" --version >/dev/null 2>&1; then
+  echo "Version flag failed"
+  exit 1
+fi
+
+echo "Testing help flag..."
+if ! "$CMD" --help >/dev/null 2>&1; then
+  echo "Help flag failed"
+  exit 1
+fi
+
+# Test error handling - should fail gracefully for non-existent file
+echo "Testing non-existent file error handling..."
+if "$CMD" -o /dev/null nonexistent.dbd 2>/dev/null; then
+  echo "Should have failed for non-existent file"
+  exit 1
+fi
+
+# Test log level option
+echo "Testing log level option..."
+if ! "$CMD" -l debug -o "$TMP/debug.nc" data/00300000.dcd 2>/dev/null; then
+  echo "Debug log level failed"
+  rm -f "$TMP/debug.nc"
+  exit 1
+fi
+rm -f "$TMP/debug.nc"
+
+# Test strict mode with valid file (should succeed)
+echo "Testing strict mode with valid file..."
+if ! "$CMD" -S -o "$TMP/strict.nc" data/00300000.dcd 2>/dev/null; then
+  echo "Strict mode with valid file failed"
+  rm -f "$TMP/strict.nc"
+  exit 1
+fi
+rm -f "$TMP/strict.nc"
+
 exit 0

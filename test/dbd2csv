@@ -63,4 +63,33 @@ doCompare test.both.csv test.sbd test.tbd
 # Test with real DCD data
 doCompare data/00300000.dcd.csv data/00300000.dcd
 
+# Test command-line options
+echo "Testing version flag..."
+if ! "$CMD" --version >/dev/null 2>&1; then
+  echo "Version flag failed"
+  exit 1
+fi
+
+echo "Testing help flag..."
+if ! "$CMD" --help >/dev/null 2>&1; then
+  echo "Help flag failed"
+  exit 1
+fi
+
+# Test error handling - should fail gracefully for non-existent file
+echo "Testing non-existent file error handling..."
+if "$CMD" -o /dev/null nonexistent.dbd 2>/dev/null; then
+  echo "Should have failed for non-existent file"
+  exit 1
+fi
+
+# Test log level option
+echo "Testing log level option..."
+if ! "$CMD" -l debug -o "$TMP/debug.csv" data/00300000.dcd 2>/dev/null; then
+  echo "Debug log level failed"
+  rm -f "$TMP/debug.csv"
+  exit 1
+fi
+rm -f "$TMP/debug.csv"
+
 exit 0
