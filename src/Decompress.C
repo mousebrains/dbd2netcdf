@@ -28,11 +28,11 @@ int DecompressTWRBuf::underflow() {
   // We are only called if the buffer has been consumed
 
   if (mqCompressed) { // Working with compressed files, so load an lz4 block
-    char sz[2]; // For length of this frame
-    if (!this->mIS.read(sz, sizeof(sz)) || (this->mIS.gcount() != 2)) { // EOF
+    unsigned char sz[2]; // For length of this frame
+    if (!this->mIS.read(reinterpret_cast<char*>(sz), sizeof(sz)) || (this->mIS.gcount() != 2)) { // EOF
       return std::char_traits<char>::eof();
     }
-    const size_t n(((sz[0] << 8) & 0xff00) | (sz[1] & 0xff)); // unsigned Big endian
+    const size_t n((sz[0] << 8) | sz[1]); // unsigned Big endian
     std::vector<char> frame(n);  // RAII heap allocation instead of VLA
     if (!this->mIS.read(frame.data(), n)) { // EOF
       return std::char_traits<char>::eof();

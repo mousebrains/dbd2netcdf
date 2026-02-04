@@ -324,17 +324,25 @@ PD0::Common::load(std::istream& is,
       if (mItems[i].mMeld >= 0) {
         const int meld(mItems[i].mMeld);
         switch (mItems[i].mType) {
-          case dtUInt8: 
-            mItems[meld].mArray[j].ui32 = (mItems[meld].mArray[j].ui16 & 0xffff) | ((mItems[i].mArray[j].ui8 << 16) & 0xff0000);
+          case dtUInt8:
+            mItems[meld].mArray[j].ui32 = (mItems[meld].mArray[j].ui16 & 0xffff) |
+              (static_cast<uint32_t>(mItems[i].mArray[j].ui8) << 16);
           break;
-          case dtUInt16: 
-            mItems[meld].mArray[j].ui32 = (mItems[meld].mArray[j].ui16 & 0xffff) | ((mItems[i].mArray[j].ui16 << 16) & 0xff0000);
+          case dtUInt16:
+            mItems[meld].mArray[j].ui32 = (mItems[meld].mArray[j].ui16 & 0xffff) |
+              (static_cast<uint32_t>(mItems[i].mArray[j].ui16) << 16);
             break;
-          case dtInt8: 
-            mItems[meld].mArray[j].i32 = (mItems[meld].mArray[j].ui16 & 0xffff) | ((mItems[i].mArray[j].i8 << 16) & 0xffff0000);
+          case dtInt8:
+            // Cast to unsigned before shift to avoid UB, then to signed for result
+            mItems[meld].mArray[j].i32 = static_cast<int32_t>(
+              (mItems[meld].mArray[j].ui16 & 0xffff) |
+              (static_cast<uint32_t>(static_cast<uint8_t>(mItems[i].mArray[j].i8)) << 16));
             break;
-          case dtInt16: 
-            mItems[meld].mArray[j].i32 = (mItems[meld].mArray[j].ui16 & 0xffff) | ((mItems[i].mArray[j].i16 << 16) & 0xffff0000);
+          case dtInt16:
+            // Cast to unsigned before shift to avoid UB, then to signed for result
+            mItems[meld].mArray[j].i32 = static_cast<int32_t>(
+              (mItems[meld].mArray[j].ui16 & 0xffff) |
+              (static_cast<uint32_t>(static_cast<uint16_t>(mItems[i].mArray[j].i16)) << 16));
             break;
           case dtInt32:
           case dtUInt32:
