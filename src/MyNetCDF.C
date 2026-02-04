@@ -141,7 +141,7 @@ NetCDF::createVar(const std::string& name,
   int varId;
   int retval;
 
-  basicOp(nc_def_var(mId, name.c_str(), idType, nDims, dims, &varId),
+  basicOp(nc_def_var(mId, name.c_str(), idType, static_cast<int>(nDims), dims, &varId),
           "creating variable '" + name + "'");
 
   { // Deal with chunking for multiple dimensions
@@ -213,7 +213,7 @@ NetCDF::createVar(const std::string& name,
   }
 
   if (idType == NC_FLOAT) {
-    const float badValue(nan(""));
+    const float badValue(std::nanf(""));
     basicOp(nc_def_var_fill(mId, varId, NC_FILL, &badValue),
             "setting fill value for '" + name + "'");
   } else if (idType == NC_DOUBLE) {

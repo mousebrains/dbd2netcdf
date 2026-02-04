@@ -235,12 +235,12 @@ main(int argc,
       std::vector<double> values(n);  // RAII - automatic cleanup
 
       { // Update file info
-        for (tVars::size_type i(0), e(hdrVars.size()); i < e; ++i) {
-          const std::string str(hdr.find(hdrNames[i]));
-          ncid.putVar(hdrVars[i], (size_t) ii + jOffset, str);
+        for (tVars::size_type j(0), je(hdrVars.size()); j < je; ++j) {
+          const std::string str(hdr.find(hdrNames[j]));
+          ncid.putVar(hdrVars[j], (size_t) ii + jOffset, str);
         }
         if (n > kStart) {
-          const unsigned int stopIndex(indexOffset + n - kStart - 1);
+          const unsigned int stopIndex(static_cast<unsigned int>(indexOffset + n - kStart - 1));
 
           ncid.putVar(hdrStartIndex, (size_t) ii + jOffset, (unsigned int) indexOffset);
           ncid.putVar(hdrStopIndex, (size_t) ii + jOffset, stopIndex);
