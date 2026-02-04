@@ -98,10 +98,10 @@ jobs:
         ls -lh bin/
         file bin/*
 
-    - name: Run basic tests
+    - name: Run tests
       run: |
         cd build
-        ctest --output-on-failure || echo "No tests configured"
+        ctest --output-on-failure
 
   lint-shell:
     name: Shellcheck
@@ -247,10 +247,10 @@ jobs:
         ls -lh bin/
         file bin/*
 
-    - name: Run basic tests
+    - name: Run tests
       run: |
         cd build
-        ctest --output-on-failure || echo "No tests configured"
+        ctest --output-on-failure
 
   build-cygwin:
     name: Cygwin - windows-latest
@@ -422,6 +422,11 @@ jobs:
       run: |
         ls -lh bin/
         file bin/*
+
+    - name: Run tests
+      run: |
+        cd build
+        ctest --output-on-failure
 
     - name: Verify GCC 8.5 stdc++fs linking
       run: |
