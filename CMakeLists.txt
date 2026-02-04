@@ -37,7 +37,7 @@ endif()
 
 set(dbd2netcdf_VERSION_MAJOR 1)
 set(dbd2netcdf_VERSION_MINOR 6)
-set(dbd2netcdf_VERSION_PATCH 5)
+set(dbd2netcdf_VERSION_PATCH 6)
 set(dbd2netcdf_MAINTAINER pat@mousebrains.com) # output to config.h
 
 add_subdirectory(src)  # Source code location
