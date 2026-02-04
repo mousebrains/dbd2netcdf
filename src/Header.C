@@ -19,6 +19,7 @@
 
 #include "Header.H"
 #include "MyException.H"
+#include "Logger.H"
 #include <iostream>
 #include <cstdlib>
 
@@ -42,8 +43,7 @@ Header::Header(std::istream& is, const char *fn)
     const std::string::size_type index(line.find(':'));
     ++cnt;
     if (index == line.npos) {
-      std::cerr << "Missing colon in '" << fn << "' on line " << cnt << std::endl;
-      std::cerr << "Line '" << line.substr(0,10) << "'" << std::endl;
+      LOG_WARN("Missing colon in '{}' on line {}: '{}'", fn, cnt, line.substr(0, 10));
       mRecords.clear();
       return;
     }

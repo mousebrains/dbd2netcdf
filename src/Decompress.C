@@ -19,6 +19,7 @@
 
 #include "Decompress.H"
 #include "lz4.h"
+#include "Logger.H"
 #include "FileInfo.H"
 #include <cerrno>
 #include <cstdio>
@@ -39,11 +40,8 @@ int DecompressTWRBuf::underflow() {
     }
     const size_t j(LZ4_decompress_safe(frame.data(), this->mBuffer, n, sizeof(this->mBuffer)));
     if (j > sizeof(this->mBuffer)) { // Probably a corrupted file
-      std::cerr << "Attempt to decompress lz4 block with too much data, "
-	      << j << " > " << sizeof(this->mBuffer) 
-	      << " in " << this->mFilename
-	      << " block size " << n
-	      << std::endl;
+      LOG_ERROR("Attempt to decompress lz4 block with too much data: {} > {} in {} (block size {})",
+                j, sizeof(this->mBuffer), this->mFilename, n);
       return std::char_traits<char>::eof();
     }
     this->setg(this->mBuffer, this->mBuffer, this->mBuffer + j);

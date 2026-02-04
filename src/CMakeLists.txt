@@ -9,11 +9,6 @@ set(COMMON_SOURCES
 	lz4.c
 )
 
-add_executable(sgMergeNetCDF
-	sgMergeNetCDF.C
-	SGMerge.C
-)
-
 add_executable(dbd2netCDF
 	dbd2netCDF.C
 	${COMMON_SOURCES}
@@ -44,7 +39,7 @@ add_executable(decompressTWR
 	lz4.c
 )
 
-set_target_properties(sgMergeNetCDF dbd2netCDF dbd2csv dbdSensors pd02netCDF decompressTWR
+set_target_properties(dbd2netCDF dbd2csv dbdSensors pd02netCDF decompressTWR
 	PROPERTIES
 	  RUNTIME_OUTPUT_DIRECTORY ${dbd2netcdf_SOURCE_DIR}/bin
 	  LINKER_LANGUAGE CXX
@@ -54,18 +49,20 @@ set_target_properties(sgMergeNetCDF dbd2netCDF dbd2csv dbdSensors pd02netCDF dec
 )
 
 # Set compiler flags for all targets
-set(ALL_TARGETS sgMergeNetCDF dbd2netCDF dbd2csv dbdSensors pd02netCDF decompressTWR)
+set(ALL_TARGETS dbd2netCDF dbd2csv dbdSensors pd02netCDF decompressTWR)
 
 foreach(target ${ALL_TARGETS})
   if(MSVC)
-    target_compile_options(${target} PRIVATE /W4)
+    target_compile_options(${target} PRIVATE /W4 /WX)
     # Disable warnings for third-party code (lz4)
     set_source_files_properties(lz4.c PROPERTIES COMPILE_FLAGS "/W0")
   else()
-    target_compile_options(${target} PRIVATE -Wall -Wextra -pedantic)
+    target_compile_options(${target} PRIVATE -Wall -Wextra -pedantic -Werror)
+    # Disable -Werror for third-party code (lz4)
+    set_source_files_properties(lz4.c PROPERTIES COMPILE_FLAGS "-w")
   endif()
-  # Link CLI11 to all targets
-  target_link_libraries(${target} PRIVATE CLI11::CLI11)
+  # Link CLI11 and spdlog to all targets
+  target_link_libraries(${target} PRIVATE CLI11::CLI11 spdlog::spdlog)
 endforeach()
 
 # Find NetCDF - use different methods for different platforms
@@ -154,7 +151,6 @@ configure_file(${dbd2netcdf_SOURCE_DIR}/src/config.h.in
                ${dbd2netcdf_SOURCE_DIR}/src/config.h)
 
 # Link NetCDF libraries to targets that need it
-target_link_libraries(sgMergeNetCDF PRIVATE ${NETCDF_LIBRARIES})
 target_link_libraries(dbd2netCDF PRIVATE ${NETCDF_LIBRARIES})
 target_link_libraries(pd02netCDF PRIVATE ${NETCDF_LIBRARIES})
 
@@ -165,7 +161,6 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_L
     target_link_libraries(dbd2csv PRIVATE stdc++fs)
     target_link_libraries(dbdSensors PRIVATE stdc++fs)
     target_link_libraries(decompressTWR PRIVATE stdc++fs)
-    target_link_libraries(sgMergeNetCDF PRIVATE stdc++fs)
 endif()
 
 # Link ws2_32 for Windows (required for winsock byte-order functions)
@@ -177,5 +172,5 @@ endif()
 
 # Install locally
 
-install(TARGETS sgMergeNetCDF dbd2netCDF pd02netCDF dbd2csv dbdSensors decompressTWR 
+install(TARGETS dbd2netCDF pd02netCDF dbd2csv dbdSensors decompressTWR
 	DESTINATION bin)

@@ -25,6 +25,7 @@
 #include "KnownBytes.H"
 #include "Data.H"
 #include "MyException.H"
+#include "Logger.H"
 #include "Decompress.H"
 #include "FileInfo.H"
 #include "config.h"
@@ -47,8 +48,10 @@ main(int argc,
   std::vector<std::string> missionsToSkipVec;
   std::vector<std::string> missionsToKeepVec;
   std::vector<std::string> inputFiles;
+  std::string logLevel = "warn";
   bool qSkipFirstRecord(false);
   bool qRepair(false);
+  bool qStrict(false);
   bool qVerbose(false);
 
   CLI::App app{"Convert Dinkum Binary Data files to CSV", "dbd2csv"};
@@ -62,11 +65,20 @@ main(int argc,
   app.add_option("-o,--output", outputFilename, "Where to store the data");
   app.add_flag("-s,--skipFirst", qSkipFirstRecord, "Skip first record in each file, but the first file");
   app.add_flag("-r,--repair", qRepair, "Attempt to repair bad data records");
+  app.add_flag("-S,--strict", qStrict, "Fail immediately on any file error (no partial results)");
   app.add_flag("-v,--verbose", qVerbose, "Enable some diagnostic output");
+  app.add_option("-l,--log-level", logLevel, "Log level (trace,debug,info,warn,error,critical,off)")
+     ->default_val("warn");
   app.add_option("files", inputFiles, "Input DBD files")->required()->check(CLI::ExistingFile);
   app.set_version_flag("-V,--version", VERSION);
 
   CLI11_PARSE(app, argc, argv);
+
+  // Initialize logger
+  dbd::logger().init("dbd2csv", dbd::logLevelFromString(logLevel));
+  if (qVerbose) {
+    dbd::logger().setLevel(dbd::LogLevel::Info);
+  }
 
   // Load sensor names from files if specified
   Sensors::tNames toKeep, criteria;
@@ -93,7 +105,7 @@ main(int argc,
   if (!outputFilename.empty()) {
     outputFile = std::make_unique<std::ofstream>(outputFilename);
     if (!outputFile || !(*outputFile)) {
-      std::cerr << "Error opening '" << outputFilename << "', " << strerror(errno) << std::endl;
+      LOG_ERROR("Error opening '{}': {}", outputFilename, strerror(errno));
       return(1);
     }
     osp = outputFile.get();
@@ -110,7 +122,7 @@ main(int argc,
     const char* fn = inputFiles[i].c_str();
     DecompressTWR is(fn, qCompressed(fn));
     if (!is) {
-      std::cerr << "Error opening '" << fn << "', " << strerror(errno) << std::endl;
+      LOG_ERROR("Error opening '{}': {}", fn, strerror(errno));
       return(1);
     }
     try {
@@ -120,12 +132,16 @@ main(int argc,
         fileIndices.push_back(i);
       }
     } catch (MyException& e) {
-      std::cerr << "Error processing '" << fn << "', " << e.what() << std::endl;
+      if (qStrict) {
+        LOG_ERROR("Error processing '{}': {}", fn, e.what());
+        return(1);
+      }
+      LOG_WARN("Error processing '{}': {} (skipping file)", fn, e.what());
     }
   }
 
   if (fileIndices.empty()) {
-    std::cerr << "No input files found to process!" << std::endl;
+    LOG_ERROR("No input files found to process!");
     return(1);
   }
 
@@ -158,7 +174,7 @@ main(int argc,
     const char* fn = inputFiles[i].c_str();
     DecompressTWR is(fn, qCompressed(fn));
     if (!is) {
-      std::cerr << "Error opening '" << fn << "', " << strerror(errno) << std::endl;
+      LOG_ERROR("Error opening '{}': {}", fn, strerror(errno));
       return(1);
     }
     const Header hdr(is, fn);             // Load up header
@@ -171,8 +187,11 @@ main(int argc,
     try {
       data.load(is, kb, sensors, qRepair, nBytes);
     } catch (MyException& e) {
-      std::cerr << "Error processing '" << fn << "', " << e.what()
-              << ", retaining " << data.size() << " records" << std::endl;
+      if (qStrict) {
+        LOG_ERROR("Error processing '{}': {}", fn, e.what());
+        return(1);
+      }
+      LOG_WARN("Error processing '{}': {}, retaining {} records", fn, e.what(), data.size());
     }
 
     if (data.empty()) continue;
@@ -199,9 +218,7 @@ main(int argc,
       }
     }
 
-    if (qVerbose) {
-      std::cerr << fn << ' ' << data.size() << std::endl;
-    }
+    LOG_INFO("{}: {} records", fn, data.size());
   }
 
   // outputFile automatically cleaned up on function exit

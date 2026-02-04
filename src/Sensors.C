@@ -21,6 +21,7 @@
 #include "Sensors.H"
 #include "Header.H"
 #include "MyException.H"
+#include "Logger.H"
 #include "Decompress.H"
 #include "FileInfo.H"
 #include <fstream>
@@ -174,10 +175,10 @@ Sensors::dump(const std::string& dir) const
   if (!fs::is_directory(dirPath)) { // Not a directory, so see if I can make it
     std::error_code ec;
     if (!fs::create_directories(dirPath, ec)) {
-      std::cerr << "Error creating '" << dir << "'" << std::endl;
+      LOG_ERROR("Error creating directory '{}'", dir);
       return false;
     }
-    std::cerr << "Created directory '" << dir << "'" << std::endl;
+    LOG_DEBUG("Created directory '{}'", dir);
   }
 
   const std::string filename(mkFilename(dir));
@@ -225,7 +226,7 @@ Sensors::dump(const std::string& dir) const
         fs::remove(tempfn, ec);
         throw MyException(oss.str());
       } else {
-        std::cerr << "Created '" << filename << "'" << std::endl;
+        LOG_DEBUG("Created cache file '{}'", filename);
       }
     }
   }
@@ -251,7 +252,7 @@ Sensors::load(const std::string& dir,
 
   DecompressTWR is(filename, qCompressed(filename));
   if (!is) {
-    std::cerr << "Error opening '" << filename << "', " << strerror(errno) << std::endl;
+    LOG_ERROR("Error opening '{}': {}", filename, strerror(errno));
     return false;
   }
 

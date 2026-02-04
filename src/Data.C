@@ -21,6 +21,7 @@
 #include "KnownBytes.H"
 #include "Sensors.H"
 #include "MyException.H"
+#include "Logger.H"
 #include <iostream>
 #include <sstream>
 #include <cmath>
@@ -95,15 +96,11 @@ Data::load(std::istream& is,
         throw(MyException(oss.str()));
       } // if !qContinue
       const size_t nPos = is.tellg();
-      std::cerr << "Skipped " << (nPos-pos) << " bytes due to bad data tag (0x"
-	      << std::hex << (tag & 0xff) << std::dec
-	      << ") '";
-      if (tag >= 0x20 && tag <= 0x7E) {
-        std::cerr << static_cast<char>(tag & 0xff);
-      } else {
-        std::cerr << "GotMe";
-      }
-      std::cerr << "' at " << pos << std::endl;
+      std::string tagStr = (tag >= 0x20 && tag <= 0x7E)
+          ? std::string(1, static_cast<char>(tag & 0xff))
+          : "GotMe";
+      LOG_WARN("Skipped {} bytes due to bad data tag (0x{:02x}) '{}' at offset {}",
+               nPos - pos, tag & 0xff, tagStr, pos);
     }
 
     if (!is.read(reinterpret_cast<char*>(bits.data()), nHeader)) {

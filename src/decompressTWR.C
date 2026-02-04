@@ -21,6 +21,7 @@
 
 #include "config.h"
 #include "Decompress.H"
+#include "Logger.H"
 #include "FileInfo.H"
 #include <iostream>
 #include <fstream>
@@ -65,6 +66,7 @@ main(int argc,
 {
   std::string directory;
   std::vector<std::string> inputFiles;
+  std::string logLevel = "warn";
   bool qStdOut(false);
   bool qVerbose(false);
 
@@ -74,15 +76,23 @@ main(int argc,
   app.add_option("-o,--output", directory, "Directory where to store the data");
   app.add_flag("-s,--stdout", qStdOut, "Output to stdout");
   app.add_flag("-v,--verbose", qVerbose, "Enable some diagnostic output");
+  app.add_option("-l,--log-level", logLevel, "Log level (trace,debug,info,warn,error,critical,off)")
+     ->default_val("warn");
   app.add_option("files", inputFiles, "Input files")->required()->check(CLI::ExistingFile);
   app.set_version_flag("-V,--version", VERSION);
 
   CLI11_PARSE(app, argc, argv);
 
+  // Initialize logger
+  dbd::logger().init("decompressTWR", dbd::logLevelFromString(logLevel));
+  if (qVerbose) {
+    dbd::logger().setLevel(dbd::LogLevel::Info);
+  }
+
   for (const auto& ifn : inputFiles) {
     DecompressTWR is(ifn, qCompressed(ifn));
     if (!is) {
-      std::cerr << "Error opening '" << ifn << "', " << strerror(errno) << std::endl;
+      LOG_ERROR("Error opening '{}': {}", ifn, strerror(errno));
       return(1);
     }
 
@@ -103,7 +113,7 @@ main(int argc,
     try {
       std::ofstream os(tfn.c_str(), std::ios::binary);
       if (!os) {
-        std::cerr << "Error opening '" << tfn << "', " << strerror(errno) << std::endl;
+        LOG_ERROR("Error opening '{}': {}", tfn, strerror(errno));
 	return 1;
       }
       constexpr size_t BUFFER_SIZE = 1024 * 1024;
@@ -115,8 +125,9 @@ main(int argc,
       }
       os.close();
       std::rename(tfn.c_str(), ofn.c_str());
+      LOG_INFO("Decompressed '{}' -> '{}'", ifn, ofn);
     } catch (int e) {
-      std::cerr << "Error creating '" << ofn << "', " << strerror(e) << std::endl;
+      LOG_ERROR("Error creating '{}': {}", ofn, strerror(e));
       // remove(tfn); // Not found on Macos
     }
   }

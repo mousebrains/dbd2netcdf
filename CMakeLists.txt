@@ -13,7 +13,15 @@ FetchContent_Declare(
   GIT_REPOSITORY https://github.com/CLIUtils/CLI11.git
   GIT_TAG        v2.4.2
 )
-FetchContent_MakeAvailable(cli11)
+
+# Fetch spdlog for structured logging
+FetchContent_Declare(
+  spdlog
+  GIT_REPOSITORY https://github.com/gabime/spdlog.git
+  GIT_TAG        v1.15.0
+)
+
+FetchContent_MakeAvailable(cli11 spdlog)
 
 # Check for minimum compiler versions (C++17 support required)
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")

@@ -26,6 +26,7 @@
 #include "KnownBytes.H"
 #include "Data.H"
 #include "MyException.H"
+#include "Logger.H"
 #include "config.h"
 #include "Decompress.H"
 #include "FileInfo.H"
@@ -49,9 +50,11 @@ main(int argc,
   std::vector<std::string> missionsToSkipVec;
   std::vector<std::string> missionsToKeepVec;
   std::vector<std::string> inputFiles;
+  std::string logLevel = "warn";
   bool qAppend(false);
   bool qSkipFirstRecord(false);
   bool qRepair(false);
+  bool qStrict(false);
   bool qVerbose(false);
 
   CLI::App app{"Convert Dinkum Binary Data files to NetCDF", "dbd2netCDF"};
@@ -66,11 +69,20 @@ main(int argc,
   app.add_option("-o,--output", outputFilename, "Where to store the data")->required();
   app.add_flag("-s,--skipFirst", qSkipFirstRecord, "Skip first record in each file, but the first");
   app.add_flag("-r,--repair", qRepair, "Attempt to repair bad data records");
+  app.add_flag("-S,--strict", qStrict, "Fail immediately on any file error (no partial results)");
   app.add_flag("-v,--verbose", qVerbose, "Enable some diagnostic output");
+  app.add_option("-l,--log-level", logLevel, "Log level (trace,debug,info,warn,error,critical,off)")
+     ->default_val("warn");
   app.add_option("files", inputFiles, "Input DBD files")->required()->check(CLI::ExistingFile);
   app.set_version_flag("-V,--version", VERSION);
 
   CLI11_PARSE(app, argc, argv);
+
+  // Initialize logger
+  dbd::logger().init("dbd2netCDF", dbd::logLevelFromString(logLevel));
+  if (qVerbose) {
+    dbd::logger().setLevel(dbd::LogLevel::Info);
+  }
 
   const char *ofn = outputFilename.c_str();
 
@@ -104,7 +116,7 @@ main(int argc,
     const char* fn = inputFiles[i].c_str();
     DecompressTWR is(fn, qCompressed(fn));
     if (!is) {
-      std::cerr << "Error opening '" << fn << "', " << strerror(errno) << std::endl;
+      LOG_ERROR("Error opening '{}': {}", fn, strerror(errno));
       return(1);
     }
     const Header hdr(is, fn);
@@ -115,7 +127,7 @@ main(int argc,
   }
 
   if (fileIndices.empty()) {
-    std::cerr << "No input files found to process!" << std::endl;
+    LOG_ERROR("No input files found to process!");
     return(1);
   }
 
@@ -151,7 +163,7 @@ main(int argc,
         case 4: idType = NC_FLOAT; break;
         case 8: idType = NC_DOUBLE; break;
         default:
-          std::cerr << "Unsupported sensor size " << sensor << std::endl;
+          LOG_ERROR("Unsupported sensor size for {}", sensor.name());
           return(1);
       } // switch
       
@@ -194,8 +206,7 @@ main(int argc,
     const char* fn = inputFiles[i].c_str();
     DecompressTWR is(fn, qCompressed(fn));
     if (!is) {
-      std::cerr << "Error opening '" << fn << "', "
-                << strerror(errno) << std::endl;
+      LOG_ERROR("Error opening '{}': {}", fn, strerror(errno));
       return(1);
     }
     const Header hdr(is, fn);             // Load up header
@@ -209,8 +220,11 @@ main(int argc,
       try {
         data.load(is, kb, sensors, qRepair, nBytes);
       } catch (MyException& e) {
-        std::cerr << "Error processing '" << fn << "', " << e.what()
-                  << ", retaining " << data.size() << " records" << std::endl;
+        if (qStrict) {
+          LOG_ERROR("Error processing '{}': {}", fn, e.what());
+          return(1);
+        }
+        LOG_WARN("Error processing '{}': {}, retaining {} records", fn, e.what(), data.size());
       }
 
       if (data.empty()) continue;
@@ -272,21 +286,23 @@ main(int argc,
 
       indexOffset += data.size() - kStart;
 
-      if (qVerbose) {
-        std::cerr << fn << " " << data.size() - kStart << std::endl;
-      }
+      LOG_INFO("{}: {} records written", fn, data.size() - kStart);
     } catch (MyException& e) { // Catch my exceptions, where I toss the whole file
-      std::cerr << "Error processing '" << fn << "', " << e.what() << std::endl;
+      if (qStrict) {
+        LOG_ERROR("Error processing '{}': {}", fn, e.what());
+        return(1);
+      }
+      LOG_WARN("Error processing '{}': {} (skipping file)", fn, e.what());
     }
   }
 
   ncid.close();
 
   } catch (MyException& e) {
-    std::cerr << "Fatal error: " << e.what() << std::endl;
+    LOG_CRITICAL("Fatal error: {}", e.what());
     return(2);
   } catch (std::exception& e) {
-    std::cerr << "Unexpected error: " << e.what() << std::endl;
+    LOG_CRITICAL("Unexpected error: {}", e.what());
     return(3);
   }
 

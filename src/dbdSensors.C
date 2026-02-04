@@ -21,6 +21,7 @@
 #include "SensorsMap.H"
 #include "KnownBytes.H"
 #include "MyException.H"
+#include "Logger.H"
 #include "Decompress.H"
 #include "config.h"
 #include <iostream>
@@ -40,6 +41,7 @@ main(int argc,
   std::vector<std::string> missionsToSkipVec;
   std::vector<std::string> missionsToKeepVec;
   std::vector<std::string> inputFiles;
+  std::string logLevel = "warn";
 
   CLI::App app{"Extract sensor information from Dinkum Binary Data files", "dbdSensors"};
   app.footer(std::string("\nReport bugs to ") + MAINTAINER);
@@ -48,10 +50,15 @@ main(int argc,
   app.add_option("-m,--skipMission", missionsToSkipVec, "Mission to skip (can be repeated)");
   app.add_option("-M,--keepMission", missionsToKeepVec, "Mission to keep (can be repeated)");
   app.add_option("-o,--output", outputFilename, "Where to store the data");
+  app.add_option("-l,--log-level", logLevel, "Log level (trace,debug,info,warn,error,critical,off)")
+     ->default_val("warn");
   app.add_option("files", inputFiles, "Input DBD files")->required()->check(CLI::ExistingFile);
   app.set_version_flag("-V,--version", VERSION);
 
   CLI11_PARSE(app, argc, argv);
+
+  // Initialize logger
+  dbd::logger().init("dbdSensors", dbd::logLevelFromString(logLevel));
 
   // Convert mission vectors to the expected format
   Header::tMissions missionsToSkip;
@@ -69,7 +76,7 @@ main(int argc,
   if (!outputFilename.empty()) {
     outputFile = std::make_unique<std::ofstream>(outputFilename);
     if (!outputFile || !(*outputFile)) {
-      std::cerr << "Error opening '" << outputFilename << "', " << strerror(errno) << std::endl;
+      LOG_ERROR("Error opening '{}': {}", outputFilename, strerror(errno));
       return(1);
     }
     osp = outputFile.get();
@@ -86,25 +93,24 @@ main(int argc,
     const char* fn = inputFiles[i].c_str();
     DecompressTWR is(fn, qCompressed(fn));
     if (!is) {
-      std::cerr << "Error opening '" << fn << "', " << strerror(errno) << std::endl;
+      LOG_ERROR("Error opening '{}': {}", fn, strerror(errno));
       return(1);
     }
     try {
       Header hdr(is, fn);
       if (hdr.empty()) {
-        std::cerr << "Warning '" << fn << "' is empty" << std::endl;
+        LOG_WARN("File '{}' is empty", fn);
       } else if (hdr.qProcessMission(missionsToSkip, missionsToKeep)) {
         smap.insert(is, hdr, false);
         fileIndices.push_back(i);
       }
     } catch (MyException& e) {
-      std::cerr << "Error working on '" << fn << "'" << std::endl;
-      std::cerr << e.what() << std::endl;
+      LOG_ERROR("Error working on '{}': {}", fn, e.what());
     }
   }
 
   if (fileIndices.empty()) {
-    std::cerr << "No input files found to process!" << std::endl;
+    LOG_ERROR("No input files found to process!");
     return(1);
   }
 
@@ -113,19 +119,18 @@ main(int argc,
     const char* fn = inputFiles[i].c_str();
     DecompressTWR is(fn, qCompressed(fn));
     if (!is) {
-      std::cerr << "Error opening '" << fn << "', " << strerror(errno) << std::endl;
+      LOG_ERROR("Error opening '{}': {}", fn, strerror(errno));
       return(1);
     }
     try {
       Header hdr(is, fn);
       const Sensors& sensors(smap.find(hdr));
       if (sensors.empty()) {
-        std::cerr << "No sensors list found for '" << fn << "'" << std::endl;
+        LOG_ERROR("No sensors list found for '{}'", fn);
         return(1);
       }
     } catch (MyException &e) {
-      std::cerr << "Error working on '" << fn << "'" << std::endl;
-      std::cerr << e.what() << std::endl;
+      LOG_ERROR("Error working on '{}': {}", fn, e.what());
     }
   }
 
