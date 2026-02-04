@@ -6,6 +6,15 @@ on:
   pull_request:
     branches: [ master, main ]
   workflow_dispatch:
+    inputs:
+      job:
+        description: 'Job to run (leave empty for all)'
+        required: false
+        default: ''
+        type: choice
+        options:
+          - ''
+          - cygwin-only
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -13,6 +22,7 @@ concurrency:
 
 jobs:
   build-linux:
+    if: github.event_name != 'workflow_dispatch' || inputs.job == ''
     name: ${{ matrix.os }} - ${{ matrix.compiler }} ${{ matrix.version }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -104,6 +114,7 @@ jobs:
         ctest --output-on-failure || echo "No tests configured"
 
   lint-shell:
+    if: github.event_name != 'workflow_dispatch' || inputs.job == ''
     name: Shellcheck
     runs-on: ubuntu-latest
 
@@ -121,6 +132,7 @@ jobs:
         shellcheck -s sh test/dbd2netCDF test/dbd2csv test/dbdSensors test/pd02netCDF
 
   lint-cpp:
+    if: github.event_name != 'workflow_dispatch' || inputs.job == ''
     name: C++ Static Analysis
     runs-on: ubuntu-latest
 
@@ -152,6 +164,7 @@ jobs:
           src/ || true
 
   build-asan:
+    if: github.event_name != 'workflow_dispatch' || inputs.job == ''
     name: AddressSanitizer
     runs-on: ubuntu-latest
 
@@ -183,6 +196,7 @@ jobs:
         ctest --output-on-failure
 
   codeql:
+    if: github.event_name != 'workflow_dispatch' || inputs.job == ''
     name: CodeQL Security Analysis
     runs-on: ubuntu-latest
     permissions:
@@ -213,6 +227,7 @@ jobs:
       uses: github/codeql-action/analyze@v3
 
   build-macos:
+    if: github.event_name != 'workflow_dispatch' || inputs.job == ''
     name: macOS - ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -395,10 +410,17 @@ jobs:
     - name: Build
       run: |
         cd "$CYGWIN_WORKSPACE"
+        echo "=== Source directory contents ==="
+        ls -la src/
+        echo "=== Check sgMergeNetCDF.C ==="
+        ls -la src/sgMergeNetCDF.C || echo "FILE NOT FOUND!"
+        cat src/sgMergeNetCDF.C | head -5 || echo "CANNOT READ FILE!"
+        echo "=== CMakeCache paths ==="
+        grep -i "source_dir\|sgmerge" build/CMakeCache.txt || true
         echo "=== Build directory contents ==="
         ls -la build/
         echo "=== Starting build ==="
-        cmake --build build --config Release
+        cmake --build build --config Release -- VERBOSE=1
 
     - name: List built executables
       run: |
@@ -417,6 +439,7 @@ jobs:
         }
 
   build-alma:
+    if: github.event_name != 'workflow_dispatch' || inputs.job == ''
     name: Alma Linux 8 (GCC 8.5)
     runs-on: ubuntu-latest
     container:
