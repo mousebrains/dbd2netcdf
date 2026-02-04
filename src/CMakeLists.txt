@@ -9,12 +9,31 @@ set(COMMON_SOURCES
 	lz4.c
 )
 
+# Create a static library for common sources (used by executables and unit tests)
+add_library(dbd_common STATIC ${COMMON_SOURCES})
+set_target_properties(dbd_common PROPERTIES
+	CXX_STANDARD 17
+	CXX_STANDARD_REQUIRED ON
+	CXX_EXTENSIONS OFF
+)
+target_include_directories(dbd_common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_link_libraries(dbd_common PUBLIC spdlog::spdlog)
+
+# Compiler flags for the library
+if(MSVC)
+	target_compile_options(dbd_common PRIVATE /W4 /WX)
+	set_source_files_properties(lz4.c PROPERTIES COMPILE_FLAGS "/W0")
+else()
+	target_compile_options(dbd_common PRIVATE -Wall -Wextra -pedantic -Werror)
+	set_source_files_properties(lz4.c PROPERTIES COMPILE_FLAGS "-w")
+endif()
+
 add_executable(dbd2netCDF
 	dbd2netCDF.C
-	${COMMON_SOURCES}
 	MyNetCDF.C
 	Data.C
 )
+target_link_libraries(dbd2netCDF PRIVATE dbd_common)
 
 add_executable(pd02netCDF
 	pd02netCDF.C
@@ -24,14 +43,14 @@ add_executable(pd02netCDF
 
 add_executable(dbd2csv
 	dbd2csv.C
-	${COMMON_SOURCES}
 	Data.C
 )
+target_link_libraries(dbd2csv PRIVATE dbd_common)
 
 add_executable(dbdSensors
 	dbdSensors.C
-	${COMMON_SOURCES}
 )
+target_link_libraries(dbdSensors PRIVATE dbd_common)
 
 add_executable(decompressTWR
 	decompressTWR.C
@@ -156,18 +175,14 @@ target_link_libraries(pd02netCDF PRIVATE ${NETCDF_LIBRARIES})
 
 # Link stdc++fs for GCC 8.x (required for filesystem support)
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0)
-    target_link_libraries(dbd2netCDF PRIVATE stdc++fs)
+    target_link_libraries(dbd_common PUBLIC stdc++fs)
     target_link_libraries(pd02netCDF PRIVATE stdc++fs)
-    target_link_libraries(dbd2csv PRIVATE stdc++fs)
-    target_link_libraries(dbdSensors PRIVATE stdc++fs)
     target_link_libraries(decompressTWR PRIVATE stdc++fs)
 endif()
 
 # Link ws2_32 for Windows (required for winsock byte-order functions)
 if(WIN32)
-    target_link_libraries(dbd2netCDF PRIVATE ws2_32)
-    target_link_libraries(dbd2csv PRIVATE ws2_32)
-    target_link_libraries(dbdSensors PRIVATE ws2_32)
+    target_link_libraries(dbd_common PUBLIC ws2_32)
 endif()
 
 # Install locally

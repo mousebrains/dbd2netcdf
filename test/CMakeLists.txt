@@ -4,6 +4,9 @@
 # Tests expect to run from the test/ directory with executables in ../bin/
 #
 
+# Add unit tests subdirectory
+add_subdirectory(unit)
+
 find_program(SH_PROGRAM sh)
 
 if (SH_PROGRAM)

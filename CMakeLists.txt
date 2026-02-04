@@ -21,7 +21,14 @@ FetchContent_Declare(
   GIT_TAG        v1.15.0
 )
 
-FetchContent_MakeAvailable(cli11 spdlog)
+# Fetch Catch2 for unit testing
+FetchContent_Declare(
+  Catch2
+  GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+  GIT_TAG        v3.7.1
+)
+
+FetchContent_MakeAvailable(cli11 spdlog Catch2)
 
 # Check for minimum compiler versions (C++17 support required)
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
