@@ -1,21 +1,24 @@
-INSTALLATION OF DBD2NETCDF ON WINDOWS 7 CYGWIN
+INSTALLATION OF DBD2NETCDF ON WINDOWS CYGWIN
 
 ::BEFORE INSTALLATION::
-the following packages should be installed on Cygwin
+The following packages should be installed on Cygwin
 (GCC 8+ is required for C++17 support):
   gcc-core (>=8)
   gcc-g++ (>=8)
   cmake
   make
   netcdf (includes ncdump)
-  netcdf-devel (may be listed as libnetcdf-devel)
+  libnetcdf-devel
   hdf5
-  hdf5-devel (may be listed as libhdf5-devel)
+  libhdf5-devel
   diffutils (for tests)
   coreutils (for tests: tail, etc.)
+  grep (for tests)
+  file (for tests)
+  tar
 
-to install the above packages, run the setup.exe installer for Cygwin
-and while in the packages selection screen, find the packages above
+To install the above packages, run the Cygwin setup executable and
+while in the packages selection screen, find the packages above
 using the following searches:
   gcc
   make
@@ -24,40 +27,58 @@ using the following searches:
   hdf5
   diffutils
   coreutils
+  grep
+  file
+  tar
 
-click the circle with arrows next to each appropriate package to install
-the latest version.  Now finish the cygwin installation.
+Click the circle with arrows next to each appropriate package to install
+the latest version. Then finish the Cygwin installation.
 
 
-::INSTALLATION::
-1. download and save the source tarball dbd2netcdf-#.#.#-Source.tar.gz to
-/usr/local/ under the Cygwin file system from
-http://sourceforge.net/projects/dbd2netcdf/files/,
-where #.#.# is replaced by the version number downloaded.
-On a typical Cygwin install \usr\local\ would be found at
-C:\cygwin\usr\local\ using the Windows file system.
+::INSTALLATION FROM SOURCE::
 
-NOTE: lines below with a $ indicate a Cygwin prompt and the command to run
-i.e.
-$ command
+1. Download the source tarball from GitHub:
+   https://github.com/mousebrains/dbd2netcdf/releases
 
-2. from the Cygwin terminal unpack the tarball:
-$ tar -zxvf dbd2netcdf-#.#.#-Source.tar.gz
+   Save dbd2netcdf-#.#.#-Source.tar.gz to a directory under the Cygwin
+   file system (e.g., /home/username/), where #.#.# is the version number.
 
-3. change into the directory that was just extracted:
-$ cd dbd2netcdf-#.#.#-Source
+NOTE: Lines below with a $ indicate a Cygwin prompt and the command to run.
 
-4. run the make steps to build and install:
-$ cmake .
+2. From the Cygwin terminal, unpack the tarball:
+   $ tar -zxvf dbd2netcdf-#.#.#-Source.tar.gz
 
-$ make
+3. Change into the directory that was just extracted:
+   $ cd dbd2netcdf-#.#.#-Source
 
-$ make test
+4. Configure and build:
+   $ cmake -B build -DCMAKE_BUILD_TYPE=Release
+   $ cmake --build build
 
-$ make install
+5. Run tests:
+   $ cd build && ctest --output-on-failure
 
-If each of the 4 commands above exit successfully, the install is complete.
-dbd2netCDF is now on the Cygwin path and is accessible from any directory.
-See:
-$ man dbd2netCDF
-for how to use dbd2netCDF.
+6. Install (optional):
+   $ cmake --install build --prefix /usr/local
+
+If each command exits successfully, the install is complete.
+
+
+::USAGE::
+
+See the man pages for usage:
+  $ man dbd2netCDF
+  $ man dbd2csv
+  $ man dbdSensors
+
+Or use --help:
+  $ dbd2netCDF --help
+
+
+::TROUBLESHOOTING::
+
+If tests fail with "$'\r': command not found" errors, the shell scripts
+have Windows line endings. This can happen if git is configured with
+core.autocrlf=true. The repository includes a .gitattributes file to
+prevent this, but if needed you can convert manually:
+  $ sed -i 's/\r$//' test/dbd2netCDF test/dbd2csv test/dbdSensors test/pd02netCDF
