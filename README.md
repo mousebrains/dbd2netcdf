@@ -1,6 +1,7 @@
 # dbd2netcdf
 
 [![Build and Test](https://github.com/mousebrains/dbd2netcdf/actions/workflows/build-test.yml/badge.svg)](https://github.com/mousebrains/dbd2netcdf/actions/workflows/build-test.yml)
+[![codecov](https://codecov.io/gh/mousebrains/dbd2netcdf/graph/badge.svg)](https://codecov.io/gh/mousebrains/dbd2netcdf)
 [![Latest Release](https://img.shields.io/github/v/release/mousebrains/dbd2netcdf)](https://github.com/mousebrains/dbd2netcdf/releases/latest)
 
 This software is designed to translate a set of Dinkum Binary Data files into
