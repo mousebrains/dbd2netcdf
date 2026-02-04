@@ -191,6 +191,7 @@ jobs:
 
     - name: Verify NetCDF tools
       run: |
+        cd "$(cygpath -u "$GITHUB_WORKSPACE")"
         nc-config --version
         if ncdump --version >/dev/null 2>&1; then
           ncdump --version
@@ -211,13 +212,17 @@ jobs:
 
     - name: Configure CMake
       run: |
+        cd "$(cygpath -u "$GITHUB_WORKSPACE")"
         cmake -B build -DCMAKE_BUILD_TYPE=Release
 
     - name: Build
-      run: cmake --build build --config Release
+      run: |
+        cd "$(cygpath -u "$GITHUB_WORKSPACE")"
+        cmake --build build --config Release
 
     - name: Run tests
       run: |
+        cd "$(cygpath -u "$GITHUB_WORKSPACE")"
         cd build
         ctest --output-on-failure
 
