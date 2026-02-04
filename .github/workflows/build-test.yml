@@ -492,6 +492,9 @@ jobs:
   build-windows:
     name: Windows (MSVC)
     runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
 
     steps:
     - name: Checkout code
@@ -507,33 +510,25 @@ jobs:
         python-version: '3.11'
         channels: conda-forge
         channel-priority: strict
+        activate-environment: dbd2netcdf
 
     - name: Install dependencies via conda
-      shell: bash -el {0}
       run: |
         conda install -y libnetcdf hdf5 cmake ninja
 
     - name: Configure CMake
-      shell: cmd
       run: |
-        call "%CONDA_PREFIX%\condabin\conda.bat" activate
-        cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release ^
-          -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl ^
-          -DCMAKE_PREFIX_PATH="%CONDA_PREFIX%\Library"
+        cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release `
+          -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl `
+          -DCMAKE_PREFIX_PATH="$env:CONDA_PREFIX\Library"
 
     - name: Build
-      shell: cmd
-      run: |
-        call "%CONDA_PREFIX%\condabin\conda.bat" activate
-        cmake --build build --config Release
+      run: cmake --build build --config Release
 
     - name: List built executables
-      shell: bash -el {0}
-      run: |
-        ls -la bin/
+      run: Get-ChildItem -Path bin
 
     - name: Run tests
-      shell: cmd
       run: |
-        call "%CONDA_PREFIX%\condabin\conda.bat" activate
-        cd build && ctest -C Release --output-on-failure
+        Set-Location build
+        ctest -C Release --output-on-failure
