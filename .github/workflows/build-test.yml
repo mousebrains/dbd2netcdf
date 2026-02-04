@@ -66,7 +66,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y cmake libnetcdf-dev libhdf5-dev ${{ matrix.install }}
+        sudo apt-get install -y cmake libnetcdf-dev libhdf5-dev netcdf-bin ${{ matrix.install }}
 
     - name: Set up compiler
       run: |
@@ -162,7 +162,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y cmake libnetcdf-dev libhdf5-dev
+        sudo apt-get install -y cmake libnetcdf-dev libhdf5-dev netcdf-bin
 
     - name: Configure CMake with sanitizers
       run: |
@@ -202,7 +202,7 @@ jobs:
     - name: Install dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y cmake libnetcdf-dev libhdf5-dev
+        sudo apt-get install -y cmake libnetcdf-dev libhdf5-dev netcdf-bin
 
     - name: Build for CodeQL
       run: |
@@ -403,7 +403,7 @@ jobs:
         dnf install -y epel-release
         dnf config-manager --set-enabled powertools || \
           dnf config-manager --set-enabled crb
-        dnf install -y cmake gcc-c++ make netcdf-devel hdf5-devel file
+        dnf install -y cmake gcc-c++ make netcdf netcdf-devel hdf5-devel file
 
     - name: Display compiler version
       run: |
