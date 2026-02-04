@@ -284,6 +284,7 @@ jobs:
           coreutils
           grep
           file
+          tar
 
     - name: Retry Cygwin setup on failure
       if: steps.cygwin-setup.outcome == 'failure'
@@ -302,6 +303,7 @@ jobs:
           coreutils
           grep
           file
+          tar
 
     - name: Prepare Cygwin workspace
       shell: D:\cygwin\bin\bash.exe --login -o igncr -eo pipefail '{0}'
@@ -310,7 +312,10 @@ jobs:
         echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
         src="$(cygpath -u "$GITHUB_WORKSPACE")"
         echo "Source path (Unix): $src"
+        echo "=== Source directory contents ==="
         ls -la "$src" || { echo "Cannot list source directory"; exit 1; }
+        echo "=== Source src/ directory ==="
+        ls -la "$src/src/" || { echo "Cannot list src directory"; exit 1; }
 
         work="/tmp/dbd2netcdf-work"
         echo "Work path: $work"
@@ -318,6 +323,7 @@ jobs:
         mkdir -p "$work"
 
         # Use tar to copy files - avoids permission preservation issues on Cygwin
+        echo "=== Copying files with tar ==="
         (cd "$src" && tar cf - --exclude='.git' .) | (cd "$work" && tar xf -)
 
         echo "CYGWIN_WORKSPACE=$work" >> $GITHUB_ENV
@@ -325,7 +331,13 @@ jobs:
         # Verify copy succeeded
         echo "=== Workspace contents ==="
         ls -la "$work"
-        test -f "$work/CMakeLists.txt" || { echo "ERROR: Workspace copy failed - CMakeLists.txt not found"; exit 1; }
+        echo "=== Workspace src/ directory ==="
+        ls -la "$work/src/"
+        test -f "$work/CMakeLists.txt" || { echo "ERROR: CMakeLists.txt not found"; exit 1; }
+        test -f "$work/src/sgMergeNetCDF.C" || { echo "ERROR: src/sgMergeNetCDF.C not found"; exit 1; }
+        echo "=== File count comparison ==="
+        echo "Source files: $(find "$src" -type f | wc -l)"
+        echo "Workspace files: $(find "$work" -type f | wc -l)"
         echo "Workspace preparation successful"
 
     - name: Display compiler version
