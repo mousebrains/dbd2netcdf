@@ -27,7 +27,11 @@
 #include <cstring>
 #include <cstdio>
 #include <exception>
+#ifdef _WIN32
+#include <winsock2.h>
+#else
 #include <arpa/inet.h>
+#endif
 
 KnownBytes::KnownBytes(std::istream& is)
   : mFlip(false)

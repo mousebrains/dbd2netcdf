@@ -168,6 +168,13 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_L
     target_link_libraries(sgMergeNetCDF PRIVATE stdc++fs)
 endif()
 
+# Link ws2_32 for Windows (required for winsock byte-order functions)
+if(WIN32)
+    target_link_libraries(dbd2netCDF PRIVATE ws2_32)
+    target_link_libraries(dbd2csv PRIVATE ws2_32)
+    target_link_libraries(dbdSensors PRIVATE ws2_32)
+endif()
+
 # Install locally
 
 install(TARGETS sgMergeNetCDF dbd2netCDF pd02netCDF dbd2csv dbdSensors decompressTWR 
