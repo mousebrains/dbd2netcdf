@@ -41,6 +41,9 @@ set(dbd2netcdf_VERSION_PATCH 5)
 set(dbd2netcdf_MAINTAINER pat@mousebrains.com) # output to config.h
 
 add_subdirectory(src)  # Source code location
+
+# Enable testing - must be in top-level CMakeLists.txt for ctest to work
+enable_testing()
 add_subdirectory(test) # Tests
 add_subdirectory(doc)  # Documentation
 
