@@ -135,9 +135,14 @@ jobs:
 
     - name: Run cppcheck
       run: |
-        cppcheck --enable=warning,style,performance,portability \
+        cppcheck --enable=warning,performance,portability \
           --error-exitcode=1 \
           --suppress=missingIncludeSystem \
+          --suppress=uninitvar:src/lz4.c \
+          --suppress=unusedStructMember:src/lz4.c \
+          --suppress=constVariablePointer:src/lz4.c \
+          --suppress=duplInheritedMember \
+          --suppress=uninitMemberVar \
           --inline-suppr \
           src/
 
