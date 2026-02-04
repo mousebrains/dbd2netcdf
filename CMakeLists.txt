@@ -44,9 +44,14 @@ else()
     message(WARNING "Unknown compiler ${CMAKE_CXX_COMPILER_ID}. C++17 support cannot be verified.")
 endif()
 
-set(dbd2netcdf_VERSION_MAJOR 1)
-set(dbd2netcdf_VERSION_MINOR 6)
-set(dbd2netcdf_VERSION_PATCH 6)
+# Read version from VERSION file (single source of truth)
+file(READ "${CMAKE_SOURCE_DIR}/VERSION" PROJECT_VERSION_RAW)
+string(STRIP "${PROJECT_VERSION_RAW}" PROJECT_VERSION_RAW)
+string(REPLACE "." ";" VERSION_LIST ${PROJECT_VERSION_RAW})
+list(GET VERSION_LIST 0 dbd2netcdf_VERSION_MAJOR)
+list(GET VERSION_LIST 1 dbd2netcdf_VERSION_MINOR)
+list(GET VERSION_LIST 2 dbd2netcdf_VERSION_PATCH)
+message(STATUS "dbd2netcdf version ${dbd2netcdf_VERSION_MAJOR}.${dbd2netcdf_VERSION_MINOR}.${dbd2netcdf_VERSION_PATCH}")
 set(dbd2netcdf_MAINTAINER pat@mousebrains.com) # output to config.h
 
 add_subdirectory(src)  # Source code location

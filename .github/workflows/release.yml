@@ -1,0 +1,61 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  validate-version:
+    name: Validate Version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.get-version.outputs.version }}
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Get version from tag
+      id: get-version
+      run: |
+        TAG_VERSION="${GITHUB_REF#refs/tags/v}"
+        FILE_VERSION=$(cat VERSION | tr -d '[:space:]')
+        echo "Tag version: $TAG_VERSION"
+        echo "File version: $FILE_VERSION"
+        if [ "$TAG_VERSION" != "$FILE_VERSION" ]; then
+          echo "ERROR: Tag version ($TAG_VERSION) does not match VERSION file ($FILE_VERSION)"
+          exit 1
+        fi
+        echo "version=$TAG_VERSION" >> $GITHUB_OUTPUT
+
+  create-release:
+    name: Create Release
+    needs: validate-version
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v2
+      with:
+        name: v${{ needs.validate-version.outputs.version }}
+        body: |
+          ## dbd2netcdf v${{ needs.validate-version.outputs.version }}
+
+          ### Installation
+
+          See [README.md](https://github.com/mousebrains/dbd2netcdf#readme) for build instructions.
+
+          ### Changes
+
+          See commit history for changes since the last release.
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
