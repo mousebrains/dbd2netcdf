@@ -183,6 +183,15 @@ jobs:
           coreutils
           grep
 
+    - name: Prepare Cygwin workspace
+      run: |
+        src="$(cygpath -u "$GITHUB_WORKSPACE")"
+        work="/tmp/dbd2netcdf-work"
+        rm -rf "$work"
+        mkdir -p "$work"
+        cp -a "$src"/. "$work"/
+        echo "CYGWIN_WORKSPACE=$work" >> $GITHUB_ENV
+
     - name: Display compiler version
       run: |
         gcc --version
@@ -191,7 +200,7 @@ jobs:
 
     - name: Verify NetCDF tools
       run: |
-        cd "$(cygpath -u "$GITHUB_WORKSPACE")"
+        cd "$CYGWIN_WORKSPACE"
         nc-config --version
         if ncdump --version >/dev/null 2>&1; then
           ncdump --version
@@ -206,17 +215,17 @@ jobs:
 
     - name: Configure CMake
       run: |
-        cd "$(cygpath -u "$GITHUB_WORKSPACE")"
+        cd "$CYGWIN_WORKSPACE"
         cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_USE_RELATIVE_PATHS=ON
 
     - name: Build
       run: |
-        cd "$(cygpath -u "$GITHUB_WORKSPACE")"
+        cd "$CYGWIN_WORKSPACE"
         cmake --build build --config Release
 
     - name: Run tests
       run: |
-        cd "$(cygpath -u "$GITHUB_WORKSPACE")"
+        cd "$CYGWIN_WORKSPACE"
         cd build
         ctest --output-on-failure
 
