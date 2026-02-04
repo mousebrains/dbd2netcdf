@@ -196,17 +196,11 @@ jobs:
         if ncdump --version >/dev/null 2>&1; then
           ncdump --version
         else
-          ref=""
-          for f in test/*.netCDF; do
-            if [ -f "$f" ]; then
-              ref="$f"
-              break
-            fi
-          done
-          if [ -n "$ref" ]; then
-            ncdump -k "$ref"
+          if command -v ncdump >/dev/null 2>&1; then
+            echo "ncdump found: $(command -v ncdump)"
           else
-            echo "No test/*.netCDF files found; skipping ncdump -k"
+            echo "ncdump not found"
+            exit 1
           fi
         fi
 
