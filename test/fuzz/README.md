@@ -14,7 +14,7 @@ Fuzz tests are disabled by default. To build them:
 ```bash
 mkdir build && cd build
 cmake -DBUILD_FUZZ_TESTS=ON -DCMAKE_CXX_COMPILER=clang++ ..
-make fuzz_sensor fuzz_header
+make fuzz_sensor fuzz_header fuzz_knownbytes
 ```
 
 ## Running
@@ -27,6 +27,9 @@ Each fuzz target can be run with a corpus directory:
 
 # Run header utilities fuzzer for 60 seconds
 ./bin/fuzz_header ../test/fuzz/corpus/header -max_total_time=60
+
+# Run KnownBytes binary parser fuzzer for 60 seconds
+./bin/fuzz_knownbytes ../test/fuzz/corpus/knownbytes -max_total_time=60
 ```
 
 ### Common Options
@@ -48,11 +51,17 @@ Tests Header utility functions:
 - `Header::trim()`: Whitespace trimming
 - `Header::addMission()`: Mission name handling
 
+### fuzz_knownbytes
+Tests the KnownBytes class which handles binary byte-order detection and reading.
+This is a critical parser for DBD files as it validates the 16-byte "known bytes"
+block that determines endianness for all subsequent binary data.
+
 ## Corpus
 
 Seed corpus files are provided in `corpus/` subdirectories:
 - `corpus/sensor/`: Sample sensor definition lines
 - `corpus/header/`: Sample header strings
+- `corpus/knownbytes/`: Sample 16-byte binary blocks
 
 ## Crash Reproduction
 

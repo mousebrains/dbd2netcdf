@@ -39,16 +39,29 @@ if(BUILD_FUZZ_TESTS)
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
     )
 
+    # Fuzz target: KnownBytes binary parsing
+    add_executable(fuzz_knownbytes fuzz_knownbytes.cpp)
+    target_link_libraries(fuzz_knownbytes PRIVATE dbd_common)
+    target_compile_options(fuzz_knownbytes PRIVATE ${FUZZ_COMPILE_FLAGS})
+    target_link_options(fuzz_knownbytes PRIVATE ${FUZZ_LINK_FLAGS})
+    set_target_properties(fuzz_knownbytes PROPERTIES
+        CXX_STANDARD 17
+        CXX_STANDARD_REQUIRED ON
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+    )
+
     # Create corpus directories for seeds
     file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/fuzz_corpus/sensor)
     file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/fuzz_corpus/header)
+    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/fuzz_corpus/knownbytes)
 
     # Custom target to run fuzz tests
     add_custom_target(fuzz
         COMMAND ${CMAKE_COMMAND} -E echo "Run fuzz tests manually:"
         COMMAND ${CMAKE_COMMAND} -E echo "  ./bin/fuzz_sensor fuzz_corpus/sensor -max_total_time=60"
         COMMAND ${CMAKE_COMMAND} -E echo "  ./bin/fuzz_header fuzz_corpus/header -max_total_time=60"
-        DEPENDS fuzz_sensor fuzz_header
+        COMMAND ${CMAKE_COMMAND} -E echo "  ./bin/fuzz_knownbytes fuzz_corpus/knownbytes -max_total_time=60"
+        DEPENDS fuzz_sensor fuzz_header fuzz_knownbytes
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     )
 endif()

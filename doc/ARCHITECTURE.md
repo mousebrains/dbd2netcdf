@@ -242,3 +242,18 @@ test/
 - **NetCDF-C**: NetCDF file writing
 - **LZ4**: Decompression (bundled)
 - **Catch2**: Testing (optional)
+
+## Future Improvements
+
+### C++20 Migration
+
+When dropping support for GCC 8.x (AlmaLinux 8), consider adopting C++20 features:
+
+- **`std::span`**: Replace raw pointer + size pairs in buffer handling (e.g., `Decompress.C`, `KnownBytes.C`) with `std::span` for safer, more expressive code
+- **`std::format`**: Replace spdlog's fmt with standard formatting
+- **Ranges**: Simplify iterator-based algorithms
+
+Current minimum compiler requirements:
+- GCC 8.5+ (AlmaLinux 8)
+- Clang 16+
+- MSVC 2019+

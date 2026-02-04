@@ -1,0 +1,91 @@
+name: Fuzz Testing
+
+on:
+  # Run weekly on Sundays at midnight UTC
+  schedule:
+    - cron: '0 0 * * 0'
+  # Allow manual trigger
+  workflow_dispatch:
+  # Run on PRs that modify fuzz tests
+  pull_request:
+    paths:
+      - 'test/fuzz/**'
+      - '.github/workflows/fuzz.yml'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  fuzz:
+    name: libFuzzer
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y clang cmake libnetcdf-dev libhdf5-dev
+
+    - name: Display compiler version
+      run: |
+        clang --version
+        clang++ --version
+
+    - name: Configure CMake with fuzz tests
+      run: |
+        cmake -B build \
+          -DCMAKE_C_COMPILER=clang \
+          -DCMAKE_CXX_COMPILER=clang++ \
+          -DCMAKE_BUILD_TYPE=Debug \
+          -DBUILD_FUZZ_TESTS=ON
+
+    - name: Build fuzz targets
+      run: cmake --build build --target fuzz_sensor fuzz_header fuzz_knownbytes
+
+    - name: Create seed corpus
+      run: |
+        # Seed corpus for sensor fuzzing (valid sensor line formats)
+        mkdir -p build/fuzz_corpus/sensor
+        echo "s: T 0 0 4 m_depth m" > build/fuzz_corpus/sensor/seed1.txt
+        echo "s: F 0 1 8 m_time timestamp" > build/fuzz_corpus/sensor/seed2.txt
+        echo "s: T 0 2 1 flag bool" > build/fuzz_corpus/sensor/seed3.txt
+
+        # Seed corpus for header fuzzing (various string inputs)
+        mkdir -p build/fuzz_corpus/header
+        echo "  trimmed  " > build/fuzz_corpus/header/seed1.txt
+        echo "mission-2024-001" > build/fuzz_corpus/header/seed2.txt
+
+        # Seed corpus for knownbytes fuzzing (16-byte blocks)
+        mkdir -p build/fuzz_corpus/knownbytes
+        # Create a minimal 16-byte seed (will fail validation but exercises code paths)
+        printf 'sa\x34\x12\x00\x00\xf6B\x00\x20\x9b\xbf\x1a\x9d\x9c\x41' > build/fuzz_corpus/knownbytes/seed1.bin
+
+    - name: Run fuzz_sensor (60 seconds)
+      run: |
+        cd build
+        timeout 60 ./bin/fuzz_sensor fuzz_corpus/sensor -max_total_time=55 || true
+
+    - name: Run fuzz_header (60 seconds)
+      run: |
+        cd build
+        timeout 60 ./bin/fuzz_header fuzz_corpus/header -max_total_time=55 || true
+
+    - name: Run fuzz_knownbytes (60 seconds)
+      run: |
+        cd build
+        timeout 60 ./bin/fuzz_knownbytes fuzz_corpus/knownbytes -max_total_time=55 || true
+
+    - name: Upload crash artifacts
+      if: failure()
+      uses: actions/upload-artifact@v4
+      with:
+        name: fuzz-crashes
+        path: |
+          build/crash-*
+          build/leak-*
+          build/timeout-*
+        retention-days: 30
