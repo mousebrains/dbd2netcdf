@@ -116,6 +116,88 @@ jobs:
       run: |
         shellcheck -s sh test/dbd2netCDF test/dbd2csv test/dbdSensors test/pd02netCDF
 
+  lint-cpp:
+    name: C++ Static Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install cppcheck
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cppcheck
+
+    - name: Run cppcheck
+      run: |
+        cppcheck --enable=warning,style,performance,portability \
+          --error-exitcode=1 \
+          --suppress=missingIncludeSystem \
+          --inline-suppr \
+          src/
+
+  build-asan:
+    name: AddressSanitizer
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake libnetcdf-dev libhdf5-dev
+
+    - name: Configure CMake with sanitizers
+      run: |
+        cmake -B build -DCMAKE_BUILD_TYPE=Debug \
+          -DCMAKE_CXX_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer -g" \
+          -DCMAKE_C_FLAGS="-fsanitize=address,undefined -fno-omit-frame-pointer -g" \
+          -DCMAKE_EXE_LINKER_FLAGS="-fsanitize=address,undefined"
+
+    - name: Build
+      run: cmake --build build
+
+    - name: Run tests with sanitizers
+      env:
+        ASAN_OPTIONS: detect_leaks=1:abort_on_error=1
+        UBSAN_OPTIONS: print_stacktrace=1:abort_on_error=1
+      run: |
+        cd build
+        ctest --output-on-failure
+
+  codeql:
+    name: CodeQL Security Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      actions: read
+      contents: read
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v3
+      with:
+        languages: cpp
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake libnetcdf-dev libhdf5-dev
+
+    - name: Build for CodeQL
+      run: |
+        cmake -B build -DCMAKE_BUILD_TYPE=Release
+        cmake --build build
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v3
+
   build-macos:
     name: macOS - ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
@@ -218,15 +300,29 @@ jobs:
           file
 
     - name: Prepare Cygwin workspace
+      shell: D:\cygwin\bin\bash.exe --login -o igncr -eo pipefail '{0}'
       run: |
+        echo "=== Environment diagnostics ==="
+        echo "GITHUB_WORKSPACE: $GITHUB_WORKSPACE"
         src="$(cygpath -u "$GITHUB_WORKSPACE")"
+        echo "Source path (Unix): $src"
+        ls -la "$src" || { echo "Cannot list source directory"; exit 1; }
+
         work="/tmp/dbd2netcdf-work"
+        echo "Work path: $work"
         rm -rf "$work"
         mkdir -p "$work"
-        cp -a "$src"/. "$work"/
+
+        # Use cp without -a to avoid symlink issues on Windows
+        cp -r "$src"/. "$work"/
+
         echo "CYGWIN_WORKSPACE=$work" >> $GITHUB_ENV
+
         # Verify copy succeeded
-        test -f "$work/CMakeLists.txt" || { echo "Workspace copy failed"; exit 1; }
+        echo "=== Workspace contents ==="
+        ls -la "$work"
+        test -f "$work/CMakeLists.txt" || { echo "ERROR: Workspace copy failed - CMakeLists.txt not found"; exit 1; }
+        echo "Workspace preparation successful"
 
     - name: Display compiler version
       run: |
