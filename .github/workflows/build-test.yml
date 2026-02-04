@@ -192,7 +192,11 @@ jobs:
     - name: Verify NetCDF tools
       run: |
         nc-config --version
-        ncdump --version
+        if ncdump --version >/dev/null 2>&1; then
+          ncdump --version
+        else
+          ncdump -k test/test.sbd.netCDF
+        fi
 
     - name: Configure CMake
       run: |
