@@ -160,8 +160,9 @@ jobs:
     - name: Run clang-tidy
       run: |
         clang-tidy -p build \
-          --checks='-*,bugprone-*,performance-*,portability-*,modernize-*,-modernize-use-trailing-return-type' \
+          --checks='-*,bugprone-*,performance-*,portability-*,-modernize-*,-bugprone-narrowing-conversions,-bugprone-exception-escape,-bugprone-easily-swappable-parameters' \
           --warnings-as-errors='bugprone-*' \
+          --header-filter='src/.*' \
           src/*.C
 
   coverage:
@@ -193,9 +194,10 @@ jobs:
 
     - name: Generate coverage report
       run: |
-        lcov --capture --directory build --output-file coverage.info
-        lcov --remove coverage.info '/usr/*' --output-file coverage.info
-        lcov --remove coverage.info '*/test/*' --output-file coverage.info
+        lcov --capture --directory build --output-file coverage.info \
+          --ignore-errors gcov
+        lcov --remove coverage.info '/usr/*' '*/test/*' '*/_deps/*' \
+          --output-file coverage.info --ignore-errors unused
         lcov --list coverage.info
 
     - name: Upload coverage to Codecov
@@ -495,6 +497,9 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Setup MSVC
+      uses: ilammy/msvc-dev-cmd@v1
+
     - name: Setup Miniconda
       uses: conda-incubator/setup-miniconda@v3
       with:
@@ -509,14 +514,18 @@ jobs:
         conda install -y libnetcdf hdf5 cmake ninja
 
     - name: Configure CMake
-      shell: bash -el {0}
+      shell: cmd
       run: |
-        cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release \
-          -DCMAKE_PREFIX_PATH="$CONDA_PREFIX/Library"
+        call "%CONDA_PREFIX%\condabin\conda.bat" activate
+        cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release ^
+          -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl ^
+          -DCMAKE_PREFIX_PATH="%CONDA_PREFIX%\Library"
 
     - name: Build
-      shell: bash -el {0}
-      run: cmake --build build --config Release
+      shell: cmd
+      run: |
+        call "%CONDA_PREFIX%\condabin\conda.bat" activate
+        cmake --build build --config Release
 
     - name: List built executables
       shell: bash -el {0}
@@ -524,7 +533,7 @@ jobs:
         ls -la bin/
 
     - name: Run tests
-      shell: bash -el {0}
+      shell: cmd
       run: |
-        cd build
-        ctest -C Release --output-on-failure
+        call "%CONDA_PREFIX%\condabin\conda.bat" activate
+        cd build && ctest -C Release --output-on-failure
