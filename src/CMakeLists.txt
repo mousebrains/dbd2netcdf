@@ -68,6 +68,11 @@ target_compile_options(dbdSensors PRIVATE -Wall -Wextra -pedantic)
 target_compile_options(pd02netCDF PRIVATE -Wall -Wextra -pedantic)
 target_compile_options(decompressTWR PRIVATE -Wall -Wextra -pedantic)
 
+# Enable POSIX extensions on Cygwin (needed for mkstemp, etc.)
+if(CYGWIN)
+  add_compile_definitions(_GNU_SOURCE)
+endif()
+
 # Get where NetCDF is installed using the nc-config command
 execute_process(COMMAND nc-config --includedir 
 	OUTPUT_VARIABLE NCINCDIR 
