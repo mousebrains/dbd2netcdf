@@ -95,7 +95,7 @@ SensorsMap::setUpForData()
       if (sensor.qKeep()) {
         tNames::const_iterator nt(names.find(sensor.name()));
         if (nt != names.end()) { // Already known
-          sensor.index(nt->second);
+          sensor.index(static_cast<int>(nt->second));
         } else { // Not seen yet
           sensor.index(static_cast<int>(names.size()));
           names.insert(std::make_pair(sensor.name(), static_cast<int>(names.size())));
