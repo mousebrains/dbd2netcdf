@@ -722,17 +722,24 @@ PD0::maxNumberOfCells(const std::string& fn)
   const std::streamoff chkSum(2);
 
   for(std::streampos spos(is.tellg()); (is.get() == 0x7f) && (is.get() == 0x7f); spos = is.tellg()) {
-    const std::streamoff nBytes((is.get() & 0xff) | ((is.get() << 8) & 0xff00));
+    // Read bytes separately to ensure defined order and avoid signed shift UB
+    const unsigned int lo1 = is.get() & 0xff;
+    const unsigned int hi1 = is.get() & 0xff;
+    const std::streamoff nBytes(lo1 | (hi1 << 8));
     is.get(); // spare
     const size_t nTypes(is.get());
     std::vector<std::streamoff> offsets(nTypes, 0);
     for (size_t i(0); i < nTypes; ++i) {
-      offsets[i] = (is.get() & 0xff) | ((is.get() << 8) & 0xff00);
+      const unsigned int lo = is.get() & 0xff;
+      const unsigned int hi = is.get() & 0xff;
+      offsets[i] = lo | (hi << 8);
     }
 
     for (size_t i(0); i < nTypes; ++i) {
       is.seekg(spos + offsets[i], std::ios::beg);
-      const size_t hdr((is.get() & 0xff) | ((is.get() << 8) & 0xff00));
+      const unsigned int hdrLo = is.get() & 0xff;
+      const unsigned int hdrHi = is.get() & 0xff;
+      const size_t hdr(hdrLo | (hdrHi << 8));
       if (hdr == 0x0000) { // Fixed
         is.seekg(7, std::ios::cur); // Move to number of cells
         const uint8_t nCells(is.get());
