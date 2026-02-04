@@ -90,7 +90,7 @@ PD0::loadBlock(std::istream& is)
   if (sum != chkSum) {
     std::ostringstream oss;
     oss << "Checksum mismatch for '" << mFilename << "' starting at " << iPos
-        << " ending at " << is.tellg() 
+        << " ending at " << is.tellg()
         << " calculated check sum 0x" << std::hex << sum
         << " file's checksum 0x" << chkSum
         << std::dec;
@@ -284,7 +284,7 @@ PD0::readAndCheckByte(std::istream& is,
   if (!is)
     return false;
 
-  if (c == expectedValue) 
+  if (c == expectedValue)
     return true;
 
   std::ostringstream msg;
@@ -357,7 +357,7 @@ void
 PD0::Common::dump(std::ostream& os)
 {
   for (tItems::size_type i(0), e(mItems.size()); i < e; ++i) {
-    if (mItems[i].mMeld >= 0) 
+    if (mItems[i].mMeld >= 0)
       continue;
 
     os << mItems[i].mName;
@@ -444,7 +444,7 @@ PD0::Common::ncDump(NetCDF& nc,
                     const size_t index)
 {
   for (tItems::size_type i(0), e(mItems.size()); i < e; ++i) {
-    if (mItems[i].mMeld >= 0) 
+    if (mItems[i].mMeld >= 0)
       continue;
 
     if (mItems[i].mArray.size() == 1) {

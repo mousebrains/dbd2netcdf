@@ -31,7 +31,7 @@ the latest version.  Now finish the cygwin installation.
 
 ::INSTALLATION::
 1. download and save the source tarball dbd2netcdf-#.#.#-Source.tar.gz to
-/usr/local/ under the Cygwin file system from 
+/usr/local/ under the Cygwin file system from
 http://sourceforge.net/projects/dbd2netcdf/files/,
 where #.#.# is replaced by the version number downloaded.
 On a typical Cygwin install \usr\local\ would be found at

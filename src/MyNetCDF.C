@@ -109,7 +109,7 @@ NetCDF::lengthDim(const int dimId) {
   return length;
 } // lengthDim
 
-int 
+int
 NetCDF::maybeCreateVar(const std::string& name,
 		const nc_type idType,
                 const int idDim,
@@ -410,4 +410,3 @@ NetCDF::typeToStr(const nc_type t)
 
   return str;
 }
-

@@ -82,8 +82,8 @@ Header::findInt(const std::string& key) const
   }
 }
 
-std::string 
-Header::trim(std::string str) 
+std::string
+Header::trim(std::string str)
 {
   const std::string whitespace(" \t\n");
 
@@ -123,7 +123,7 @@ Header::qProcessMission(const tMissions& toSkip,
     return false;
   }
 
-  return toKeep.empty() || (toKeep.find(mission) != toKeep.end()); 
+  return toKeep.empty() || (toKeep.find(mission) != toKeep.end());
 }
 
 std::ostream&

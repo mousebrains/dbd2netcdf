@@ -38,7 +38,7 @@ private:
   std::vector<size_t> mCountOne;  // RAII memory management
 
   const size_t *mkCountOne(const size_t len);
- 
+
   typedef std::map<int, size_t> tDimensionLimits;
   tDimensionLimits mDimensionLimits;
 

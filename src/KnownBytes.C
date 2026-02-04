@@ -62,7 +62,7 @@ KnownBytes::KnownBytes(std::istream& is)
     throw(MyException("Error known bytes cycle tag(%c) != 's'"));
   }
 
-  
+
   if (int8 != 'a') {
     std::ostringstream oss;
     oss << "Error known bytes first byte(0x" << std::hex << static_cast<int>(int8)

@@ -166,7 +166,7 @@ main(int argc,
           LOG_ERROR("Unsupported sensor size for {}", sensor.name());
           return(1);
       } // switch
-      
+
       vars[index] = ncid.maybeCreateVar(name, idType, iDim, units);
     } // if sensor.qKeep
   } // for all
@@ -247,7 +247,7 @@ main(int argc,
         }
         ncid.putVar(hdrLength, (size_t) ii + jOffset, (unsigned int) n);
       }
-      
+
       if (n <= kStart) { // No data to be written
         continue;
       }

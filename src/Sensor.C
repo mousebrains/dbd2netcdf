@@ -106,14 +106,14 @@ Sensor::toStr(const double value) const
 void
 Sensor::dump(std::ostream& os) const
 {
-  os << "s:" 
-     << " " << (mqAvailable ? "T" : "F") 
-     << " " << mIndex 
-     << " " << mIndex 
-     << " " << mSize 
-     << " " << mName 
+  os << "s:"
+     << " " << (mqAvailable ? "T" : "F")
+     << " " << mIndex
+     << " " << mIndex
+     << " " << mSize
+     << " " << mName
      << " " << mUnits
-     << std::endl; 
+     << std::endl;
 }
 
 std::ostream&

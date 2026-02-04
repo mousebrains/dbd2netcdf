@@ -124,18 +124,18 @@ elseif (UNIX)
   message(STATUS "Packing for UNIX")
   set(CPACK_GENERATOR "TGZ")
   find_program(dbd2netCDF_HAS_RPMBUILD "rpmbuild")
-  if (NOT "${dbd2netCDF_HAS_RPMBUILD}" STREQUAL "dbd2netCDF_HAS_RPMBUILD-NOTFOUND")  
+  if (NOT "${dbd2netCDF_HAS_RPMBUILD}" STREQUAL "dbd2netCDF_HAS_RPMBUILD-NOTFOUND")
     list(APPEND CPACK_GENERATOR "RPM")
     message("rpmbuild found")
     set(CPACK_RPM_PACKAGE_LICENSE "GPLV3")
     set(CPACK_RPM_PACKAGE_GROUP "Sciences/Other")
-  endif (NOT "${dbd2netCDF_HAS_RPMBUILD}" STREQUAL "dbd2netCDF_HAS_RPMBUILD-NOTFOUND")  
+  endif (NOT "${dbd2netCDF_HAS_RPMBUILD}" STREQUAL "dbd2netCDF_HAS_RPMBUILD-NOTFOUND")
 
   find_program(dbd2netCDF_HAS_DEBBUILD "dpkg-buildpackage")
-  if (NOT "${dbd2netCDF_HAS_DEBBUILD}" STREQUAL "dbd2netCDF_HAS_DEBBUILD-NOTFOUND")  
+  if (NOT "${dbd2netCDF_HAS_DEBBUILD}" STREQUAL "dbd2netCDF_HAS_DEBBUILD-NOTFOUND")
     list(APPEND CPACK_GENERATOR "DEB")
     message("dpkg-buildpackage found")
-  endif (NOT "${dbd2netCDF_HAS_DEBBUILD}" STREQUAL "dbd2netCDF_HAS_DEBBUILD-NOTFOUND")  
+  endif (NOT "${dbd2netCDF_HAS_DEBBUILD}" STREQUAL "dbd2netCDF_HAS_DEBBUILD-NOTFOUND")
 elseif (WIN32)
   message(STATUS "Packing for Windows")
   set(CPACK_GENERATOR "NSIS")
@@ -146,7 +146,7 @@ endif (APPLE)
 
 # Create packaging for the source
 
-set (CPACK_SOURCE_IGNORE_FILES 
+set (CPACK_SOURCE_IGNORE_FILES
      "\\\\.#\$" "/#" ".*~\$" "\\\\.swp\$"
      "/toy/" "/bin/"
      "/\\\\.git/" "\\\\.gitignore"
@@ -155,7 +155,7 @@ set (CPACK_SOURCE_IGNORE_FILES
      "\\\\.cmake\$" "Makefile" "install_manifest.txt"
      "/CMakeFiles/" "CMakeCache.txt"
      "/_CPack_Packages/"
-     "/Testing/" 
+     "/Testing/"
      )
 
 include(CPack)

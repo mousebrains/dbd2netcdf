@@ -46,7 +46,7 @@ class RunCommand(threading.Thread):
         if not cls.__exception_queue.empty():
             name, exception = cls.__exception_queue.get()
             raise RuntimeError(f"Thread {name} failed") from exception
-        
+
 
 def printLines(lines:bytes, logger=logging.info) -> None:
     if not lines: return
@@ -67,7 +67,7 @@ def processCommand(cmd:list, ofn:str, filenames) -> int:
 
     cmd.extend(filenames)
 
-    sp = subprocess.run(cmd, shell=False, 
+    sp = subprocess.run(cmd, shell=False,
                         stderr=subprocess.STDOUT,
                         stdout=subprocess.PIPE,
                         )
@@ -79,13 +79,13 @@ def processCommand(cmd:list, ofn:str, filenames) -> int:
     return sp.returncode
 
 def extractSensors(filenames:list, args:ArgumentParser) -> list:
-    cmd = [os.path.join(args.bindir, "dbdSensors"), 
+    cmd = [os.path.join(args.bindir, "dbdSensors"),
            "--cache", args.cache,
            ]
     cmd.extend(filenames)
 
-    sp = subprocess.run(cmd, 
-                        shell=False, 
+    sp = subprocess.run(cmd,
+                        shell=False,
                         capture_output=True,
                         )
     if sp.returncode:
@@ -107,7 +107,7 @@ def extractSensors(filenames:list, args:ArgumentParser) -> list:
             logging.warning("Unable to parse line %s: %s", line, e)
     return sensors
 
-def processAll(filenames:list, args:ArgumentParser, suffix:str, sensorsFilename:str=None) -> None: 
+def processAll(filenames:list, args:ArgumentParser, suffix:str, sensorsFilename:str=None) -> None:
     # Process Dinkum Binary files into a NetCDF,
     # selecting on sensors if specified
 
@@ -183,7 +183,7 @@ grp.add_argument("--bindir", type=str, default="/usr/local/bin",
 grp.add_argument("--cache", type=str, default="cache", help="Directory for sensor cache files")
 grp.add_argument("--verbose", action="store_true", help="Verbose output")
 grp.add_argument("--repair", action="store_true", help="Should corrupted files be 'repaired'")
-grp.add_argument("--keepFirst", action="store_true", 
+grp.add_argument("--keepFirst", action="store_true",
                  help="Should the first record not be discarded on all the files?")
 g = grp.add_mutually_exclusive_group()
 g.add_argument("--exclude", type=str, action="append", help="Mission(s) to exclude")
@@ -205,7 +205,7 @@ if args.exclude is None and args.include is None:
             "lastgasp.mi",
             "initial.mi",
             "overtime.mi",
-            "ini0.mi", 
+            "ini0.mi",
             "ini1.mi",
             "ini2.mi",
             "ini3.mi",

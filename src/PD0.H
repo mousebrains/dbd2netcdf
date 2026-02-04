@@ -16,7 +16,7 @@ private:
   class Common {
   protected:
     bool mqSet;
-   
+
     enum DataTypes {
       dtUInt8,
       dtInt8,
@@ -46,8 +46,8 @@ private:
       tArray mArray;
       int mVarId;
 
-      Item(const std::string& name, const DataTypes t, 
-           const size_t length = 1, const int meld = -1, 
+      Item(const std::string& name, const DataTypes t,
+           const size_t length = 1, const int meld = -1,
            const std::string& units = std::string())
         : mName(name), mUnits(units), mType(t), mMeld(meld), mArray(length), mVarId(-1) {}
 

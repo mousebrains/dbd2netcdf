@@ -7,4 +7,4 @@
 
 echo "running $0"
 
-exec $TERM 
+exec $TERM
