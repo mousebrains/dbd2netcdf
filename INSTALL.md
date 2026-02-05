@@ -78,3 +78,26 @@ Example with options:
 ```sh
 cmake -B build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON
 ```
+
+## Cleaning and Rebuilding
+
+Clean before building (incremental clean):
+```sh
+cmake --build build --clean-first
+```
+
+Clean only (remove compiled objects):
+```sh
+cmake --build build --target clean
+```
+
+Full clean (remove entire build directory):
+```sh
+rm -rf build
+```
+
+To change build options, reconfigure and rebuild:
+```sh
+cmake -B build -DCMAKE_BUILD_TYPE=Debug
+cmake --build build --clean-first
+```

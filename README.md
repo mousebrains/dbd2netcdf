@@ -8,7 +8,7 @@ This software is designed to translate a set of Dinkum Binary Data files into
 a netCDF file. See [Architecture Documentation](doc/ARCHITECTURE.md) for technical details.
 
 Requires a C++17 compatible compiler and NetCDF/HDF5 development libraries.
-See [INSTALL.md](INSTALL.md) for build instructions and platform-specific dependencies.
+See [INSTALL.md](INSTALL.md) for build instructions, platform-specific dependencies, and [cleaning/rebuilding](INSTALL.md#cleaning-and-rebuilding).
 
 If a filename follows the TWR convention for compressed files, `*.?c?`, it will be treated as an LZ4 compressed file, and automatically decompressed.
 
