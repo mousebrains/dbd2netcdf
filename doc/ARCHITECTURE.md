@@ -34,15 +34,25 @@ Dinkum Binary Data files consist of:
 
 ### File Types
 
+**Flight data** (`.d[bc]d`):
 | Extension | Description |
 |-----------|-------------|
-| `.dbd`    | Dive data (science bay) |
-| `.sbd`    | Surface data |
-| `.tbd`    | Trajectory data |
-| `.ecd`    | Extended data |
-| `.dcd`    | Dive controller data |
-| `.scd`    | Surface controller data |
-| `.tcd`    | Trajectory controller data |
+| `.dbd`    | Flight data |
+| `.dcd`    | Flight data (LZ4 compressed) |
+| `.sbd`    | Decimated flight data subset |
+| `.scd`    | Decimated flight data subset (LZ4 compressed) |
+| `.mbd`    | Decimated flight data subset |
+| `.mcd`    | Decimated flight data subset (LZ4 compressed) |
+
+**Science data** (`.e[bc]d`):
+| Extension | Description |
+|-----------|-------------|
+| `.ebd`    | Full density science data |
+| `.ecd`    | Full density science data (LZ4 compressed) |
+| `.tbd`    | Decimated science data subset |
+| `.tcd`    | Decimated science data subset (LZ4 compressed) |
+| `.nbd`    | Decimated science data subset |
+| `.ncd`    | Decimated science data subset (LZ4 compressed) |
 
 ## Core Classes
 
