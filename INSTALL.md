@@ -11,7 +11,7 @@ brew install netcdf hdf5
 
 **Ubuntu/Debian:**
 ```sh
-sudo apt install cmake g++ libnetcdf-dev libhdf5-dev
+sudo apt install cmake g++ libnetcdf-dev libhdf5-dev netcdf-bin
 ```
 
 **RHEL/Alma/Rocky 8:**
