@@ -7,10 +7,8 @@
 This software is designed to translate a set of Dinkum Binary Data files into
 a netCDF file. See [Architecture Documentation](doc/ARCHITECTURE.md) for technical details.
 
-You must have installed hdf5 and netCDF,
-prior to configuring, building, and installing this software!
-
-It now requires a c++17 or higher compatible compiler
+Requires a C++17 compatible compiler and NetCDF/HDF5 development libraries.
+See [INSTALL](INSTALL) for build instructions and platform-specific dependencies.
 
 If a filename follows the TWR convention for compressed files, `*.?c?`, it will be treated as an LZ4 compressed file, and automatically decompressed.
 
@@ -19,21 +17,8 @@ If a filename follows the TWR convention for compressed files, `*.?c?`, it will 
 - `./dbd2csv --cache=/data/cache --output=foobar.csv *.e?d`
 - `./decompressTWR *.?c?`
 
-
-*To start afresh with cmake:*
-- `find . -name 'CMakeFiles' -print -delete`
-- `find . -name 'CMakeCache.txt' -print -delete`
-
-*This version was tested on the following systems:*
-- MacOS 13.x, 14.x, 15.x Intel and ARM
-- MacOS with homebrew
-- Ubuntu 18.04, 20.04, 22.04, 24.04, 24.10, Intel and ARM
-- Alma Linux 8
-- Cygwin
-- WSL
-
-* Dependencies:
-- cmake
-- C++ compiler, like gcc-c++
-- NetCDF and hdf5 development packages (May need libsz.so.2)
-- powertools on RHEL/Alma
+*Tested on:*
+- macOS 13.x, 14.x, 15.x (Intel and ARM)
+- Ubuntu 18.04, 20.04, 22.04, 24.04, 24.10 (Intel and ARM)
+- AlmaLinux 8, Rocky Linux 9
+- Cygwin, WSL
