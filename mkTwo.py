@@ -246,7 +246,7 @@ if "d" in files:
 
 for key in ["e", "s", "t", "m", "n"]:
     if key in files:
-        processAll(files[key], args, key + "db.nc") # Dinkum Binary files
+        processAll(files[key], args, key + "bd.nc") # Dinkum Binary files
 
 if "pd0" in files:
     processPD0(files["pd0"], args) # Process PD0 files
