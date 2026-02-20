@@ -1,5 +1,6 @@
 *.swp
 *~
+build/
 Info.plist
 CMakeCache.txt
 CMakeFiles

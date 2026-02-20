@@ -4,6 +4,13 @@
 
 cmake_minimum_required(VERSION 3.14)
 
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
+  message(FATAL_ERROR
+    "In-source builds are not allowed.\n"
+    "Use: cmake -B build && cmake --build build\n"
+    "Remove CMakeCache.txt and CMakeFiles/ if they were created.")
+endif()
+
 project(dbd2netcdf LANGUAGES CXX C)
 
 # Fetch CLI11 for cross-platform command-line parsing
