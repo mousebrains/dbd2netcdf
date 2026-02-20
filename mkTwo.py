@@ -129,6 +129,8 @@ def processAll(filenames:list, args:ArgumentParser, suffix:str, sensorsFilename:
     if args.verbose: cmd.append("--verbose")
     if args.repair: cmd.append("--repair")
     if not args.keepFirst: cmd.append("--skipFirst")
+    if args.compression is not None:
+        cmd.extend(["--compression", str(args.compression)])
     if sensorsFilename: cmd.extend(["--sensorOutput", sensorsFilename])
     if args.exclude:
         for mission in args.exclude: cmd.extend(["--skipMission", mission])
@@ -193,6 +195,9 @@ grp.add_argument("--verbose", action="store_true", help="Verbose output")
 grp.add_argument("--repair", action="store_true", help="Should corrupted files be 'repaired'")
 grp.add_argument("--keepFirst", action="store_true",
                  help="Should the first record not be discarded on all the files?")
+grp.add_argument("--compression", type=int, default=None, choices=range(10),
+                 metavar="[0-9]",
+                 help="Zlib compression level (0=none, 9=max)")
 g = grp.add_mutually_exclusive_group()
 g.add_argument("--exclude", type=str, action="append", help="Mission(s) to exclude")
 g.add_argument("--include", type=str, action="append", help="Mission(s) to include")

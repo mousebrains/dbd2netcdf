@@ -48,7 +48,7 @@ NetCDF::NetCDF(const std::string& fn, const bool qAppend)
   , mqOpen(false)
   , mChunkSize(5000)
   , mChunkPriority(true)
-  , mCompressionLevel(9)
+  , mCompressionLevel(5)
   , mCountOne()
 {
   if (qAppend && fs::exists(fn)) {

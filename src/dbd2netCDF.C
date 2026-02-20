@@ -56,6 +56,7 @@ main(int argc,
   bool qRepair(false);
   bool qStrict(false);
   bool qVerbose(false);
+  int compressionLevel(5);
 
   CLI::App app{"Convert Dinkum Binary Data files to NetCDF", "dbd2netCDF"};
   app.footer(std::string("\nReport bugs to ") + MAINTAINER);
@@ -71,6 +72,9 @@ main(int argc,
   app.add_flag("-r,--repair", qRepair, "Attempt to repair bad data records");
   app.add_flag("-S,--strict", qStrict, "Fail immediately on any file error (no partial results)");
   app.add_flag("-v,--verbose", qVerbose, "Enable some diagnostic output");
+  app.add_option("-z,--compression", compressionLevel, "Zlib compression level (0=none, 9=max)")
+     ->default_val("5")
+     ->check(CLI::Range(0, 9));
   app.add_option("-l,--log-level", logLevel, "Log level (trace,debug,info,warn,error,critical,off)")
      ->default_val("warn");
   app.add_option("files", inputFiles, "Input DBD files")->required()->check(CLI::ExistingFile);
@@ -140,6 +144,7 @@ main(int argc,
 
   try {
     NetCDF ncid(ofn, qAppend);
+    ncid.compressionLevel(compressionLevel);
 
   // NetCDF dimension names: "i" for data records, "j" for files
   constexpr char DATA_DIMENSION[] = "i";
