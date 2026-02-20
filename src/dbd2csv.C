@@ -60,8 +60,8 @@ main(int argc,
   app.add_option("-c,--sensors", sensorsFile, "File containing sensors to select on");
   app.add_option("-C,--cache", sensorCacheDirectory, "Directory to cache sensor list in");
   app.add_option("-k,--sensorOutput", sensorOutputFile, "File containing sensors to output");
-  app.add_option("-m,--skipMission", missionsToSkipVec, "Mission to skip (can be repeated)");
-  app.add_option("-M,--keepMission", missionsToKeepVec, "Mission to keep (can be repeated)");
+  app.add_option("-m,--skipMission", missionsToSkipVec, "Mission to skip (can be repeated)")->type_size(1)->allow_extra_args(false);
+  app.add_option("-M,--keepMission", missionsToKeepVec, "Mission to keep (can be repeated)")->type_size(1)->allow_extra_args(false);
   app.add_option("-o,--output", outputFilename, "Where to store the data");
   app.add_flag("-s,--skipFirst", qSkipFirstRecord, "Skip first record in each file, but the first file");
   app.add_flag("-r,--repair", qRepair, "Attempt to repair bad data records");

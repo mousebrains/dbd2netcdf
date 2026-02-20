@@ -47,8 +47,8 @@ main(int argc,
   app.footer(std::string("\nReport bugs to ") + MAINTAINER);
 
   app.add_option("-C,--cache", sensorCacheDirectory, "Directory to cache sensor list in");
-  app.add_option("-m,--skipMission", missionsToSkipVec, "Mission to skip (can be repeated)");
-  app.add_option("-M,--keepMission", missionsToKeepVec, "Mission to keep (can be repeated)");
+  app.add_option("-m,--skipMission", missionsToSkipVec, "Mission to skip (can be repeated)")->type_size(1)->allow_extra_args(false);
+  app.add_option("-M,--keepMission", missionsToKeepVec, "Mission to keep (can be repeated)")->type_size(1)->allow_extra_args(false);
   app.add_option("-o,--output", outputFilename, "Where to store the data");
   app.add_option("-l,--log-level", logLevel, "Log level (trace,debug,info,warn,error,critical,off)")
      ->default_val("warn");
