@@ -1,5 +1,22 @@
 # Building dbd2netcdf from Source
 
+## Quick Start
+
+After installing prerequisites (see below), use `INSTALL.sh` to configure, build, test, and optionally install in one step:
+
+```sh
+./INSTALL.sh                          # build and test only
+./INSTALL.sh --prefix /usr/local      # build, test, and install
+```
+
+| Option | Description |
+|--------|-------------|
+| `--prefix DIR` | Install binaries to `DIR/bin` (skip install if omitted) |
+| `--build-type TYPE` | CMake build type: `Release` (default), `Debug`, `RelWithDebInfo` |
+| `--jobs N` | Parallel build jobs (default: auto-detected CPU count) |
+| `--clean` | Remove the `build/` directory before building |
+| `-h`, `--help` | Show usage help |
+
 ## Prerequisites
 
 Install NetCDF and HDF5 development packages before building.
