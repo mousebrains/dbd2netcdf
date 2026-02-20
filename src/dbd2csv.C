@@ -218,7 +218,7 @@ main(int argc,
       }
     }
 
-    LOG_INFO("{}: {} records", fn, data.size());
+    LOG_INFO("{}: {} records", fn, data.size() - kStart);
   }
 
   // outputFile automatically cleaned up on function exit

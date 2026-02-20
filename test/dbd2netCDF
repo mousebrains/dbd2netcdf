@@ -91,6 +91,23 @@ doCompare test.both.netCDF test.sbd test.tbd
 doCompare data/00300000.dcd.ncdump data/00300000.dcd
 doCompare data/00300000.combined.ncdump data/00300000.dcd data/00300000.scd data/00300000.tcd data/00300000.ecd
 
+# Test --skipFirst with multi-file input
+echo "Testing --skipFirst with two files..."
+skipfn=$TMP/skipFirst.nc
+if ! "$CMD" -s -o "$skipfn" test.sbd test.tbd; then
+  echo "Failed to execute $CMD with --skipFirst"
+  rm -f "$skipfn"
+  exit 1
+fi
+# sbd has 94 records, tbd has 194; with -s the second file skips 1 record => 94+193=287
+actual_dim=$(ncdump -h "$skipfn" | grep 'i = UNLIMITED' | grep -o '[0-9]\+')
+if [ "$actual_dim" != "287" ]; then
+  echo "skipFirst dimension mismatch: expected 287, got $actual_dim"
+  rm -f "$skipfn"
+  exit 1
+fi
+rm -f "$skipfn"
+
 # Test command-line options
 echo "Testing version flag..."
 if ! "$CMD" --version >/dev/null 2>&1; then

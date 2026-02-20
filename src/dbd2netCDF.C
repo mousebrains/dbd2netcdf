@@ -250,7 +250,7 @@ main(int argc,
           ncid.putVar(hdrStartIndex, (size_t) ii + jOffset, (unsigned int) indexOffset);
           ncid.putVar(hdrStopIndex, (size_t) ii + jOffset, stopIndex);
         }
-        ncid.putVar(hdrLength, (size_t) ii + jOffset, (unsigned int) n);
+        ncid.putVar(hdrLength, (size_t) ii + jOffset, (unsigned int)(n - kStart));
       }
 
       if (n <= kStart) { // No data to be written
@@ -273,7 +273,7 @@ main(int argc,
           } else { // isnan
             if (!qLooking) { // We have some data to write out
               qLooking = true;
-              const size_t start(indexOffset + iFirst);
+              const size_t start(indexOffset + iFirst - kStart);
               const size_t count(k - iFirst);
               ncid.putVars(var, start, count, &values[iFirst]);
             }
@@ -281,7 +281,7 @@ main(int argc,
         }
 
         if (!qLooking) {
-          const size_t start(indexOffset + iFirst);
+          const size_t start(indexOffset + iFirst - kStart);
           const size_t count(n - iFirst);
           ncid.putVars(var, start, count, &values[iFirst]);
         }
