@@ -55,6 +55,7 @@ Data::load(std::istream& is,
 
   mData.resize(dSize, empty); // Initial allocation
 
+  try {
   while (true) { // Walk through the file
     int8_t tag;
     if (!is.read(reinterpret_cast<char*>(&tag), 1)) { // EOF while reading tag byte
@@ -149,6 +150,10 @@ Data::load(std::istream& is,
 
     if (qKeep)
       ++nRows;
+  }
+  } catch (...) {
+    mData.resize(nRows);
+    throw;
   }
 
   mData.resize(nRows); // Prune off unused rows
