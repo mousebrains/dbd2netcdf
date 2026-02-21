@@ -20,6 +20,7 @@
 #include "SensorsMap.H"
 #include "Header.H"
 #include "MyException.H"
+#include <unordered_map>
 #include <iostream>
 #include <cstdio>
 
@@ -85,7 +86,7 @@ SensorsMap::setUpForData()
 
   // Even if there is only one, we still do this to update indices
 
-  typedef std::map<std::string, size_t> tNames;
+  typedef std::unordered_map<std::string, size_t> tNames;
   tNames names;
 
   for (tMap::iterator it(mMap.begin()), et(mMap.end()); it != et; ++it) {

@@ -5,7 +5,7 @@
 
 #include "Sensor.H"
 #include <iosfwd>
-#include <set>
+#include <unordered_set>
 #include <vector>
 
 class Header;
@@ -53,7 +53,7 @@ public:
   void clear() {mSensors.clear();}
   void insert(const Sensor& sensor) {mSensors.push_back(sensor);}
 
-  typedef std::set<std::string> tNames;
+  typedef std::unordered_set<std::string> tNames;
   static void loadNames(const char *fn, tNames& names);
   void qKeep(const tNames& names);
   void qCriteria(const tNames& names);
