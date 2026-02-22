@@ -114,6 +114,8 @@ def processAll(filenames:list, args:ArgumentParser, suffix:str, sensorsFilename:
     filenames = list(filenames) # ensure it is a list
     if not filenames: return # Nothing to do
 
+    filenames.sort() # Sort the input files for consistent processing order
+
     ofn = args.outputPrefix + suffix # Output filename
 
     cmd = [os.path.join(args.bindir, "dbd2netCDF"),
@@ -177,7 +179,8 @@ def processPD0(filenames:list, args:ArgumentParser, suffix:str="pd0.nc") -> None
     rc.start()
 
 parser = ArgumentParser()
-parser.add_argument("filename", type=str, nargs="+", help="Dinkum binary files to convert")
+parser.add_argument("filename", type=str, nargs="+",
+                    help="Dinkum binary files or directories to search recursively")
 
 grp = parser.add_argument_group(description="dbd2netCDF related arguments")
 grp.add_argument("--bindir", type=str, default="/usr/local/bin",
@@ -223,7 +226,16 @@ if not os.path.isdir(args.cache):
     logging.info("Creating %s", args.cache)
     os.makedirs(args.cache, mode=0o755, exist_ok=True)
 
-files = list(map(lambda x: os.path.abspath(os.path.expanduser(x)), args.filename))
+files = []
+for path in args.filename:
+    path = os.path.abspath(os.path.expanduser(path))
+    if os.path.isdir(path):
+        for dirpath, _, dirfiles in os.walk(path):
+            for fn in dirfiles:
+                if re.search(r"[.](pd0|[destnm][bc]d)$", fn, re.IGNORECASE):
+                    files.append(os.path.join(dirpath, fn))
+    else:
+        files.append(path)
 
 processAll(filter(lambda x: re.search(r"[.]s[bc]d", x, re.IGNORECASE), files),
            args, "sbd.nc") # Flight decimated Dinkum Binary files
