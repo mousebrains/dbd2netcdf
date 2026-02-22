@@ -57,6 +57,7 @@ main(int argc,
   bool qStrict(false);
   bool qVerbose(false);
   int compressionLevel(5);
+  size_t batchSize(0);
 
   CLI::App app{"Convert Dinkum Binary Data files to NetCDF", "dbd2netCDF"};
   app.footer(std::string("\nReport bugs to ") + MAINTAINER);
@@ -75,6 +76,8 @@ main(int argc,
   app.add_option("-z,--compression", compressionLevel, "Zlib compression level (0=none, 9=max)")
      ->default_val("5")
      ->check(CLI::Range(0, 9));
+  app.add_option("-b,--batch-size", batchSize, "Files per batch (0=all at once, reduces memory)")
+     ->default_val("0");
   app.add_option("-l,--log-level", logLevel, "Log level (trace,debug,info,warn,error,critical,off)")
      ->default_val("warn");
   app.add_option("files", inputFiles, "Input DBD files")->required()->check(CLI::ExistingFile);
@@ -144,39 +147,12 @@ main(int argc,
   std::vector<size_t> varSizes(smap.allSensors().nToStore());
 
   try {
-    NetCDF ncid(ofn, qAppend);
-    ncid.compressionLevel(compressionLevel);
 
   // NetCDF dimension names: "i" for data records, "j" for files
   constexpr char DATA_DIMENSION[] = "i";
   constexpr char FILE_DIMENSION[] = "j";
-  const int iDim(ncid.maybeCreateDim(DATA_DIMENSION));
-  const int jDim(ncid.maybeCreateDim(FILE_DIMENSION));
 
-  // Setup variables
   const Sensors& all(smap.allSensors());
-
-  for (Sensors::const_iterator it(all.begin()), et(all.end()); it != et; ++it) {
-    const Sensor& sensor(*it);
-    if (sensor.qKeep()) {
-      const size_t index(sensor.index());
-      const std::string& name(sensor.name());
-      const std::string& units(sensor.units());
-      int idType(-1);
-      switch (sensor.size()) {
-	case 1: idType = NC_BYTE; break;
-        case 2: idType = NC_SHORT; break;
-        case 4: idType = NC_FLOAT; break;
-        case 8: idType = NC_DOUBLE; break;
-        default:
-          LOG_ERROR("Unsupported sensor size for {}", sensor.name());
-          return(1);
-      } // switch
-
-      vars[index] = ncid.maybeCreateVar(name, idType, iDim, units);
-      varSizes[index] = sensor.size();
-    } // if sensor.qKeep
-  } // for all
 
   typedef std::vector<std::string> tHdrNames;
   tHdrNames hdrNames;
@@ -190,108 +166,147 @@ main(int argc,
 
   tVars hdrVars(hdrNames.size());
 
-  for (tVars::size_type i(0), e(hdrVars.size()); i < e; ++i) {
-    const std::string& name("hdr_" + hdrNames[i]);
-    hdrVars[i] = ncid.maybeCreateVar(name, NC_STRING, jDim, std::string());
-  }
-
-  const int hdrStartIndex(ncid.maybeCreateVar("hdr_start_index", NC_UINT, jDim, std::string()));
-  const int hdrStopIndex(ncid.maybeCreateVar("hdr_stop_index", NC_UINT, jDim, std::string()));
-  const int hdrLength(ncid.maybeCreateVar("hdr_nRecords", NC_UINT, jDim, std::string()));
-
-  // ncid.enddef(); // Not needed for NetCDF4 any more
-
   // Go through and grab all the data
 
   const size_t k0(qSkipFirstRecord ? 1 : 0);
 
-  size_t indexOffset(qAppend ? ncid.lengthDim(iDim) : 0);
-  const size_t jOffset(qAppend ? ncid.lengthDim(jDim) : 0);
+  size_t indexOffset(0);
+  size_t jOffset(0);
 
-  for (tFileIndices::size_type ii(0), iie(fileIndices.size()); ii < iie; ++ii) {
-    const size_t i(fileIndices[ii]);
-    const char* fn = inputFiles[i].c_str();
-    DecompressTWR is(fn, qCompressed(fn));
-    if (!is) {
-      LOG_ERROR("Error opening '{}': {}", fn, strerror(errno));
-      return(1);
+  const size_t nFiles(fileIndices.size());
+  const size_t filesPerBatch(batchSize > 0 ? batchSize : nFiles);
+
+  for (size_t batchStart(0); batchStart < nFiles; batchStart += filesPerBatch) {
+    const size_t batchEnd(std::min(batchStart + filesPerBatch, nFiles));
+
+    NetCDF ncid(ofn, qAppend || batchStart > 0);
+    ncid.compressionLevel(compressionLevel);
+
+    const int iDim(ncid.maybeCreateDim(DATA_DIMENSION));
+    const int jDim(ncid.maybeCreateDim(FILE_DIMENSION));
+
+    // Setup variables (maybeCreateVar looks up existing vars on reopen)
+    for (Sensors::const_iterator it(all.begin()), et(all.end()); it != et; ++it) {
+      const Sensor& sensor(*it);
+      if (sensor.qKeep()) {
+        const size_t index(sensor.index());
+        const std::string& name(sensor.name());
+        const std::string& units(sensor.units());
+        int idType(-1);
+        switch (sensor.size()) {
+          case 1: idType = NC_BYTE; break;
+          case 2: idType = NC_SHORT; break;
+          case 4: idType = NC_FLOAT; break;
+          case 8: idType = NC_DOUBLE; break;
+          default:
+            LOG_ERROR("Unsupported sensor size for {}", sensor.name());
+            return(1);
+        } // switch
+
+        vars[index] = ncid.maybeCreateVar(name, idType, iDim, units);
+        varSizes[index] = sensor.size();
+      } // if sensor.qKeep
+    } // for all
+
+    for (tVars::size_type i(0), e(hdrVars.size()); i < e; ++i) {
+      const std::string& name("hdr_" + hdrNames[i]);
+      hdrVars[i] = ncid.maybeCreateVar(name, NC_STRING, jDim, std::string());
     }
-    const Header hdr(is, fn);             // Load up header
-    try {
-      smap.insert(is, hdr, true);       // will move to the right position in the file
-      const Sensors& sensors(smap.find(hdr));
-      const KnownBytes kb(is);          // Get little/big endian
-      Data data;
-      const size_t nBytes(fs::file_size(fn));
 
+    const int hdrStartIndex(ncid.maybeCreateVar("hdr_start_index", NC_UINT, jDim, std::string()));
+    const int hdrStopIndex(ncid.maybeCreateVar("hdr_stop_index", NC_UINT, jDim, std::string()));
+    const int hdrLength(ncid.maybeCreateVar("hdr_nRecords", NC_UINT, jDim, std::string()));
+
+    if (batchStart == 0) {
+      indexOffset = qAppend ? ncid.lengthDim(iDim) : 0;
+      jOffset = qAppend ? ncid.lengthDim(jDim) : 0;
+    }
+
+    for (tFileIndices::size_type ii(batchStart); ii < batchEnd; ++ii) {
+      const size_t i(fileIndices[ii]);
+      const char* fn = inputFiles[i].c_str();
+      DecompressTWR is(fn, qCompressed(fn));
+      if (!is) {
+        LOG_ERROR("Error opening '{}': {}", fn, strerror(errno));
+        return(1);
+      }
+      const Header hdr(is, fn);             // Load up header
       try {
-        data.load(is, kb, sensors, qRepair, nBytes);
-      } catch (MyException& e) {
+        smap.insert(is, hdr, true);       // will move to the right position in the file
+        const Sensors& sensors(smap.find(hdr));
+        const KnownBytes kb(is);          // Get little/big endian
+        Data data;
+        const size_t nBytes(fs::file_size(fn));
+
+        try {
+          data.load(is, kb, sensors, qRepair, nBytes);
+        } catch (MyException& e) {
+          if (qStrict) {
+            LOG_ERROR("Error processing '{}': {}", fn, e.what());
+            return(1);
+          }
+          LOG_WARN("Error processing '{}': {}, retaining {} records", fn, e.what(), data.size());
+        }
+
+        if (data.empty()) continue;
+
+        const size_t n(data.size());
+        const size_t kStart(ii == 0 ? 0 : k0);
+
+        { // Update file info
+          for (tVars::size_type j(0), je(hdrVars.size()); j < je; ++j) {
+            const std::string str(hdr.find(hdrNames[j]));
+            ncid.putVar(hdrVars[j], (size_t) ii + jOffset, str);
+          }
+          if (n > kStart) {
+            const unsigned int stopIndex(static_cast<unsigned int>(indexOffset + n - kStart - 1));
+
+            ncid.putVar(hdrStartIndex, (size_t) ii + jOffset, (unsigned int) indexOffset);
+            ncid.putVar(hdrStopIndex, (size_t) ii + jOffset, stopIndex);
+          }
+          ncid.putVar(hdrLength, (size_t) ii + jOffset, (unsigned int)(n - kStart));
+        }
+
+        if (n <= kStart) { // No data to be written
+          continue;
+        }
+
+        const size_t writeCount(n - kStart);
+        std::vector<double> values(writeCount);
+
+        for (tVars::size_type j(0), je(vars.size()); j < je; ++j) {
+          const int var(vars[j]);
+          const Data::tColumn& col(data.column(j));
+          if (varSizes[j] == 8) {
+            // NC_DOUBLE: NaN and inf are both representable
+            ncid.putVars(var, indexOffset, writeCount, &col[kStart]);
+          } else {
+            // NC_FLOAT/SHORT/BYTE: replace NaN/inf with fill value
+            double fillValue = NAN;
+            if (varSizes[j] == 1) fillValue = -127.0;
+            else if (varSizes[j] == 2) fillValue = -32768.0;
+            for (size_t k(0); k < writeCount; ++k) {
+              const double v(col[kStart + k]);
+              values[k] = (std::isnan(v) || std::isinf(v)) ? fillValue : v;
+            }
+            ncid.putVars(var, indexOffset, writeCount, values.data());
+          }
+        }
+
+        indexOffset += data.size() - kStart;
+
+        LOG_INFO("{}: {} records written", fn, data.size() - kStart);
+      } catch (MyException& e) { // Catch my exceptions, where I toss the whole file
         if (qStrict) {
           LOG_ERROR("Error processing '{}': {}", fn, e.what());
           return(1);
         }
-        LOG_WARN("Error processing '{}': {}, retaining {} records", fn, e.what(), data.size());
+        LOG_WARN("Error processing '{}': {} (skipping file)", fn, e.what());
       }
-
-      if (data.empty()) continue;
-
-      const size_t n(data.size());
-      const size_t kStart(ii == 0 ? 0 : k0);
-
-      { // Update file info
-        for (tVars::size_type j(0), je(hdrVars.size()); j < je; ++j) {
-          const std::string str(hdr.find(hdrNames[j]));
-          ncid.putVar(hdrVars[j], (size_t) ii + jOffset, str);
-        }
-        if (n > kStart) {
-          const unsigned int stopIndex(static_cast<unsigned int>(indexOffset + n - kStart - 1));
-
-          ncid.putVar(hdrStartIndex, (size_t) ii + jOffset, (unsigned int) indexOffset);
-          ncid.putVar(hdrStopIndex, (size_t) ii + jOffset, stopIndex);
-        }
-        ncid.putVar(hdrLength, (size_t) ii + jOffset, (unsigned int)(n - kStart));
-      }
-
-      if (n <= kStart) { // No data to be written
-        continue;
-      }
-
-      const size_t writeCount(n - kStart);
-      std::vector<double> values(writeCount);
-
-      for (tVars::size_type j(0), je(vars.size()); j < je; ++j) {
-        const int var(vars[j]);
-        const Data::tColumn& col(data.column(j));
-        if (varSizes[j] == 8) {
-          // NC_DOUBLE: NaN and inf are both representable
-          ncid.putVars(var, indexOffset, writeCount, &col[kStart]);
-        } else {
-          // NC_FLOAT/SHORT/BYTE: replace NaN/inf with fill value
-          double fillValue = NAN;
-          if (varSizes[j] == 1) fillValue = -127.0;
-          else if (varSizes[j] == 2) fillValue = -32768.0;
-          for (size_t k(0); k < writeCount; ++k) {
-            const double v(col[kStart + k]);
-            values[k] = (std::isnan(v) || std::isinf(v)) ? fillValue : v;
-          }
-          ncid.putVars(var, indexOffset, writeCount, values.data());
-        }
-      }
-
-      indexOffset += data.size() - kStart;
-
-      LOG_INFO("{}: {} records written", fn, data.size() - kStart);
-    } catch (MyException& e) { // Catch my exceptions, where I toss the whole file
-      if (qStrict) {
-        LOG_ERROR("Error processing '{}': {}", fn, e.what());
-        return(1);
-      }
-      LOG_WARN("Error processing '{}': {} (skipping file)", fn, e.what());
     }
-  }
 
-  ncid.close();
+    ncid.close();
+  } // for batchStart
 
   } catch (MyException& e) {
     LOG_CRITICAL("Fatal error: {}", e.what());
