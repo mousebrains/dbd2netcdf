@@ -57,7 +57,7 @@ main(int argc,
   bool qStrict(false);
   bool qVerbose(false);
   int compressionLevel(5);
-  size_t batchSize(0);
+  size_t batchSize(100);
 
   CLI::App app{"Convert Dinkum Binary Data files to NetCDF", "dbd2netCDF"};
   app.footer(std::string("\nReport bugs to ") + MAINTAINER);
@@ -77,7 +77,7 @@ main(int argc,
      ->default_val("5")
      ->check(CLI::Range(0, 9));
   app.add_option("-b,--batch-size", batchSize, "Files per batch (0=all at once, reduces memory)")
-     ->default_val("0");
+     ->default_val("100");
   app.add_option("-l,--log-level", logLevel, "Log level (trace,debug,info,warn,error,critical,off)")
      ->default_val("warn");
   app.add_option("files", inputFiles, "Input DBD files")->required()->check(CLI::ExistingFile);
