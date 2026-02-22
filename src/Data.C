@@ -32,7 +32,7 @@ Data::Data(std::istream& is,
            const Sensors& sensors,
 	   const bool qRepair,
 	   const size_t nBytes)
-  : mDelim(" ")
+  : mNRows(0), mDelim(" ")
 {
   load(is, kb, sensors, qRepair, nBytes);
 }
@@ -47,13 +47,30 @@ Data::load(std::istream& is,
   const size_t nSensors(sensors.size());
   const size_t nHeader((nSensors + 3) / 4);
   std::vector<int8_t> bits(nHeader);  // RAII - automatic cleanup
-  const tRow empty(sensors.nToStore(), NAN);
-  tRow prevValue(empty);
-  tData::size_type nRows(0);
+  const size_t nToStore(sensors.nToStore());
+  std::vector<double> prevValue(nToStore, NAN);
+  size_t nRows(0);
   const size_t dSize(2 * nBytes / (nHeader + 1) + 1); // 2 is for compression
 
+  // Column-major: mData[sensor][record]
+  mData.resize(nToStore);
+  for (size_t j(0); j < nToStore; ++j) {
+    mData[j].resize(dSize, NAN);
+  }
 
-  mData.resize(dSize, empty); // Initial allocation
+  auto pruneColumns = [&]() {
+    for (size_t j(0); j < nToStore; ++j) {
+      mData[j].resize(nRows);
+    }
+    mNRows = nRows;
+  };
+
+  auto growColumns = [&]() {
+    const size_t newSize(mData[0].size() + dSize);
+    for (size_t j(0); j < nToStore; ++j) {
+      mData[j].resize(newSize, NAN);
+    }
+  };
 
   try {
   while (true) { // Walk through the file
@@ -81,7 +98,7 @@ Data::load(std::istream& is,
 	  }
       }
       if (!qRepair || !qContinue) { // Not repairing or didn't find a 'd' to look at
-        mData.resize(nRows); // Prune off unused rows
+        pruneColumns();
         std::ostringstream oss;
         oss << "Unknown data tag(0x"
             << std::hex << (tag & 0xff) << std::dec
@@ -105,22 +122,21 @@ Data::load(std::istream& is,
     }
 
     if (!is.read(reinterpret_cast<char*>(bits.data()), nHeader)) {
-      mData.resize(nRows); // Prune off unused rows
+      pruneColumns();
       std::ostringstream oss;
       oss << "EOF reading " << nHeader << " bytes for header bits";
       // bits vector automatically cleaned up
       throw(MyException(oss.str()));
     }
 
-    if ((mData.size() - 1) <= nRows) mData.resize(mData.size()+dSize, empty);
+    if ((mData[0].size() - 1) <= nRows) growColumns();
 
-    tRow& row(mData[nRows]);
     bool qKeep(false);
 
     for (size_t i(0); i < nSensors; ++i) {
       const size_t offIndex(i >> 2);
       if (offIndex >= nHeader) {
-        mData.resize(nRows); // Prune off unused rows
+        pruneColumns();
         std::ostringstream oss;
         oss << "offIndex issue " << offIndex << " >= " << nHeader
             << " at " << is.tellg();
@@ -134,7 +150,7 @@ Data::load(std::istream& is,
         const size_t index(sensor.index());
         qKeep |= sensor.qCriteria();
         if (sensor.qKeep()) {
-          row[index] = prevValue[index];
+          mData[index][nRows] = prevValue[index];
         }
       } else if (code == 2) { // New Value
         const Sensor& sensor(sensors[i]);
@@ -142,7 +158,7 @@ Data::load(std::istream& is,
         const double value(sensor.read(is, kb));
         qKeep |= sensor.qCriteria();
         if (sensor.qKeep()) {
-          row[index] = value;
+          mData[index][nRows] = value;
           prevValue[index] = value;
         }
       }
@@ -152,11 +168,11 @@ Data::load(std::istream& is,
       ++nRows;
   }
   } catch (...) {
-    mData.resize(nRows);
+    pruneColumns();
     throw;
   }
 
-  mData.resize(nRows); // Prune off unused rows
+  pruneColumns();
   // bits vector automatically cleaned up on function exit
 }
 
@@ -164,11 +180,11 @@ std::ostream&
 operator << (std::ostream& os,
              const Data& data)
 {
-  for (Data::tData::size_type i(0), ie(data.mData.size()); i < ie; ++i) {
+  const size_t nCols(data.mData.size());
+  for (size_t i(0), ie(data.mNRows); i < ie; ++i) {
     std::string space;
-    const Data::tRow& row(data.mData[i]);
-    for (Data::tRow::size_type j(0), je(row.size()); j < je; ++j) {
-      os << space << row[j];
+    for (size_t j(0); j < nCols; ++j) {
+      os << space << data.mData[j][i];
       space = data.mDelim;
     }
     os << std::endl;

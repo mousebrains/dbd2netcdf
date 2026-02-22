@@ -152,7 +152,7 @@ main(int argc,
   const Sensors& all(smap.allSensors());
   std::string delim;
 
-  typedef std::vector<Data::tRow::size_type> tRowsToOutput;
+  typedef std::vector<size_t> tRowsToOutput;
   tRowsToOutput rowsToOutput;
 
   for (Sensors::size_type i(0), e(all.size()); i < e; ++i) {
@@ -203,13 +203,12 @@ main(int argc,
 
     if (n > kStart) { // some data to output
       for (size_t k(kStart); k < n; ++k) {
-        const Data::tRow& row(data[k]);
         for (tRowsToOutput::size_type j(0), je(rowsToOutput.size()); j < je; ++j) {
           const size_t index(rowsToOutput[j]);
           if (j != 0) {
             *osp << ',';
           }
-          const double dval(row[index]);
+          const double dval(data(k, index));
           if (!std::isnan(dval)) {
             *osp << all[index].toStr(dval);
           }

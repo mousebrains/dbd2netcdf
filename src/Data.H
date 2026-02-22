@@ -12,14 +12,15 @@ class Sensors;
 
 class Data {
 public:
-  typedef std::vector<double> tRow;
+  typedef std::vector<double> tColumn; // All records for one sensor
 private:
-  typedef std::vector<tRow> tData;
-  tData mData;
+  typedef std::vector<tColumn> tData;
+  tData mData;       // mData[sensor_index][record_index]
+  size_t mNRows;
 
   std::string mDelim;
 public:
-  Data() : mDelim(" ") {}
+  Data() : mNRows(0), mDelim(" ") {}
   Data(std::istream& is,
 		  const KnownBytes& kb,
 		  const Sensors& sensors,
@@ -32,14 +33,15 @@ public:
 		  const bool qRepair,
 		  const size_t nBytes);
 
-  bool empty() const {return mData.empty();}
-  tData::size_type size() const {return mData.size();}
+  bool empty() const {return mNRows == 0;}
+  size_t size() const {return mNRows;}          // Number of records
+  size_t nColumns() const {return mData.size();} // Number of sensors
 
-  typedef tData::const_iterator const_iterator;
-  const_iterator begin() const {return mData.begin();}
-  const_iterator end() const {return mData.end();}
+  // Column access (for NetCDF writer — contiguous memory)
+  const tColumn& column(size_t j) const {return mData[j];}
 
-  const tRow& operator [] (const tData::size_type i) const {return mData[i];}
+  // Element access (for CSV writer)
+  double operator()(size_t row, size_t col) const {return mData[col][row];}
 
   void delim(const std::string& str) {mDelim = str;}
 

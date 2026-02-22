@@ -259,10 +259,11 @@ main(int argc,
 
       for (tVars::size_type j(0), je(vars.size()); j < je; ++j) {
         const int var(vars[j]);
+        const Data::tColumn& col(data.column(j));
         size_t iFirst(0);
         bool qLooking(true);
         for (size_t k(kStart); k < n; ++k) {
-          const double value(data[k][j]);
+          const double value(col[k]);
           const bool qSkip(std::isnan(value) || std::isinf(value));
           if (!qSkip) {
             values[k] = value;
