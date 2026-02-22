@@ -1,8 +1,12 @@
 # dbd2netcdf
 
 [![Build and Test](https://github.com/mousebrains/dbd2netcdf/actions/workflows/build-test.yml/badge.svg)](https://github.com/mousebrains/dbd2netcdf/actions/workflows/build-test.yml)
+[![Fuzz Testing](https://github.com/mousebrains/dbd2netcdf/actions/workflows/fuzz.yml/badge.svg)](https://github.com/mousebrains/dbd2netcdf/actions/workflows/fuzz.yml)
 [![codecov](https://codecov.io/gh/mousebrains/dbd2netcdf/graph/badge.svg)](https://codecov.io/gh/mousebrains/dbd2netcdf)
 [![Latest Release](https://img.shields.io/github/v/release/mousebrains/dbd2netcdf)](https://github.com/mousebrains/dbd2netcdf/releases/latest)
+[![License: GPL v3](https://img.shields.io/github/license/mousebrains/dbd2netcdf)](https://github.com/mousebrains/dbd2netcdf/blob/main/License.txt)
+[![C++17](https://img.shields.io/badge/C%2B%2B-17-blue.svg)](https://en.cppreference.com/w/cpp/17)
+[![Platform](https://img.shields.io/badge/platform-linux%20%7C%20macOS%20%7C%20windows-lightgrey)]()
 
 This software is designed to translate a set of Dinkum Binary Data files into
 a netCDF file. See [Architecture Documentation](doc/ARCHITECTURE.md) for technical details.
