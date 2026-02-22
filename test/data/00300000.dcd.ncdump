@@ -1,45 +1,58 @@
-netcdf dcd {
+netcdf test.dcd {
 dimensions:
 	i = UNLIMITED ; // (14 currently)
 	j = UNLIMITED ; // (1 currently)
 variables:
 	byte cc_behavior_state(i) ;
+		cc_behavior_state:_FillValue = -127b ;
 		cc_behavior_state:units = "enum" ;
 	byte cc_bpump_mode(i) ;
+		cc_bpump_mode:_FillValue = -127b ;
 		cc_bpump_mode:units = "enum" ;
 	float cc_bpump_value(i) ;
 		cc_bpump_value:_FillValue = NaNf ;
 		cc_bpump_value:units = "X" ;
 	byte cc_depth_state_mode(i) ;
+		cc_depth_state_mode:_FillValue = -127b ;
 		cc_depth_state_mode:units = "enum" ;
 	byte cc_final_behavior_state(i) ;
+		cc_final_behavior_state:_FillValue = -127b ;
 		cc_final_behavior_state:units = "enum" ;
 	byte cc_final_bpump_mode(i) ;
+		cc_final_bpump_mode:_FillValue = -127b ;
 		cc_final_bpump_mode:units = "enum" ;
 	float cc_final_bpump_value(i) ;
 		cc_final_bpump_value:_FillValue = NaNf ;
 		cc_final_bpump_value:units = "X" ;
 	byte cc_final_depth_state_mode(i) ;
+		cc_final_depth_state_mode:_FillValue = -127b ;
 		cc_final_depth_state_mode:units = "enum" ;
 	byte cc_final_heading_mode(i) ;
+		cc_final_heading_mode:_FillValue = -127b ;
 		cc_final_heading_mode:units = "enum" ;
 	float cc_final_heading_value(i) ;
 		cc_final_heading_value:_FillValue = NaNf ;
 		cc_final_heading_value:units = "X" ;
 	byte cc_final_inflection_mode(i) ;
+		cc_final_inflection_mode:_FillValue = -127b ;
 		cc_final_inflection_mode:units = "enum" ;
 	byte cc_final_is_comatose(i) ;
+		cc_final_is_comatose:_FillValue = -127b ;
 		cc_final_is_comatose:units = "bool" ;
 	byte cc_final_mission_status_mode(i) ;
+		cc_final_mission_status_mode:_FillValue = -127b ;
 		cc_final_mission_status_mode:units = "enum" ;
 	byte cc_final_pitch_mode(i) ;
+		cc_final_pitch_mode:_FillValue = -127b ;
 		cc_final_pitch_mode:units = "enum" ;
 	float cc_final_pitch_value(i) ;
 		cc_final_pitch_value:_FillValue = NaNf ;
 		cc_final_pitch_value:units = "X" ;
 	byte cc_final_threng_mode(i) ;
+		cc_final_threng_mode:_FillValue = -127b ;
 		cc_final_threng_mode:units = "enum" ;
 	byte cc_final_thruster_mode(i) ;
+		cc_final_thruster_mode:_FillValue = -127b ;
 		cc_final_thruster_mode:units = "enum" ;
 	float cc_final_thruster_value(i) ;
 		cc_final_thruster_value:_FillValue = NaNf ;
@@ -48,24 +61,31 @@ variables:
 		cc_final_time_til_inflect:_FillValue = NaNf ;
 		cc_final_time_til_inflect:units = "s" ;
 	byte cc_heading_mode(i) ;
+		cc_heading_mode:_FillValue = -127b ;
 		cc_heading_mode:units = "enum" ;
 	float cc_heading_value(i) ;
 		cc_heading_value:_FillValue = NaNf ;
 		cc_heading_value:units = "X" ;
 	byte cc_inflection_mode(i) ;
+		cc_inflection_mode:_FillValue = -127b ;
 		cc_inflection_mode:units = "enum" ;
 	byte cc_is_comatose(i) ;
+		cc_is_comatose:_FillValue = -127b ;
 		cc_is_comatose:units = "bool" ;
 	byte cc_mission_status_mode(i) ;
+		cc_mission_status_mode:_FillValue = -127b ;
 		cc_mission_status_mode:units = "enum" ;
 	byte cc_pitch_mode(i) ;
+		cc_pitch_mode:_FillValue = -127b ;
 		cc_pitch_mode:units = "enum" ;
 	float cc_pitch_value(i) ;
 		cc_pitch_value:_FillValue = NaNf ;
 		cc_pitch_value:units = "X" ;
 	byte cc_threng_mode(i) ;
+		cc_threng_mode:_FillValue = -127b ;
 		cc_threng_mode:units = "enum" ;
 	byte cc_thruster_mode(i) ;
+		cc_thruster_mode:_FillValue = -127b ;
 		cc_thruster_mode:units = "enum" ;
 	float cc_thruster_value(i) ;
 		cc_thruster_value:_FillValue = NaNf ;
@@ -74,11 +94,13 @@ variables:
 		cc_time_til_inflect:_FillValue = NaNf ;
 		cc_time_til_inflect:units = "s" ;
 	byte c_acoustic_modem_target_id(i) ;
+		c_acoustic_modem_target_id:_FillValue = -127b ;
 		c_acoustic_modem_target_id:units = "enum" ;
 	float c_ad2cp_on(i) ;
 		c_ad2cp_on:_FillValue = NaNf ;
 		c_ad2cp_on:units = "sec" ;
 	byte c_air_pump(i) ;
+		c_air_pump:_FillValue = -127b ;
 		c_air_pump:units = "enum" ;
 	float c_alt_recall(i) ;
 		c_alt_recall:_FillValue = NaNf ;
@@ -93,8 +115,10 @@ variables:
 		c_amar_on:_FillValue = NaNf ;
 		c_amar_on:units = "sec" ;
 	byte c_argos_on(i) ;
+		c_argos_on:_FillValue = -127b ;
 		c_argos_on:units = "enum" ;
 	byte c_att_debug(i) ;
+		c_att_debug:_FillValue = -127b ;
 		c_att_debug:units = "bool" ;
 	float c_att_recall(i) ;
 		c_att_recall:_FillValue = NaNf ;
@@ -103,8 +127,10 @@ variables:
 		c_att_time:_FillValue = NaNf ;
 		c_att_time:units = "sec" ;
 	byte c_autoballast_bpump_state(i) ;
+		c_autoballast_bpump_state:_FillValue = -127b ;
 		c_autoballast_bpump_state:units = "enum" ;
 	byte c_autoballast_state(i) ;
+		c_autoballast_state:_FillValue = -127b ;
 		c_autoballast_state:units = "enum" ;
 	float c_autoballast_volume(i) ;
 		c_autoballast_volume:_FillValue = NaNf ;
@@ -122,6 +148,7 @@ variables:
 		c_azfp_on:_FillValue = NaNf ;
 		c_azfp_on:units = "sec" ;
 	byte c_badd_clear_remote_data(i) ;
+		c_badd_clear_remote_data:_FillValue = -127b ;
 		c_badd_clear_remote_data:units = "bool" ;
 	float c_badd_datacol_status_secs(i) ;
 		c_badd_datacol_status_secs:_FillValue = NaNf ;
@@ -133,6 +160,7 @@ variables:
 		c_badd_data_min_tries:_FillValue = NaNf ;
 		c_badd_data_min_tries:units = "int" ;
 	byte c_badd_debug(i) ;
+		c_badd_debug:_FillValue = -127b ;
 		c_badd_debug:units = "enum" ;
 	float c_badd_download_range(i) ;
 		c_badd_download_range:_FillValue = NaNf ;
@@ -144,6 +172,7 @@ variables:
 		c_badd_input_parse_secs:_FillValue = NaNf ;
 		c_badd_input_parse_secs:units = "sec" ;
 	byte c_badd_mode(i) ;
+		c_badd_mode:_FillValue = -127b ;
 		c_badd_mode:units = "enum" ;
 	float c_badd_on(i) ;
 		c_badd_on:_FillValue = NaNf ;
@@ -161,6 +190,7 @@ variables:
 		c_badd_session_secs:_FillValue = NaNf ;
 		c_badd_session_secs:units = "sec" ;
 	byte c_badd_target_id(i) ;
+		c_badd_target_id:_FillValue = -127b ;
 		c_badd_target_id:units = "enum" ;
 	float c_badd_transaction_num(i) ;
 		c_badd_transaction_num:_FillValue = NaNf ;
@@ -181,6 +211,7 @@ variables:
 		c_bam_inactivity_secs:_FillValue = NaNf ;
 		c_bam_inactivity_secs:units = "sec" ;
 	byte c_bam_mode(i) ;
+		c_bam_mode:_FillValue = -127b ;
 		c_bam_mode:units = "enum" ;
 	float c_bam_number_of_echos(i) ;
 		c_bam_number_of_echos:_FillValue = NaNf ;
@@ -189,6 +220,7 @@ variables:
 		c_bam_on:_FillValue = NaNf ;
 		c_bam_on:units = "sec" ;
 	byte c_bam_target_id(i) ;
+		c_bam_target_id:_FillValue = -127b ;
 		c_bam_target_id:units = "enum" ;
 	float c_bam_update_secs(i) ;
 		c_bam_update_secs:_FillValue = NaNf ;
@@ -197,8 +229,10 @@ variables:
 		c_battpos:_FillValue = NaNf ;
 		c_battpos:units = "in" ;
 	byte c_baud_attempt_max(i) ;
+		c_baud_attempt_max:_FillValue = -127b ;
 		c_baud_attempt_max:units = "enum" ;
 	byte c_baud_attempt_min(i) ;
+		c_baud_attempt_min:_FillValue = -127b ;
 		c_baud_attempt_min:units = "enum" ;
 	float c_bb2c_num_fields_to_send(i) ;
 		c_bb2c_num_fields_to_send:_FillValue = NaNf ;
@@ -336,6 +370,7 @@ variables:
 		c_climb_target_depth:_FillValue = NaNf ;
 		c_climb_target_depth:units = "m" ;
 	byte c_console_on(i) ;
+		c_console_on:_FillValue = -127b ;
 		c_console_on:units = "bool" ;
 	float c_coulomb_on(i) ;
 		c_coulomb_on:_FillValue = NaNf ;
@@ -356,6 +391,7 @@ variables:
 		c_delta_bpump_speed:_FillValue = NaNf ;
 		c_delta_bpump_speed:units = "X" ;
 	byte c_depth_rate_running_avg_num(i) ;
+		c_depth_rate_running_avg_num:_FillValue = -127b ;
 		c_depth_rate_running_avg_num:units = "enum" ;
 	float c_de_oil_vol(i) ;
 		c_de_oil_vol:_FillValue = NaNf ;
@@ -487,6 +523,7 @@ variables:
 		c_glbps_on:_FillValue = NaNf ;
 		c_glbps_on:units = "sec" ;
 	byte c_gps_on(i) ;
+		c_gps_on:_FillValue = -127b ;
 		c_gps_on:units = "enum" ;
 	float c_heading(i) ;
 		c_heading:_FillValue = NaNf ;
@@ -534,8 +571,10 @@ variables:
 		c_iridium_await_connect_max:_FillValue = NaNf ;
 		c_iridium_await_connect_max:units = "mins" ;
 	byte c_iridium_cmd_echo(i) ;
+		c_iridium_cmd_echo:_FillValue = -127b ;
 		c_iridium_cmd_echo:units = "enum" ;
 	byte c_iridium_current_num(i) ;
+		c_iridium_current_num:_FillValue = -127b ;
 		c_iridium_current_num:units = "enum" ;
 	float c_iridium_lead_zeros(i) ;
 		c_iridium_lead_zeros:_FillValue = NaNf ;
@@ -547,6 +586,7 @@ variables:
 		c_iridium_no_char_timeout:_FillValue = NaNf ;
 		c_iridium_no_char_timeout:units = "mins" ;
 	byte c_iridium_on(i) ;
+		c_iridium_on:_FillValue = -127b ;
 		c_iridium_on:units = "enum" ;
 	float c_iridium_phone_num(i) ;
 		c_iridium_phone_num:_FillValue = NaNf ;
@@ -615,6 +655,7 @@ variables:
 		c_moteopd_data_overtime:_FillValue = NaNf ;
 		c_moteopd_data_overtime:units = "sec" ;
 	byte c_moteopd_debug(i) ;
+		c_moteopd_debug:_FillValue = -127b ;
 		c_moteopd_debug:units = "bool" ;
 	float c_moteopd_on(i) ;
 		c_moteopd_on:_FillValue = NaNf ;
@@ -623,6 +664,7 @@ variables:
 		c_nbctd_num_fields_to_send:_FillValue = NaNf ;
 		c_nbctd_num_fields_to_send:units = "nodim" ;
 	byte c_obsolete_on(i) ;
+		c_obsolete_on:_FillValue = -127b ;
 		c_obsolete_on:units = "bool" ;
 	float c_obsvr_num_fields_to_send(i) ;
 		c_obsvr_num_fields_to_send:_FillValue = NaNf ;
@@ -709,8 +751,10 @@ variables:
 		c_rbrodo_on:_FillValue = NaNf ;
 		c_rbrodo_on:units = "sec" ;
 	byte c_recovery_on(i) ;
+		c_recovery_on:_FillValue = -127b ;
 		c_recovery_on:units = "bool" ;
 	byte c_reread_mafiles(i) ;
+		c_reread_mafiles:_FillValue = -127b ;
 		c_reread_mafiles:units = "bool" ;
 	float c_rinkoII_num_fields_to_send(i) ;
 		c_rinkoII_num_fields_to_send:_FillValue = NaNf ;
@@ -743,13 +787,16 @@ variables:
 		c_science_all_on:_FillValue = NaNf ;
 		c_science_all_on:units = "secs" ;
 	byte c_science_all_on_enabled(i) ;
+		c_science_all_on_enabled:_FillValue = -127b ;
 		c_science_all_on_enabled:units = "bool" ;
 	byte c_science_on(i) ;
+		c_science_on:_FillValue = -127b ;
 		c_science_on:units = "bool" ;
 	float c_science_printout(i) ;
 		c_science_printout:_FillValue = NaNf ;
 		c_science_printout:units = "nodim" ;
 	byte c_science_send_all(i) ;
+		c_science_send_all:_FillValue = -127b ;
 		c_science_send_all:units = "bool" ;
 	float c_science_stress_on(i) ;
 		c_science_stress_on:_FillValue = NaNf ;
@@ -770,6 +817,7 @@ variables:
 		c_speed:_FillValue = NaNf ;
 		c_speed:units = "m/s" ;
 	byte c_speed_ctrl(i) ;
+		c_speed_ctrl:_FillValue = -127b ;
 		c_speed_ctrl:units = "bool" ;
 	float c_speed_max(i) ;
 		c_speed_max:_FillValue = NaNf ;
@@ -781,6 +829,7 @@ variables:
 		c_sscsd_on:_FillValue = NaNf ;
 		c_sscsd_on:units = "sec" ;
 	byte c_strobe_ctrl(i) ;
+		c_strobe_ctrl:_FillValue = -127b ;
 		c_strobe_ctrl:units = "bool" ;
 	float c_suna_num_fields_to_send(i) ;
 		c_suna_num_fields_to_send:_FillValue = NaNf ;
@@ -810,10 +859,13 @@ variables:
 		c_thermal_acc_pres_time:_FillValue = NaNf ;
 		c_thermal_acc_pres_time:units = "sec" ;
 	byte c_thermal_pump(i) ;
+		c_thermal_pump:_FillValue = -127b ;
 		c_thermal_pump:units = "enum" ;
 	byte c_thermal_updown(i) ;
+		c_thermal_updown:_FillValue = -127b ;
 		c_thermal_updown:units = "enum" ;
 	byte c_thermal_valve(i) ;
+		c_thermal_valve:_FillValue = -127b ;
 		c_thermal_valve:units = "enum" ;
 	float c_thruster_current_cal(i) ;
 		c_thruster_current_cal:_FillValue = NaNf ;
@@ -846,6 +898,7 @@ variables:
 		c_time_ratio:_FillValue = NaNf ;
 		c_time_ratio:units = "X" ;
 	byte c_time_sync(i) ;
+		c_time_sync:_FillValue = -127b ;
 		c_time_sync:units = "enum" ;
 	float c_ubat_num_fields_to_send(i) ;
 		c_ubat_num_fields_to_send:_FillValue = NaNf ;
@@ -857,6 +910,7 @@ variables:
 		c_uModem_on:_FillValue = NaNf ;
 		c_uModem_on:units = "sec" ;
 	byte c_use_sc_model(i) ;
+		c_use_sc_model:_FillValue = -127b ;
 		c_use_sc_model:units = "bool" ;
 	float c_uviluxPAH_num_fields_to_send(i) ;
 		c_uviluxPAH_num_fields_to_send:_FillValue = NaNf ;
@@ -865,6 +919,7 @@ variables:
 		c_uviluxPAH_on:_FillValue = NaNf ;
 		c_uviluxPAH_on:units = "sec" ;
 	byte c_valve_pos(i) ;
+		c_valve_pos:_FillValue = -127b ;
 		c_valve_pos:units = "enum" ;
 	float c_veh_temp_recall(i) ;
 		c_veh_temp_recall:_FillValue = NaNf ;
@@ -921,8 +976,10 @@ variables:
 		c_wait_for_ballast:_FillValue = NaNf ;
 		c_wait_for_ballast:units = "sec" ;
 	byte c_wait_for_pitch(i) ;
+		c_wait_for_pitch:_FillValue = -127b ;
 		c_wait_for_pitch:units = "bool" ;
 	byte c_weight_drop(i) ;
+		c_weight_drop:_FillValue = -127b ;
 		c_weight_drop:units = "bool" ;
 	float c_wetlabsA_num_fields_to_send(i) ;
 		c_wetlabsA_num_fields_to_send:_FillValue = NaNf ;
@@ -970,6 +1027,7 @@ variables:
 		dc_c_oil_volume:_FillValue = NaNf ;
 		dc_c_oil_volume:units = "cc" ;
 	byte dc_c_thermal_updown(i) ;
+		dc_c_thermal_updown:_FillValue = -127b ;
 		dc_c_thermal_updown:units = "enum" ;
 	float dc_c_thruster_on(i) ;
 		dc_c_thruster_on:_FillValue = NaNf ;
@@ -984,6 +1042,7 @@ variables:
 		dhs_gain:_FillValue = NaNf ;
 		dhs_gain:units = "dB" ;
 	byte dhs_sampling(i) ;
+		dhs_sampling:_FillValue = -127b ;
 		dhs_sampling:units = "bool" ;
 	float dhs_silence_lvl(i) ;
 		dhs_silence_lvl:_FillValue = NaNf ;
@@ -992,6 +1051,7 @@ variables:
 		dhs_start_time:_FillValue = NaNf ;
 		dhs_start_time:units = "abstime" ;
 	byte dhs_valid(i) ;
+		dhs_valid:_FillValue = -127b ;
 		dhs_valid:units = "bool" ;
 	float dhs_xmit_files(i) ;
 		dhs_xmit_files:_FillValue = NaNf ;
@@ -1003,11 +1063,13 @@ variables:
 		f_airmar_altimeter_time_until_good_reading:_FillValue = NaNf ;
 		f_airmar_altimeter_time_until_good_reading:units = "s" ;
 	byte f_altimeter_model(i) ;
+		f_altimeter_model:_FillValue = -127b ;
 		f_altimeter_model:units = "enum" ;
 	float f_alt_mount_offset(i) ;
 		f_alt_mount_offset:_FillValue = NaNf ;
 		f_alt_mount_offset:units = "rad" ;
 	byte f_argos_format(i) ;
+		f_argos_format:_FillValue = -127b ;
 		f_argos_format:units = "enum" ;
 	float f_ballast_passive_retraction_delay(i) ;
 		f_ballast_passive_retraction_delay:_FillValue = NaNf ;
@@ -1067,6 +1129,7 @@ variables:
 		f_ccd_time:_FillValue = NaNf ;
 		f_ccd_time:units = "ms" ;
 	byte f_clock_source(i) ;
+		f_clock_source:_FillValue = -127b ;
 		f_clock_source:units = "enum" ;
 	float f_coulomb_battery_capacity(i) ;
 		f_coulomb_battery_capacity:_FillValue = NaNf ;
@@ -1078,6 +1141,7 @@ variables:
 		f_crush_depth:_FillValue = NaNf ;
 		f_crush_depth:units = "m" ;
 	byte f_depth_rate_method(i) ;
+		f_depth_rate_method:_FillValue = -127b ;
 		f_depth_rate_method:units = "enum" ;
 	float f_depth_subsampling_rate(i) ;
 		f_depth_subsampling_rate:_FillValue = NaNf ;
@@ -1248,6 +1312,7 @@ variables:
 		f_thermal_reqd_acc_pres:_FillValue = NaNf ;
 		f_thermal_reqd_acc_pres:units = "bar" ;
 	byte f_thruster_has_feedback(i) ;
+		f_thruster_has_feedback:_FillValue = -127b ;
 		f_thruster_has_feedback:units = "enum" ;
 	float f_thruster_i0(i) ;
 		f_thruster_i0:_FillValue = NaNf ;
@@ -1325,13 +1390,16 @@ variables:
 		m_aground_water_depth:_FillValue = NaNf ;
 		m_aground_water_depth:units = "m" ;
 	byte m_air_fill(i) ;
+		m_air_fill:_FillValue = -127b ;
 		m_air_fill:units = "bool" ;
 	byte m_air_pump(i) ;
+		m_air_pump:_FillValue = -127b ;
 		m_air_pump:units = "bool" ;
 	float m_altimeter_next_long_reading_depth(i) ;
 		m_altimeter_next_long_reading_depth:_FillValue = NaNf ;
 		m_altimeter_next_long_reading_depth:units = "m" ;
 	byte m_altimeter_status(i) ;
+		m_altimeter_status:_FillValue = -127b ;
 		m_altimeter_status:units = "enum" ;
 	float m_altimeter_voltage(i) ;
 		m_altimeter_voltage:_FillValue = NaNf ;
@@ -1343,12 +1411,16 @@ variables:
 		m_altitude_rate:_FillValue = NaNf ;
 		m_altitude_rate:units = "m/s" ;
 	byte m_appear_to_be_at_surface(i) ;
+		m_appear_to_be_at_surface:_FillValue = -127b ;
 		m_appear_to_be_at_surface:units = "bool" ;
 	byte m_argos_is_xmitting(i) ;
+		m_argos_is_xmitting:_FillValue = -127b ;
 		m_argos_is_xmitting:units = "bool" ;
 	byte m_argos_on(i) ;
+		m_argos_on:_FillValue = -127b ;
 		m_argos_on:units = "bool" ;
 	byte m_argos_sent_data(i) ;
+		m_argos_sent_data:_FillValue = -127b ;
 		m_argos_sent_data:units = "bool" ;
 	double m_argos_timestamp(i) ;
 		m_argos_timestamp:_FillValue = NaN ;
@@ -1432,6 +1504,7 @@ variables:
 		m_battery_inst_pump_depth:_FillValue = NaNf ;
 		m_battery_inst_pump_depth:units = "volts" ;
 	byte m_battery_inst_pump_depth_failure(i) ;
+		m_battery_inst_pump_depth_failure:_FillValue = -127b ;
 		m_battery_inst_pump_depth_failure:units = "bool" ;
 	float m_battery_inst_volt_diff(i) ;
 		m_battery_inst_volt_diff:_FillValue = NaNf ;
@@ -1449,6 +1522,7 @@ variables:
 		m_bms_aft_current_raw:_FillValue = NaNf ;
 		m_bms_aft_current_raw:units = "nodim" ;
 	byte m_bms_battery_in_use(i) ;
+		m_bms_battery_in_use:_FillValue = -127b ;
 		m_bms_battery_in_use:units = "bool" ;
 	float m_bms_battery_pack_anomaly(i) ;
 		m_bms_battery_pack_anomaly:_FillValue = NaNf ;
@@ -1463,6 +1537,7 @@ variables:
 		m_bms_ebay_current_raw:_FillValue = NaNf ;
 		m_bms_ebay_current_raw:units = "nodim" ;
 	byte m_bms_emergency_battery_latch(i) ;
+		m_bms_emergency_battery_latch:_FillValue = -127b ;
 		m_bms_emergency_battery_latch:units = "bool" ;
 	float m_bms_emergency_battery_voltage(i) ;
 		m_bms_emergency_battery_voltage:_FillValue = NaNf ;
@@ -1480,11 +1555,13 @@ variables:
 		m_bms_status:_FillValue = NaNf ;
 		m_bms_status:units = "nodim" ;
 	byte m_bpump_fault_bit(i) ;
+		m_bpump_fault_bit:_FillValue = -127b ;
 		m_bpump_fault_bit:units = "bool" ;
 	float m_breadcr_mission_counter(i) ;
 		m_breadcr_mission_counter:_FillValue = NaNf ;
 		m_breadcr_mission_counter:units = "int" ;
 	byte m_certainly_at_surface(i) ;
+		m_certainly_at_surface:_FillValue = -127b ;
 		m_certainly_at_surface:units = "bool" ;
 	float m_chars_tossed_by_abend(i) ;
 		m_chars_tossed_by_abend:_FillValue = NaNf ;
@@ -1499,15 +1576,19 @@ variables:
 		m_climb_tot_time:_FillValue = NaNf ;
 		m_climb_tot_time:units = "s" ;
 	byte m_comms_or_gps(i) ;
+		m_comms_or_gps:_FillValue = -127b ;
 		m_comms_or_gps:units = "bool" ;
 	double m_comms_tickle_timestamp(i) ;
 		m_comms_tickle_timestamp:_FillValue = NaN ;
 		m_comms_tickle_timestamp:units = "timestamp" ;
 	byte m_console_cd(i) ;
+		m_console_cd:_FillValue = -127b ;
 		m_console_cd:units = "bool" ;
 	byte m_console_is_disabled(i) ;
+		m_console_is_disabled:_FillValue = -127b ;
 		m_console_is_disabled:units = "bool" ;
 	byte m_console_on(i) ;
+		m_console_on:_FillValue = -127b ;
 		m_console_on:units = "bool" ;
 	double m_cop_tickle_timestamp(i) ;
 		m_cop_tickle_timestamp:_FillValue = NaN ;
@@ -1561,6 +1642,7 @@ variables:
 		m_depth_rate_running_avg:_FillValue = NaNf ;
 		m_depth_rate_running_avg:units = "m/s" ;
 	byte m_depth_rate_running_avg_n(i) ;
+		m_depth_rate_running_avg_n:_FillValue = -127b ;
 		m_depth_rate_running_avg_n:units = "enum" ;
 	float m_depth_rate_subsampled(i) ;
 		m_depth_rate_subsampled:_FillValue = NaNf ;
@@ -1569,8 +1651,10 @@ variables:
 		m_depth_rate_thr_avg_final:_FillValue = NaNf ;
 		m_depth_rate_thr_avg_final:units = "m/s" ;
 	byte m_depth_rejected(i) ;
+		m_depth_rejected:_FillValue = -127b ;
 		m_depth_rejected:units = "bool" ;
 	byte m_depth_state(i) ;
+		m_depth_state:_FillValue = -127b ;
 		m_depth_state:units = "enum" ;
 	float m_depth_subsampled(i) ;
 		m_depth_subsampled:_FillValue = NaNf ;
@@ -1738,6 +1822,7 @@ variables:
 		m_gps_fix_y_lmc:_FillValue = NaNf ;
 		m_gps_fix_y_lmc:units = "m" ;
 	byte m_gps_full_status(i) ;
+		m_gps_full_status:_FillValue = -127b ;
 		m_gps_full_status:units = "enum" ;
 	float m_gps_heading(i) ;
 		m_gps_heading:_FillValue = NaNf ;
@@ -1767,6 +1852,7 @@ variables:
 		m_gps_num_satellites:_FillValue = NaNf ;
 		m_gps_num_satellites:units = "nodim" ;
 	byte m_gps_on(i) ;
+		m_gps_on:_FillValue = -127b ;
 		m_gps_on:units = "bool" ;
 	float m_gps_postfix_x_lmc(i) ;
 		m_gps_postfix_x_lmc:_FillValue = NaNf ;
@@ -1778,6 +1864,7 @@ variables:
 		m_gps_speed:_FillValue = NaNf ;
 		m_gps_speed:units = "m/s" ;
 	byte m_gps_status(i) ;
+		m_gps_status:_FillValue = -127b ;
 		m_gps_status:units = "enum" ;
 	double m_gps_timestamp(i) ;
 		m_gps_timestamp:_FillValue = NaN ;
@@ -1792,17 +1879,22 @@ variables:
 		m_gps_uncertainty:_FillValue = NaNf ;
 		m_gps_uncertainty:units = "nodim" ;
 	byte m_gps_utc_day(i) ;
+		m_gps_utc_day:_FillValue = -127b ;
 		m_gps_utc_day:units = "byte" ;
 	byte m_gps_utc_hour(i) ;
+		m_gps_utc_hour:_FillValue = -127b ;
 		m_gps_utc_hour:units = "byte" ;
 	byte m_gps_utc_minute(i) ;
+		m_gps_utc_minute:_FillValue = -127b ;
 		m_gps_utc_minute:units = "byte" ;
 	byte m_gps_utc_month(i) ;
+		m_gps_utc_month:_FillValue = -127b ;
 		m_gps_utc_month:units = "byte" ;
 	float m_gps_utc_second(i) ;
 		m_gps_utc_second:_FillValue = NaNf ;
 		m_gps_utc_second:units = "nodim" ;
 	byte m_gps_utc_year(i) ;
+		m_gps_utc_year:_FillValue = -127b ;
 		m_gps_utc_year:units = "byte" ;
 	float m_gps_x_lmc(i) ;
 		m_gps_x_lmc:_FillValue = NaNf ;
@@ -1850,13 +1942,16 @@ variables:
 		m_iridium_call_num:_FillValue = NaNf ;
 		m_iridium_call_num:units = "nodim" ;
 	byte m_iridium_connected(i) ;
+		m_iridium_connected:_FillValue = -127b ;
 		m_iridium_connected:units = "bool" ;
 	byte m_iridium_console_on(i) ;
+		m_iridium_console_on:_FillValue = -127b ;
 		m_iridium_console_on:units = "enum" ;
 	float m_iridium_dialed_num(i) ;
 		m_iridium_dialed_num:_FillValue = NaNf ;
 		m_iridium_dialed_num:units = "nodim" ;
 	byte m_iridium_on(i) ;
+		m_iridium_on:_FillValue = -127b ;
 		m_iridium_on:units = "bool" ;
 	float m_iridium_rcv_chars(i) ;
 		m_iridium_rcv_chars:_FillValue = NaNf ;
@@ -1868,22 +1963,31 @@ variables:
 		m_iridium_signal_strength:_FillValue = NaNf ;
 		m_iridium_signal_strength:units = "nodim" ;
 	byte m_iridium_status(i) ;
+		m_iridium_status:_FillValue = -127b ;
 		m_iridium_status:units = "enum" ;
 	byte m_iridium_waiting_redial_delay(i) ;
+		m_iridium_waiting_redial_delay:_FillValue = -127b ;
 		m_iridium_waiting_redial_delay:units = "bool" ;
 	byte m_iridium_waiting_registration(i) ;
+		m_iridium_waiting_registration:_FillValue = -127b ;
 		m_iridium_waiting_registration:units = "bool" ;
 	byte m_is_ballast_pump_moving(i) ;
+		m_is_ballast_pump_moving:_FillValue = -127b ;
 		m_is_ballast_pump_moving:units = "bool" ;
 	byte m_is_battpos_moving(i) ;
+		m_is_battpos_moving:_FillValue = -127b ;
 		m_is_battpos_moving:units = "bool" ;
 	byte m_is_de_pump_moving(i) ;
+		m_is_de_pump_moving:_FillValue = -127b ;
 		m_is_de_pump_moving:units = "bool" ;
 	byte m_is_fin_moving(i) ;
+		m_is_fin_moving:_FillValue = -127b ;
 		m_is_fin_moving:units = "bool" ;
 	byte m_is_speed_estimated(i) ;
+		m_is_speed_estimated:_FillValue = -127b ;
 		m_is_speed_estimated:units = "bool" ;
 	byte m_is_thermal_valve_moving(i) ;
+		m_is_thermal_valve_moving:_FillValue = -127b ;
 		m_is_thermal_valve_moving:units = "bool" ;
 	float m_last_abort(i) ;
 		m_last_abort:_FillValue = NaNf ;
@@ -1919,6 +2023,7 @@ variables:
 		m_lat:_FillValue = NaN ;
 		m_lat:units = "lat" ;
 	byte m_leak(i) ;
+		m_leak:_FillValue = -127b ;
 		m_leak:units = "bool" ;
 	float m_leakdetect_voltage(i) ;
 		m_leakdetect_voltage:_FillValue = NaNf ;
@@ -1933,12 +2038,16 @@ variables:
 		m_leakdetect_voltage_stack_on:_FillValue = NaNf ;
 		m_leakdetect_voltage_stack_on:units = "volts" ;
 	byte m_leak_digifin(i) ;
+		m_leak_digifin:_FillValue = -127b ;
 		m_leak_digifin:units = "bool" ;
 	byte m_leak_forward(i) ;
+		m_leak_forward:_FillValue = -127b ;
 		m_leak_forward:units = "bool" ;
 	byte m_leak_science(i) ;
+		m_leak_science:_FillValue = -127b ;
 		m_leak_science:units = "bool" ;
 	byte m_leak_stack_on(i) ;
+		m_leak_stack_on:_FillValue = -127b ;
 		m_leak_stack_on:units = "bool" ;
 	float m_lithium_battery_relative_charge(i) ;
 		m_lithium_battery_relative_charge:_FillValue = NaNf ;
@@ -2049,8 +2158,10 @@ variables:
 		m_science_clothesline_lag:_FillValue = NaNf ;
 		m_science_clothesline_lag:units = "s" ;
 	byte m_science_on(i) ;
+		m_science_on:_FillValue = -127b ;
 		m_science_on:units = "bool" ;
 	byte m_science_ready_for_consci(i) ;
+		m_science_ready_for_consci:_FillValue = -127b ;
 		m_science_ready_for_consci:units = "bool" ;
 	float m_science_sent_some_data(i) ;
 		m_science_sent_some_data:_FillValue = NaNf ;
@@ -2059,6 +2170,7 @@ variables:
 		m_science_sync_time:_FillValue = NaN ;
 		m_science_sync_time:units = "timestamp" ;
 	byte m_science_unreadiness_for_consci(i) ;
+		m_science_unreadiness_for_consci:_FillValue = -127b ;
 		m_science_unreadiness_for_consci:units = "enum" ;
 	float m_speed(i) ;
 		m_speed:_FillValue = NaNf ;
@@ -2082,13 +2194,16 @@ variables:
 		m_sram_min_free_heap:_FillValue = NaNf ;
 		m_sram_min_free_heap:units = "bytes" ;
 	byte m_stable_comms(i) ;
+		m_stable_comms:_FillValue = -127b ;
 		m_stable_comms:units = "bool" ;
 	byte m_strobe_ctrl(i) ;
+		m_strobe_ctrl:_FillValue = -127b ;
 		m_strobe_ctrl:units = "bool" ;
 	float m_surface_bpump(i) ;
 		m_surface_bpump:_FillValue = NaNf ;
 		m_surface_bpump:units = "cc" ;
 	byte m_surface_depth_reached(i) ;
+		m_surface_depth_reached:_FillValue = -127b ;
 		m_surface_depth_reached:units = "bool" ;
 	float m_surface_est_cmd(i) ;
 		m_surface_est_cmd:_FillValue = NaNf ;
@@ -2109,6 +2224,7 @@ variables:
 		m_surface_est_total:_FillValue = NaNf ;
 		m_surface_est_total:units = "nodim" ;
 	byte m_surfacing(i) ;
+		m_surfacing:_FillValue = -127b ;
 		m_surfacing:units = "bool" ;
 	float m_surf_water_vel_mag(i) ;
 		m_surf_water_vel_mag:_FillValue = NaNf ;
@@ -2129,6 +2245,7 @@ variables:
 		m_tanr:_FillValue = NaNf ;
 		m_tanr:units = "nodim" ;
 	byte m_tcm3_is_calibrated(i) ;
+		m_tcm3_is_calibrated:_FillValue = -127b ;
 		m_tcm3_is_calibrated:units = "bool" ;
 	float m_tcm3_magbearth(i) ;
 		m_tcm3_magbearth:_FillValue = NaNf ;
@@ -2164,12 +2281,16 @@ variables:
 		m_thermal_acc_vol:_FillValue = NaNf ;
 		m_thermal_acc_vol:units = "cc" ;
 	byte m_thermal_enuf_acc_vol(i) ;
+		m_thermal_enuf_acc_vol:_FillValue = -127b ;
 		m_thermal_enuf_acc_vol:units = "bool" ;
 	byte m_thermal_pump(i) ;
+		m_thermal_pump:_FillValue = -127b ;
 		m_thermal_pump:units = "enum" ;
 	byte m_thermal_updown(i) ;
+		m_thermal_updown:_FillValue = -127b ;
 		m_thermal_updown:units = "enum" ;
 	byte m_thermal_valve(i) ;
+		m_thermal_valve:_FillValue = -127b ;
 		m_thermal_valve:units = "enum" ;
 	float m_thermal_valve_opto(i) ;
 		m_thermal_valve_opto:_FillValue = NaNf ;
@@ -2184,6 +2305,7 @@ variables:
 		m_thruster_amphr:_FillValue = NaNf ;
 		m_thruster_amphr:units = "amp-hrs" ;
 	byte m_thruster_burst(i) ;
+		m_thruster_burst:_FillValue = -127b ;
 		m_thruster_burst:units = "bool" ;
 	float m_thruster_current(i) ;
 		m_thruster_current:_FillValue = NaNf ;
@@ -2201,6 +2323,7 @@ variables:
 		m_thruster_power_error:_FillValue = NaNf ;
 		m_thruster_power_error:units = "watt" ;
 	byte m_thruster_power_spike(i) ;
+		m_thruster_power_spike:_FillValue = -127b ;
 		m_thruster_power_spike:units = "enum" ;
 	float m_thruster_raw(i) ;
 		m_thruster_raw:_FillValue = NaNf ;
@@ -2257,6 +2380,7 @@ variables:
 		m_valve_open_time:_FillValue = NaNf ;
 		m_valve_open_time:units = "sec" ;
 	byte m_valve_pos(i) ;
+		m_valve_pos:_FillValue = -127b ;
 		m_valve_pos:units = "enum" ;
 	float m_valve_pos_ad(i) ;
 		m_valve_pos_ad:_FillValue = NaNf ;
@@ -2265,6 +2389,7 @@ variables:
 		m_vehicle_temp:_FillValue = NaNf ;
 		m_vehicle_temp:units = "degC" ;
 	byte m_veh_overheat(i) ;
+		m_veh_overheat:_FillValue = -127b ;
 		m_veh_overheat:units = "bool" ;
 	float m_veh_temp(i) ;
 		m_veh_temp:_FillValue = NaNf ;
@@ -2309,8 +2434,10 @@ variables:
 		m_water_vy:_FillValue = NaNf ;
 		m_water_vy:units = "m/s" ;
 	byte m_weight_drop(i) ;
+		m_weight_drop:_FillValue = -127b ;
 		m_weight_drop:units = "bool" ;
 	byte m_why_started(i) ;
+		m_why_started:_FillValue = -127b ;
 		m_why_started:units = "enum" ;
 	float m_x_lmc(i) ;
 		m_x_lmc:_FillValue = NaNf ;
@@ -2337,6 +2464,7 @@ variables:
 		sci_m_present_time:_FillValue = NaN ;
 		sci_m_present_time:units = "timestamp" ;
 	byte sci_m_science_on(i) ;
+		sci_m_science_on:_FillValue = -127b ;
 		sci_m_science_on:units = "bool" ;
 	float sci_m_sram_free_heap(i) ;
 		sci_m_sram_free_heap:_FillValue = NaNf ;
@@ -2348,26 +2476,37 @@ variables:
 		s_battery:_FillValue = NaNf ;
 		s_battery:units = "volts" ;
 	byte s_corrupted_altitude(i) ;
+		s_corrupted_altitude:_FillValue = -127b ;
 		s_corrupted_altitude:units = "bool" ;
 	byte s_corrupted_bpump_overheated(i) ;
+		s_corrupted_bpump_overheated:_FillValue = -127b ;
 		s_corrupted_bpump_overheated:units = "bool" ;
 	byte s_corrupted_bpump_stalled(i) ;
+		s_corrupted_bpump_stalled:_FillValue = -127b ;
 		s_corrupted_bpump_stalled:units = "bool" ;
 	byte s_corrupted_gps(i) ;
+		s_corrupted_gps:_FillValue = -127b ;
 		s_corrupted_gps:units = "bool" ;
 	byte s_corrupted_gps_error(i) ;
+		s_corrupted_gps_error:_FillValue = -127b ;
 		s_corrupted_gps_error:units = "bool" ;
 	byte s_corrupted_memory_leak(i) ;
+		s_corrupted_memory_leak:_FillValue = -127b ;
 		s_corrupted_memory_leak:units = "bool" ;
 	byte s_corrupted_pitch_stalled(i) ;
+		s_corrupted_pitch_stalled:_FillValue = -127b ;
 		s_corrupted_pitch_stalled:units = "bool" ;
 	byte s_corrupted_pressure_drift(i) ;
+		s_corrupted_pressure_drift:_FillValue = -127b ;
 		s_corrupted_pressure_drift:units = "bool" ;
 	byte s_corrupted_pressure_noise(i) ;
+		s_corrupted_pressure_noise:_FillValue = -127b ;
 		s_corrupted_pressure_noise:units = "bool" ;
 	byte s_corrupted_pressure_spike(i) ;
+		s_corrupted_pressure_spike:_FillValue = -127b ;
 		s_corrupted_pressure_spike:units = "bool" ;
 	byte s_corrupted_watchdog_oddity(i) ;
+		s_corrupted_watchdog_oddity:_FillValue = -127b ;
 		s_corrupted_watchdog_oddity:units = "bool" ;
 	float s_coulomb_relative_charge(i) ;
 		s_coulomb_relative_charge:_FillValue = NaNf ;
@@ -2376,6 +2515,7 @@ variables:
 		s_de_oil_pot_volt_flux:_FillValue = NaNf ;
 		s_de_oil_pot_volt_flux:units = "volts/sec" ;
 	byte s_hardware_cop_jumper(i) ;
+		s_hardware_cop_jumper:_FillValue = -127b ;
 		s_hardware_cop_jumper:units = "bool" ;
 	float s_hardware_ver(i) ;
 		s_hardware_ver:_FillValue = NaNf ;
@@ -2477,13 +2617,16 @@ variables:
 		u_ab_min_lookup_thruster:_FillValue = NaNf ;
 		u_ab_min_lookup_thruster:units = "%" ;
 	byte u_adj_overshoot(i) ;
+		u_adj_overshoot:_FillValue = -127b ;
 		u_adj_overshoot:units = "bool" ;
 	float u_allowable_cycle_overrun(i) ;
 		u_allowable_cycle_overrun:_FillValue = NaNf ;
 		u_allowable_cycle_overrun:units = "msec" ;
 	byte u_alt_debug(i) ;
+		u_alt_debug:_FillValue = -127b ;
 		u_alt_debug:units = "bool" ;
 	byte u_alt_filter_enabled(i) ;
+		u_alt_filter_enabled:_FillValue = -127b ;
 		u_alt_filter_enabled:units = "bool" ;
 	float u_alt_measure_fraction(i) ;
 		u_alt_measure_fraction:_FillValue = NaNf ;
@@ -2498,13 +2641,16 @@ variables:
 		u_alt_min_post_inflection_time:_FillValue = NaNf ;
 		u_alt_min_post_inflection_time:units = "sec" ;
 	byte u_alt_reduced_usage_mode(i) ;
+		u_alt_reduced_usage_mode:_FillValue = -127b ;
 		u_alt_reduced_usage_mode:units = "bool" ;
 	float u_alt_reqd_good_in_a_row(i) ;
 		u_alt_reqd_good_in_a_row:_FillValue = NaNf ;
 		u_alt_reqd_good_in_a_row:units = "nodim" ;
 	byte u_alt_use_pitch_adjustment(i) ;
+		u_alt_use_pitch_adjustment:_FillValue = -127b ;
 		u_alt_use_pitch_adjustment:units = "bool" ;
 	byte u_always_cop_tickle_hardware(i) ;
+		u_always_cop_tickle_hardware:_FillValue = -127b ;
 		u_always_cop_tickle_hardware:units = "bool" ;
 	float u_angle_of_attack(i) ;
 		u_angle_of_attack:_FillValue = NaNf ;
@@ -2534,6 +2680,7 @@ variables:
 		u_att_cal_min_samples:_FillValue = NaNf ;
 		u_att_cal_min_samples:units = "nodim" ;
 	byte u_att_cal_pause_surface(i) ;
+		u_att_cal_pause_surface:_FillValue = -127b ;
 		u_att_cal_pause_surface:units = "bool" ;
 	float u_att_consecutive_error_max(i) ;
 		u_att_consecutive_error_max:_FillValue = NaNf ;
@@ -2542,10 +2689,13 @@ variables:
 		u_att_rev_cal_ignore_warnings:_FillValue = NaNf ;
 		u_att_rev_cal_ignore_warnings:units = "nodim" ;
 	byte u_att_rev_ignore_warnings(i) ;
+		u_att_rev_ignore_warnings:_FillValue = -127b ;
 		u_att_rev_ignore_warnings:units = "bool" ;
 	byte u_autoballast_abort(i) ;
+		u_autoballast_abort:_FillValue = -127b ;
 		u_autoballast_abort:units = "bool" ;
 	byte u_autoballast_end_on_converge(i) ;
+		u_autoballast_end_on_converge:_FillValue = -127b ;
 		u_autoballast_end_on_converge:units = "bool" ;
 	float u_avg_depth_pitch_battpos_alpha(i) ;
 		u_avg_depth_pitch_battpos_alpha:_FillValue = NaNf ;
@@ -2569,8 +2719,10 @@ variables:
 		u_avg_thruster_power_num:_FillValue = NaNf ;
 		u_avg_thruster_power_num:units = "nodim" ;
 	byte u_avg_thruster_speed_num(i) ;
+		u_avg_thruster_speed_num:_FillValue = -127b ;
 		u_avg_thruster_speed_num:units = "enum" ;
 	byte u_ballast_pumped_microposition(i) ;
+		u_ballast_pumped_microposition:_FillValue = -127b ;
 		u_ballast_pumped_microposition:units = "bool" ;
 	float u_ballast_pumped_micropos_dc(i) ;
 		u_ballast_pumped_micropos_dc:_FillValue = NaNf ;
@@ -2597,6 +2749,7 @@ variables:
 		u_battery_inst_pump_depth_diff_threshold:_FillValue = NaNf ;
 		u_battery_inst_pump_depth_diff_threshold:units = "%" ;
 	byte u_battery_monitor_enable(i) ;
+		u_battery_monitor_enable:_FillValue = -127b ;
 		u_battery_monitor_enable:units = "bool" ;
 	float u_battery_recall(i) ;
 		u_battery_recall:_FillValue = NaNf ;
@@ -2608,8 +2761,10 @@ variables:
 		u_battpos_ap_deadband:_FillValue = NaNf ;
 		u_battpos_ap_deadband:units = "inches" ;
 	byte u_battpos_avg_num_min(i) ;
+		u_battpos_avg_num_min:_FillValue = -127b ;
 		u_battpos_avg_num_min:units = "enum" ;
 	byte u_battpos_microposition(i) ;
+		u_battpos_microposition:_FillValue = -127b ;
 		u_battpos_microposition:units = "bool" ;
 	float u_battpos_micropos_dc(i) ;
 		u_battpos_micropos_dc:_FillValue = NaNf ;
@@ -2636,6 +2791,7 @@ variables:
 		u_bb2c_beta660_offset:_FillValue = NaNf ;
 		u_bb2c_beta660_offset:units = "nodim" ;
 	byte u_bb2c_is_calibrated(i) ;
+		u_bb2c_is_calibrated:_FillValue = -127b ;
 		u_bb2c_is_calibrated:units = "bool" ;
 	float u_bb2flsV2_b470_cwo(i) ;
 		u_bb2flsV2_b470_cwo:_FillValue = NaNf ;
@@ -2656,6 +2812,7 @@ variables:
 		u_bb2flsV2_chl_sf:_FillValue = NaNf ;
 		u_bb2flsV2_chl_sf:units = "ug/l/nodim" ;
 	byte u_bb2flsV2_is_calibrated(i) ;
+		u_bb2flsV2_is_calibrated:_FillValue = -127b ;
 		u_bb2flsV2_is_calibrated:units = "bool" ;
 	float u_bb2flsV3_b715_cwo(i) ;
 		u_bb2flsV3_b715_cwo:_FillValue = NaNf ;
@@ -2670,6 +2827,7 @@ variables:
 		u_bb2flsV3_b880_sf:_FillValue = NaNf ;
 		u_bb2flsV3_b880_sf:units = "Mnodim" ;
 	byte u_bb2flsV3_is_calibrated(i) ;
+		u_bb2flsV3_is_calibrated:_FillValue = -127b ;
 		u_bb2flsV3_is_calibrated:units = "bool" ;
 	float u_bb2flsV3_pe_cwo(i) ;
 		u_bb2flsV3_pe_cwo:_FillValue = NaNf ;
@@ -2696,6 +2854,7 @@ variables:
 		u_bb2flsV4_chl_sf:_FillValue = NaNf ;
 		u_bb2flsV4_chl_sf:units = "ug/l/nodim" ;
 	byte u_bb2flsV4_is_calibrated(i) ;
+		u_bb2flsV4_is_calibrated:_FillValue = -127b ;
 		u_bb2flsV4_is_calibrated:units = "bool" ;
 	float u_bb2flsV5_b532_cwo(i) ;
 		u_bb2flsV5_b532_cwo:_FillValue = NaNf ;
@@ -2716,6 +2875,7 @@ variables:
 		u_bb2flsV5_cdom_sf:_FillValue = NaNf ;
 		u_bb2flsV5_cdom_sf:units = "ppb/nodim" ;
 	byte u_bb2flsV5_is_calibrated(i) ;
+		u_bb2flsV5_is_calibrated:_FillValue = -127b ;
 		u_bb2flsV5_is_calibrated:units = "bool" ;
 	float u_bb2flsV6_b532_cwo(i) ;
 		u_bb2flsV6_b532_cwo:_FillValue = NaNf ;
@@ -2736,6 +2896,7 @@ variables:
 		u_bb2flsV6_cdom_sf:_FillValue = NaNf ;
 		u_bb2flsV6_cdom_sf:units = "ppb/nodim" ;
 	byte u_bb2flsV6_is_calibrated(i) ;
+		u_bb2flsV6_is_calibrated:_FillValue = -127b ;
 		u_bb2flsV6_is_calibrated:units = "bool" ;
 	float u_bb2flsV7_b532_cwo(i) ;
 		u_bb2flsV7_b532_cwo:_FillValue = NaNf ;
@@ -2756,6 +2917,7 @@ variables:
 		u_bb2flsV7_chl_sf:_FillValue = NaNf ;
 		u_bb2flsV7_chl_sf:units = "ug/l/nodim" ;
 	byte u_bb2flsV7_is_calibrated(i) ;
+		u_bb2flsV7_is_calibrated:_FillValue = -127b ;
 		u_bb2flsV7_is_calibrated:units = "bool" ;
 	float u_bb2flsV8_b470_cwo(i) ;
 		u_bb2flsV8_b470_cwo:_FillValue = NaNf ;
@@ -2776,6 +2938,7 @@ variables:
 		u_bb2flsV8_chl_sf:_FillValue = NaNf ;
 		u_bb2flsV8_chl_sf:units = "ug/l/nodim" ;
 	byte u_bb2flsV8_is_calibrated(i) ;
+		u_bb2flsV8_is_calibrated:_FillValue = -127b ;
 		u_bb2flsV8_is_calibrated:units = "bool" ;
 	float u_bb2flsV9_b532_cwo(i) ;
 		u_bb2flsV9_b532_cwo:_FillValue = NaNf ;
@@ -2796,6 +2959,7 @@ variables:
 		u_bb2flsV9_chl_sf:_FillValue = NaNf ;
 		u_bb2flsV9_chl_sf:units = "ug/l/nodim" ;
 	byte u_bb2flsV9_is_calibrated(i) ;
+		u_bb2flsV9_is_calibrated:_FillValue = -127b ;
 		u_bb2flsV9_is_calibrated:units = "bool" ;
 	float u_bb2fls_b660_cwo(i) ;
 		u_bb2fls_b660_cwo:_FillValue = NaNf ;
@@ -2816,6 +2980,7 @@ variables:
 		u_bb2fls_cdom_sf:_FillValue = NaNf ;
 		u_bb2fls_cdom_sf:units = "ppb/nodim" ;
 	byte u_bb2fls_is_calibrated(i) ;
+		u_bb2fls_is_calibrated:_FillValue = -127b ;
 		u_bb2fls_is_calibrated:units = "bool" ;
 	float u_bb2fV2_b470_cwo(i) ;
 		u_bb2fV2_b470_cwo:_FillValue = NaNf ;
@@ -2836,6 +3001,7 @@ variables:
 		u_bb2fV2_chlor_sf:_FillValue = NaNf ;
 		u_bb2fV2_chlor_sf:units = "ug/l/nodim" ;
 	byte u_bb2fV2_is_calibrated(i) ;
+		u_bb2fV2_is_calibrated:_FillValue = -127b ;
 		u_bb2fV2_is_calibrated:units = "bool" ;
 	float u_bb2lss_beta880_factor(i) ;
 		u_bb2lss_beta880_factor:_FillValue = NaNf ;
@@ -2844,6 +3010,7 @@ variables:
 		u_bb2lss_beta880_offset:_FillValue = NaNf ;
 		u_bb2lss_beta880_offset:units = "nodim" ;
 	byte u_bb2lss_is_calibrated(i) ;
+		u_bb2lss_is_calibrated:_FillValue = -127b ;
 		u_bb2lss_is_calibrated:units = "bool" ;
 	float u_bb3sloV2_b532_do(i) ;
 		u_bb3sloV2_b532_do:_FillValue = NaNf ;
@@ -2864,6 +3031,7 @@ variables:
 		u_bb3sloV2_b880_sf:_FillValue = NaNf ;
 		u_bb3sloV2_b880_sf:units = "Mnodim" ;
 	byte u_bb3sloV2_is_calibrated(i) ;
+		u_bb3sloV2_is_calibrated:_FillValue = -127b ;
 		u_bb3sloV2_is_calibrated:units = "bool" ;
 	float u_bb3sloV3_b532_do(i) ;
 		u_bb3sloV3_b532_do:_FillValue = NaNf ;
@@ -2884,6 +3052,7 @@ variables:
 		u_bb3sloV3_b880_sf:_FillValue = NaNf ;
 		u_bb3sloV3_b880_sf:units = "Mnodim" ;
 	byte u_bb3sloV3_is_calibrated(i) ;
+		u_bb3sloV3_is_calibrated:_FillValue = -127b ;
 		u_bb3sloV3_is_calibrated:units = "bool" ;
 	float u_bb3slo_b470_do(i) ;
 		u_bb3slo_b470_do:_FillValue = NaNf ;
@@ -2904,6 +3073,7 @@ variables:
 		u_bb3slo_b660_sf:_FillValue = NaNf ;
 		u_bb3slo_b660_sf:units = "Mnodim" ;
 	byte u_bb3slo_is_calibrated(i) ;
+		u_bb3slo_is_calibrated:_FillValue = -127b ;
 		u_bb3slo_is_calibrated:units = "bool" ;
 	float u_bbfl2sV2_bb_cwo(i) ;
 		u_bbfl2sV2_bb_cwo:_FillValue = NaNf ;
@@ -2924,6 +3094,7 @@ variables:
 		u_bbfl2sV2_fl2_sf:_FillValue = NaNf ;
 		u_bbfl2sV2_fl2_sf:units = "nodim" ;
 	byte u_bbfl2sV2_is_calibrated(i) ;
+		u_bbfl2sV2_is_calibrated:_FillValue = -127b ;
 		u_bbfl2sV2_is_calibrated:units = "bool" ;
 	float u_bbfl2s_bb_cwo(i) ;
 		u_bbfl2s_bb_cwo:_FillValue = NaNf ;
@@ -2944,6 +3115,7 @@ variables:
 		u_bbfl2s_chlor_sf:_FillValue = NaNf ;
 		u_bbfl2s_chlor_sf:units = "ug/l/nodim" ;
 	byte u_bbfl2s_is_calibrated(i) ;
+		u_bbfl2s_is_calibrated:_FillValue = -127b ;
 		u_bbfl2s_is_calibrated:units = "bool" ;
 	float u_bms_battery_pack_current_diff_threshold(i) ;
 		u_bms_battery_pack_current_diff_threshold:_FillValue = NaNf ;
@@ -2961,13 +3133,16 @@ variables:
 		u_bsipar_dark_offset:_FillValue = NaNf ;
 		u_bsipar_dark_offset:units = "volts" ;
 	byte u_bsipar_is_calibrated(i) ;
+		u_bsipar_is_calibrated:_FillValue = -127b ;
 		u_bsipar_is_calibrated:units = "bool" ;
 	float u_bsipar_scale_factor(i) ;
 		u_bsipar_scale_factor:_FillValue = NaNf ;
 		u_bsipar_scale_factor:units = "Mnodim" ;
 	byte u_c3sfl_is_calibrated(i) ;
+		u_c3sfl_is_calibrated:_FillValue = -127b ;
 		u_c3sfl_is_calibrated:units = "bool" ;
 	byte u_calc_angle_of_attack(i) ;
+		u_calc_angle_of_attack:_FillValue = -127b ;
 		u_calc_angle_of_attack:units = "bool" ;
 	float u_calc_water_vel_min_dist(i) ;
 		u_calc_water_vel_min_dist:_FillValue = NaNf ;
@@ -2982,13 +3157,16 @@ variables:
 		u_comatose_deadband_mult:_FillValue = NaNf ;
 		u_comatose_deadband_mult:units = "nodim" ;
 	byte u_comatose_enabled(i) ;
+		u_comatose_enabled:_FillValue = -127b ;
 		u_comatose_enabled:units = "bool" ;
 	float u_console_announce_time(i) ;
 		u_console_announce_time:_FillValue = NaNf ;
 		u_console_announce_time:units = "sec" ;
 	byte u_console_disabled_in_mission(i) ;
+		u_console_disabled_in_mission:_FillValue = -127b ;
 		u_console_disabled_in_mission:units = "bool" ;
 	byte u_console_off_if_mission_iridium(i) ;
+		u_console_off_if_mission_iridium:_FillValue = -127b ;
 		u_console_off_if_mission_iridium:units = "bool" ;
 	float u_console_reqd_cd_off_time(i) ;
 		u_console_reqd_cd_off_time:_FillValue = NaNf ;
@@ -3018,8 +3196,10 @@ variables:
 		u_cycle_time:_FillValue = NaNf ;
 		u_cycle_time:units = "sec" ;
 	byte u_dbd_sensor_list_xmit_control(i) ;
+		u_dbd_sensor_list_xmit_control:_FillValue = -127b ;
 		u_dbd_sensor_list_xmit_control:units = "enum" ;
 	byte u_deep_pitch_surface_zero(i) ;
+		u_deep_pitch_surface_zero:_FillValue = -127b ;
 		u_deep_pitch_surface_zero:units = "bool" ;
 	float u_depth_rate_filter_factor(i) ;
 		u_depth_rate_filter_factor:_FillValue = NaNf ;
@@ -3028,11 +3208,13 @@ variables:
 		u_depth_rate_filter_sub_sur_dep:_FillValue = NaNf ;
 		u_depth_rate_filter_sub_sur_dep:units = "m" ;
 	byte u_depth_rate_thr_avg_num(i) ;
+		u_depth_rate_thr_avg_num:_FillValue = -127b ;
 		u_depth_rate_thr_avg_num:units = "enum" ;
 	float u_de_avg_oil_vol_err_alpha(i) ;
 		u_de_avg_oil_vol_err_alpha:_FillValue = NaNf ;
 		u_de_avg_oil_vol_err_alpha:units = "nodim" ;
 	byte u_de_oil_display_volume(i) ;
+		u_de_oil_display_volume:_FillValue = -127b ;
 		u_de_oil_display_volume:units = "bool" ;
 	float u_de_oil_vol_check_time(i) ;
 		u_de_oil_vol_check_time:_FillValue = NaNf ;
@@ -3041,11 +3223,13 @@ variables:
 		u_digifin_debug:_FillValue = NaNf ;
 		u_digifin_debug:units = "nodim" ;
 	byte u_digifin_hide_oddities_at_surface(i) ;
+		u_digifin_hide_oddities_at_surface:_FillValue = -127b ;
 		u_digifin_hide_oddities_at_surface:units = "bool" ;
 	float u_digifin_leakdetect_count(i) ;
 		u_digifin_leakdetect_count:_FillValue = NaNf ;
 		u_digifin_leakdetect_count:units = "int" ;
 	byte u_digifin_mask_movement_warning_at_surface(i) ;
+		u_digifin_mask_movement_warning_at_surface:_FillValue = -127b ;
 		u_digifin_mask_movement_warning_at_surface:units = "bool" ;
 	float u_diveclimb_msg_print(i) ;
 		u_diveclimb_msg_print:_FillValue = NaNf ;
@@ -3054,18 +3238,25 @@ variables:
 		u_dmon_ctd_msg_period:_FillValue = NaNf ;
 		u_dmon_ctd_msg_period:units = "sec" ;
 	byte u_drop_time_ms_abort_device(i) ;
+		u_drop_time_ms_abort_device:_FillValue = -127b ;
 		u_drop_time_ms_abort_device:units = "bool" ;
 	byte u_drop_time_ms_abort_dynamics(i) ;
+		u_drop_time_ms_abort_dynamics:_FillValue = -127b ;
 		u_drop_time_ms_abort_dynamics:units = "bool" ;
 	byte u_drop_time_ms_abort_ice(i) ;
+		u_drop_time_ms_abort_ice:_FillValue = -127b ;
 		u_drop_time_ms_abort_ice:units = "bool" ;
 	byte u_drop_time_ms_abort_mission_or_config(i) ;
+		u_drop_time_ms_abort_mission_or_config:_FillValue = -127b ;
 		u_drop_time_ms_abort_mission_or_config:units = "bool" ;
 	byte u_drop_time_ms_abort_processor(i) ;
+		u_drop_time_ms_abort_processor:_FillValue = -127b ;
 		u_drop_time_ms_abort_processor:units = "bool" ;
 	byte u_drop_time_ms_abort_vehicle(i) ;
+		u_drop_time_ms_abort_vehicle:_FillValue = -127b ;
 		u_drop_time_ms_abort_vehicle:units = "bool" ;
 	byte u_dvl_bk_water_mass_layer_mode(i) ;
+		u_dvl_bk_water_mass_layer_mode:_FillValue = -127b ;
 		u_dvl_bk_water_mass_layer_mode:units = "enum" ;
 	float u_dvl_debug_level(i) ;
 		u_dvl_debug_level:_FillValue = NaNf ;
@@ -3080,12 +3271,16 @@ variables:
 		u_dvl_num_errors_before_restart:_FillValue = NaNf ;
 		u_dvl_num_errors_before_restart:units = "nodim" ;
 	byte u_dvl_pd6_data_supports_hm(i) ;
+		u_dvl_pd6_data_supports_hm:_FillValue = -127b ;
 		u_dvl_pd6_data_supports_hm:units = "bool" ;
 	byte u_dvl_pd_data_stream_select(i) ;
+		u_dvl_pd_data_stream_select:_FillValue = -127b ;
 		u_dvl_pd_data_stream_select:units = "enum" ;
 	byte u_dvl_single_pd0_file(i) ;
+		u_dvl_single_pd0_file:_FillValue = -127b ;
 		u_dvl_single_pd0_file:units = "bool" ;
 	byte u_expect_ice_near_surface(i) ;
+		u_expect_ice_near_surface:_FillValue = -127b ;
 		u_expect_ice_near_surface:units = "bool" ;
 	float u_exp_alt_correction(i) ;
 		u_exp_alt_correction:_FillValue = NaNf ;
@@ -3094,6 +3289,7 @@ variables:
 		u_exp_alt_pwr_stb_time:_FillValue = NaNf ;
 		u_exp_alt_pwr_stb_time:units = "s" ;
 	byte u_fin_microposition(i) ;
+		u_fin_microposition:_FillValue = -127b ;
 		u_fin_microposition:units = "bool" ;
 	float u_fin_micropos_dc(i) ;
 		u_fin_micropos_dc:_FillValue = NaNf ;
@@ -3114,6 +3310,7 @@ variables:
 		u_fl2PeCdom_cdom_sf:_FillValue = NaNf ;
 		u_fl2PeCdom_cdom_sf:units = "ppb/count/nodim" ;
 	byte u_fl2PeCdom_is_calibrated(i) ;
+		u_fl2PeCdom_is_calibrated:_FillValue = -127b ;
 		u_fl2PeCdom_is_calibrated:units = "bool" ;
 	float u_fl2PeCdom_pe_do(i) ;
 		u_fl2PeCdom_pe_do:_FillValue = NaNf ;
@@ -3122,6 +3319,7 @@ variables:
 		u_fl2PeCdom_pe_sf:_FillValue = NaNf ;
 		u_fl2PeCdom_pe_sf:units = "ppb/count/nodim" ;
 	byte u_fl2UrRh_is_calibrated(i) ;
+		u_fl2UrRh_is_calibrated:_FillValue = -127b ;
 		u_fl2UrRh_is_calibrated:units = "bool" ;
 	float u_fl2UrRh_rhod_do(i) ;
 		u_fl2UrRh_rhod_do:_FillValue = NaNf ;
@@ -3148,6 +3346,7 @@ variables:
 		u_fl3sloV2_chlor_sf:_FillValue = NaNf ;
 		u_fl3sloV2_chlor_sf:units = "ug/l/nodim" ;
 	byte u_fl3sloV2_is_calibrated(i) ;
+		u_fl3sloV2_is_calibrated:_FillValue = -127b ;
 		u_fl3sloV2_is_calibrated:units = "bool" ;
 	float u_fl3sloV2_rhod_cwo(i) ;
 		u_fl3sloV2_rhod_cwo:_FillValue = NaNf ;
@@ -3168,6 +3367,7 @@ variables:
 		u_fl3slo_chlor_sf:_FillValue = NaNf ;
 		u_fl3slo_chlor_sf:units = "ug/l/nodim" ;
 	byte u_fl3slo_is_calibrated(i) ;
+		u_fl3slo_is_calibrated:_FillValue = -127b ;
 		u_fl3slo_is_calibrated:units = "bool" ;
 	float u_fl3slo_phyco_cwo(i) ;
 		u_fl3slo_phyco_cwo:_FillValue = NaNf ;
@@ -3194,6 +3394,7 @@ variables:
 		u_flbbbbV1_fl_sf:_FillValue = NaNf ;
 		u_flbbbbV1_fl_sf:units = "ug/l/nodim" ;
 	byte u_flbbbbV1_is_calibrated(i) ;
+		u_flbbbbV1_is_calibrated:_FillValue = -127b ;
 		u_flbbbbV1_is_calibrated:units = "bool" ;
 	float u_flbbbbV2_bb1_cwo(i) ;
 		u_flbbbbV2_bb1_cwo:_FillValue = NaNf ;
@@ -3214,6 +3415,7 @@ variables:
 		u_flbbbbV2_fl_sf:_FillValue = NaNf ;
 		u_flbbbbV2_fl_sf:units = "ppb/nodim" ;
 	byte u_flbbbbV2_is_calibrated(i) ;
+		u_flbbbbV2_is_calibrated:_FillValue = -127b ;
 		u_flbbbbV2_is_calibrated:units = "bool" ;
 	float u_flbbcd_bb_cwo(i) ;
 		u_flbbcd_bb_cwo:_FillValue = NaNf ;
@@ -3234,6 +3436,7 @@ variables:
 		u_flbbcd_chlor_sf:_FillValue = NaNf ;
 		u_flbbcd_chlor_sf:units = "ug/l/nodim" ;
 	byte u_flbbcd_is_calibrated(i) ;
+		u_flbbcd_is_calibrated:_FillValue = -127b ;
 		u_flbbcd_is_calibrated:units = "bool" ;
 	float u_flbbrh_bb_cwo(i) ;
 		u_flbbrh_bb_cwo:_FillValue = NaNf ;
@@ -3248,6 +3451,7 @@ variables:
 		u_flbbrh_chlor_sf:_FillValue = NaNf ;
 		u_flbbrh_chlor_sf:units = "ug/l/nodim" ;
 	byte u_flbbrh_is_calibrated(i) ;
+		u_flbbrh_is_calibrated:_FillValue = -127b ;
 		u_flbbrh_is_calibrated:units = "bool" ;
 	float u_flbbrh_rhod_cwo(i) ;
 		u_flbbrh_rhod_cwo:_FillValue = NaNf ;
@@ -3268,6 +3472,7 @@ variables:
 		u_flbb_chlor_sf:_FillValue = NaNf ;
 		u_flbb_chlor_sf:units = "ug/l/nodim" ;
 	byte u_flbb_is_calibrated(i) ;
+		u_flbb_is_calibrated:_FillValue = -127b ;
 		u_flbb_is_calibrated:units = "bool" ;
 	float u_flntu_chlor_do(i) ;
 		u_flntu_chlor_do:_FillValue = NaNf ;
@@ -3276,6 +3481,7 @@ variables:
 		u_flntu_chlor_sf:_FillValue = NaNf ;
 		u_flntu_chlor_sf:units = "ug/l/nodim" ;
 	byte u_flntu_is_calibrated(i) ;
+		u_flntu_is_calibrated:_FillValue = -127b ;
 		u_flntu_is_calibrated:units = "bool" ;
 	float u_flntu_turb_do(i) ;
 		u_flntu_turb_do:_FillValue = NaNf ;
@@ -3287,6 +3493,7 @@ variables:
 		u_flrh_cwo:_FillValue = NaNf ;
 		u_flrh_cwo:units = "nodim" ;
 	byte u_flrh_is_calibrated(i) ;
+		u_flrh_is_calibrated:_FillValue = -127b ;
 		u_flrh_is_calibrated:units = "bool" ;
 	float u_flrh_sf(i) ;
 		u_flrh_sf:_FillValue = NaNf ;
@@ -3295,11 +3502,13 @@ variables:
 		u_flur_cwo:_FillValue = NaNf ;
 		u_flur_cwo:units = "nodim" ;
 	byte u_flur_is_calibrated(i) ;
+		u_flur_is_calibrated:_FillValue = -127b ;
 		u_flur_is_calibrated:units = "bool" ;
 	float u_flur_sf(i) ;
 		u_flur_sf:_FillValue = NaNf ;
 		u_flur_sf:units = "ppb/nodim" ;
 	byte u_fly_deep_in_shallow(i) ;
+		u_fly_deep_in_shallow:_FillValue = -127b ;
 		u_fly_deep_in_shallow:units = "bool" ;
 	float u_freewave_data_rate(i) ;
 		u_freewave_data_rate:_FillValue = NaNf ;
@@ -3320,6 +3529,7 @@ variables:
 		u_hd_broll_abort_after_y_misses:_FillValue = NaNf ;
 		u_hd_broll_abort_after_y_misses:units = "nodim" ;
 	byte u_hd_broll_ap_deadband_reset(i) ;
+		u_hd_broll_ap_deadband_reset:_FillValue = -127b ;
 		u_hd_broll_ap_deadband_reset:units = "bool" ;
 	float u_hd_broll_ap_dgain(i) ;
 		u_hd_broll_ap_dgain:_FillValue = NaNf ;
@@ -3346,11 +3556,13 @@ variables:
 		u_hd_broll_ap_run_time:_FillValue = NaNf ;
 		u_hd_broll_ap_run_time:units = "secs" ;
 	byte u_hd_broll_ap_scale_by_max(i) ;
+		u_hd_broll_ap_scale_by_max:_FillValue = -127b ;
 		u_hd_broll_ap_scale_by_max:units = "bool" ;
 	float u_hd_fin_abort_after_y_misses(i) ;
 		u_hd_fin_abort_after_y_misses:_FillValue = NaNf ;
 		u_hd_fin_abort_after_y_misses:units = "nodim" ;
 	byte u_hd_fin_ap_deadband_reset(i) ;
+		u_hd_fin_ap_deadband_reset:_FillValue = -127b ;
 		u_hd_fin_ap_deadband_reset:units = "bool" ;
 	float u_hd_fin_ap_dgain(i) ;
 		u_hd_fin_ap_dgain:_FillValue = NaNf ;
@@ -3374,11 +3586,13 @@ variables:
 		u_hd_fin_ap_limit_gain_x_error:_FillValue = NaNf ;
 		u_hd_fin_ap_limit_gain_x_error:units = "rad" ;
 	byte u_hd_fin_ap_pause_hardover(i) ;
+		u_hd_fin_ap_pause_hardover:_FillValue = -127b ;
 		u_hd_fin_ap_pause_hardover:units = "bool" ;
 	float u_hd_fin_ap_run_time(i) ;
 		u_hd_fin_ap_run_time:_FillValue = NaNf ;
 		u_hd_fin_ap_run_time:units = "secs" ;
 	byte u_hd_fin_ap_scale_by_max(i) ;
+		u_hd_fin_ap_scale_by_max:_FillValue = -127b ;
 		u_hd_fin_ap_scale_by_max:units = "bool" ;
 	float u_heading_deadband(i) ;
 		u_heading_deadband:_FillValue = NaNf ;
@@ -3405,6 +3619,7 @@ variables:
 		u_hover_depth_abort_after_y_misses:_FillValue = NaNf ;
 		u_hover_depth_abort_after_y_misses:units = "nodim" ;
 	byte u_hover_depth_deadband_reset(i) ;
+		u_hover_depth_deadband_reset:_FillValue = -127b ;
 		u_hover_depth_deadband_reset:units = "bool" ;
 	float u_hover_depth_gain_scale_b(i) ;
 		u_hover_depth_gain_scale_b:_FillValue = NaNf ;
@@ -3425,6 +3640,7 @@ variables:
 		u_hover_depth_limit_gain_x_error:_FillValue = NaNf ;
 		u_hover_depth_limit_gain_x_error:units = "rad" ;
 	byte u_hover_depth_pause_hardover(i) ;
+		u_hover_depth_pause_hardover:_FillValue = -127b ;
 		u_hover_depth_pause_hardover:units = "bool" ;
 	float u_hover_depth_pitch_deadband(i) ;
 		u_hover_depth_pitch_deadband:_FillValue = NaNf ;
@@ -3439,6 +3655,7 @@ variables:
 		u_hover_depth_run_time:_FillValue = NaNf ;
 		u_hover_depth_run_time:units = "sec" ;
 	byte u_hover_depth_scale_by_max(i) ;
+		u_hover_depth_scale_by_max:_FillValue = -127b ;
 		u_hover_depth_scale_by_max:units = "bool" ;
 	float u_increase_vacuum_time(i) ;
 		u_increase_vacuum_time:_FillValue = NaNf ;
@@ -3450,6 +3667,7 @@ variables:
 		u_iridium_failover_retries:_FillValue = NaNf ;
 		u_iridium_failover_retries:units = "nodim" ;
 	byte u_iridium_force_port(i) ;
+		u_iridium_force_port:_FillValue = -127b ;
 		u_iridium_force_port:units = "bool" ;
 	float u_iridium_idle_off_time(i) ;
 		u_iridium_idle_off_time:_FillValue = NaNf ;
@@ -3467,6 +3685,7 @@ variables:
 		u_lat_goto_l99:_FillValue = NaN ;
 		u_lat_goto_l99:units = "lat" ;
 	byte u_leakdetect_stack_on_present(i) ;
+		u_leakdetect_stack_on_present:_FillValue = -127b ;
 		u_leakdetect_stack_on_present:units = "bool" ;
 	float u_lithium_battery_debug(i) ;
 		u_lithium_battery_debug:_FillValue = NaNf ;
@@ -3610,6 +3829,7 @@ variables:
 		u_ocr504I_immersion_coeff_c4:_FillValue = NaNf ;
 		u_ocr504I_immersion_coeff_c4:units = "nodim" ;
 	byte u_ocr504I_is_calibrated(i) ;
+		u_ocr504I_is_calibrated:_FillValue = -127b ;
 		u_ocr504I_is_calibrated:units = "bool" ;
 	float u_ocr504I_itemp_a0(i) ;
 		u_ocr504I_itemp_a0:_FillValue = NaNf ;
@@ -3660,6 +3880,7 @@ variables:
 		u_ocr504R_immersion_coeff_c4:_FillValue = NaNf ;
 		u_ocr504R_immersion_coeff_c4:units = "nodim" ;
 	byte u_ocr504R_is_calibrated(i) ;
+		u_ocr504R_is_calibrated:_FillValue = -127b ;
 		u_ocr504R_is_calibrated:units = "bool" ;
 	float u_ocr504R_itemp_a0(i) ;
 		u_ocr504R_itemp_a0:_FillValue = NaNf ;
@@ -3737,6 +3958,7 @@ variables:
 		u_ocr507I_immersion_coeff_c7:_FillValue = NaNf ;
 		u_ocr507I_immersion_coeff_c7:units = "nodim" ;
 	byte u_ocr507I_is_calibrated(i) ;
+		u_ocr507I_is_calibrated:_FillValue = -127b ;
 		u_ocr507I_is_calibrated:units = "bool" ;
 	float u_ocr507I_itemp_a0(i) ;
 		u_ocr507I_itemp_a0:_FillValue = NaNf ;
@@ -3820,6 +4042,7 @@ variables:
 		u_ocr507R_immersion_coeff_c7:_FillValue = NaNf ;
 		u_ocr507R_immersion_coeff_c7:units = "nodim" ;
 	byte u_ocr507R_is_calibrated(i) ;
+		u_ocr507R_is_calibrated:_FillValue = -127b ;
 		u_ocr507R_is_calibrated:units = "bool" ;
 	float u_ocr507R_itemp_a0(i) ;
 		u_ocr507R_itemp_a0:_FillValue = NaNf ;
@@ -3840,6 +4063,7 @@ variables:
 		u_ocr507R_Vin_a1:_FillValue = NaNf ;
 		u_ocr507R_Vin_a1:units = "nodim" ;
 	byte u_oxy4_slow_surface_mode(i) ;
+		u_oxy4_slow_surface_mode:_FillValue = -127b ;
 		u_oxy4_slow_surface_mode:units = "bool" ;
 	float u_pitch_ap_deadband(i) ;
 		u_pitch_ap_deadband:_FillValue = NaNf ;
@@ -3878,6 +4102,7 @@ variables:
 		u_pitch_max_delta_battpos:_FillValue = NaNf ;
 		u_pitch_max_delta_battpos:units = "in" ;
 	byte u_pitch_motor_test_availability(i) ;
+		u_pitch_motor_test_availability:_FillValue = -127b ;
 		u_pitch_motor_test_availability:units = "bool" ;
 	float u_pitch_surface(i) ;
 		u_pitch_surface:_FillValue = NaNf ;
@@ -3886,6 +4111,7 @@ variables:
 		u_pressure_autocal_deadband:_FillValue = NaNf ;
 		u_pressure_autocal_deadband:units = "bar" ;
 	byte u_pressure_autocal_enabled(i) ;
+		u_pressure_autocal_enabled:_FillValue = -127b ;
 		u_pressure_autocal_enabled:units = "bool" ;
 	float u_pressure_autocal_max_allowed(i) ;
 		u_pressure_autocal_max_allowed:_FillValue = NaNf ;
@@ -3894,10 +4120,13 @@ variables:
 		u_pressure_autocal_min_time_between:_FillValue = NaNf ;
 		u_pressure_autocal_min_time_between:units = "secs" ;
 	byte u_pressure_autocal_performed(i) ;
+		u_pressure_autocal_performed:_FillValue = -127b ;
 		u_pressure_autocal_performed:units = "bool" ;
 	byte u_pressure_median(i) ;
+		u_pressure_median:_FillValue = -127b ;
 		u_pressure_median:units = "bool" ;
 	byte u_pressure_median_debug(i) ;
+		u_pressure_median_debug:_FillValue = -127b ;
 		u_pressure_median_debug:units = "enum" ;
 	float u_pressure_median_iter(i) ;
 		u_pressure_median_iter:_FillValue = NaNf ;
@@ -3906,6 +4135,7 @@ variables:
 		u_pressure_median_k:_FillValue = NaNf ;
 		u_pressure_median_k:units = "nodim" ;
 	byte u_pressure_median_median(i) ;
+		u_pressure_median_median:_FillValue = -127b ;
 		u_pressure_median_median:units = "bool" ;
 	float u_print_engine_status(i) ;
 		u_print_engine_status:_FillValue = NaNf ;
@@ -3917,10 +4147,13 @@ variables:
 		u_reqd_disk_space:_FillValue = NaNf ;
 		u_reqd_disk_space:units = "Mbytes" ;
 	byte u_reset_tickle_after_abort(i) ;
+		u_reset_tickle_after_abort:_FillValue = -127b ;
 		u_reset_tickle_after_abort:units = "bool" ;
 	byte u_retry_no_tickle_ice(i) ;
+		u_retry_no_tickle_ice:_FillValue = -127b ;
 		u_retry_no_tickle_ice:units = "bool" ;
 	byte u_rinkoII_output_engineering_data(i) ;
+		u_rinkoII_output_engineering_data:_FillValue = -127b ;
 		u_rinkoII_output_engineering_data:units = "bool" ;
 	float u_roll_avg_alpha(i) ;
 		u_roll_avg_alpha:_FillValue = NaNf ;
@@ -3944,6 +4177,7 @@ variables:
 		u_sam_exp2coeff:_FillValue = NaNf ;
 		u_sam_exp2coeff:units = "nodim" ;
 	byte u_sam_is_calibrated(i) ;
+		u_sam_is_calibrated:_FillValue = -127b ;
 		u_sam_is_calibrated:units = "bool" ;
 	float u_sam_median_window(i) ;
 		u_sam_median_window:_FillValue = NaNf ;
@@ -3961,8 +4195,10 @@ variables:
 		u_satpar_immersion_coeff:_FillValue = NaNf ;
 		u_satpar_immersion_coeff:units = "nodim" ;
 	byte u_satpar_is_calibrated(i) ;
+		u_satpar_is_calibrated:_FillValue = -127b ;
 		u_satpar_is_calibrated:units = "bool" ;
 	byte u_satpar_loose_parse(i) ;
+		u_satpar_loose_parse:_FillValue = -127b ;
 		u_satpar_loose_parse:units = "bool" ;
 	float u_satpar_slope(i) ;
 		u_satpar_slope:_FillValue = NaNf ;
@@ -3983,6 +4219,7 @@ variables:
 		u_sbe41n_ph_f4:_FillValue = NaNf ;
 		u_sbe41n_ph_f4:units = "Mnodim" ;
 	byte u_sbe41n_ph_is_calibrated(i) ;
+		u_sbe41n_ph_is_calibrated:_FillValue = -127b ;
 		u_sbe41n_ph_is_calibrated:units = "bool" ;
 	float u_sbe41n_ph_k0(i) ;
 		u_sbe41n_ph_k0:_FillValue = NaNf ;
@@ -3991,6 +4228,7 @@ variables:
 		u_sbe41n_ph_k2:_FillValue = NaNf ;
 		u_sbe41n_ph_k2:units = "Mnodim" ;
 	byte u_science_logging_error(i) ;
+		u_science_logging_error:_FillValue = -127b ;
 		u_science_logging_error:units = "bool" ;
 	float u_science_low_power(i) ;
 		u_science_low_power:_FillValue = NaNf ;
@@ -4014,8 +4252,10 @@ variables:
 		u_sci_cycle_time:_FillValue = NaNf ;
 		u_sci_cycle_time:units = "sec" ;
 	byte u_sci_dbd_sensor_list_xmit_control(i) ;
+		u_sci_dbd_sensor_list_xmit_control:_FillValue = -127b ;
 		u_sci_dbd_sensor_list_xmit_control:units = "enum" ;
 	byte u_seaOWL_is_calibrated(i) ;
+		u_seaOWL_is_calibrated:_FillValue = -127b ;
 		u_seaOWL_is_calibrated:units = "bool" ;
 	float u_secs_for_oil_vol_stabilization(i) ;
 		u_secs_for_oil_vol_stabilization:_FillValue = NaNf ;
@@ -4069,6 +4309,7 @@ variables:
 		u_svs603_sample_time:_FillValue = NaNf ;
 		u_svs603_sample_time:units = "secs" ;
 	byte u_svs603_set_time(i) ;
+		u_svs603_set_time:_FillValue = -127b ;
 		u_svs603_set_time:units = "bool" ;
 	float u_tarr_dsp_power_on_delay(i) ;
 		u_tarr_dsp_power_on_delay:_FillValue = NaNf ;
@@ -4143,15 +4384,19 @@ variables:
 		u_thruster_power_limit_cmd:_FillValue = NaNf ;
 		u_thruster_power_limit_cmd:units = "%" ;
 	byte u_thruster_water_speed_control_pump_maxed(i) ;
+		u_thruster_water_speed_control_pump_maxed:_FillValue = -127b ;
 		u_thruster_water_speed_control_pump_maxed:units = "bool" ;
 	byte u_tickle_on_console_cd(i) ;
+		u_tickle_on_console_cd:_FillValue = -127b ;
 		u_tickle_on_console_cd:units = "bool" ;
 	byte u_tickle_on_gps(i) ;
+		u_tickle_on_gps:_FillValue = -127b ;
 		u_tickle_on_gps:units = "bool" ;
 	float u_ubat_flow_rate_cal_coeff(i) ;
 		u_ubat_flow_rate_cal_coeff:_FillValue = NaNf ;
 		u_ubat_flow_rate_cal_coeff:units = "Mnodim" ;
 	byte u_ubat_is_calibrated(i) ;
+		u_ubat_is_calibrated:_FillValue = -127b ;
 		u_ubat_is_calibrated:units = "bool" ;
 	float u_ubat_no_data_timeout(i) ;
 		u_ubat_no_data_timeout:_FillValue = NaNf ;
@@ -4160,8 +4405,10 @@ variables:
 		u_ubat_power_up_wait:_FillValue = NaNf ;
 		u_ubat_power_up_wait:units = "sec" ;
 	byte u_uModem_BND(i) ;
+		u_uModem_BND:_FillValue = -127b ;
 		u_uModem_BND:units = "enum" ;
 	byte u_uModem_CST(i) ;
+		u_uModem_CST:_FillValue = -127b ;
 		u_uModem_CST:units = "bool" ;
 	float u_uModem_DTO(i) ;
 		u_uModem_DTO:_FillValue = NaNf ;
@@ -4179,25 +4426,31 @@ variables:
 		u_uModem_SRC:_FillValue = NaNf ;
 		u_uModem_SRC:units = "nodim" ;
 	byte u_update_gps_with_invalid(i) ;
+		u_update_gps_with_invalid:_FillValue = -127b ;
 		u_update_gps_with_invalid:units = "bool" ;
 	float u_upward_inflection_overshoot_alpha(i) ;
 		u_upward_inflection_overshoot_alpha:_FillValue = NaNf ;
 		u_upward_inflection_overshoot_alpha:units = "nodim" ;
 	byte u_use_ctd_depth_for_flying(i) ;
+		u_use_ctd_depth_for_flying:_FillValue = -127b ;
 		u_use_ctd_depth_for_flying:units = "bool" ;
 	float u_use_current_correction(i) ;
 		u_use_current_correction:_FillValue = NaNf ;
 		u_use_current_correction:units = "nodim" ;
 	byte u_use_file_compression(i) ;
+		u_use_file_compression:_FillValue = -127b ;
 		u_use_file_compression:units = "bool" ;
 	float u_use_modified_comms_or_gps(i) ;
 		u_use_modified_comms_or_gps:_FillValue = NaNf ;
 		u_use_modified_comms_or_gps:units = "int" ;
 	byte u_use_pitch_servo_memory(i) ;
+		u_use_pitch_servo_memory:_FillValue = -127b ;
 		u_use_pitch_servo_memory:units = "bool" ;
 	byte u_use_real_thruster_in_simulation(i) ;
+		u_use_real_thruster_in_simulation:_FillValue = -127b ;
 		u_use_real_thruster_in_simulation:units = "bool" ;
 	byte u_uviluxPAH_is_calibrated(i) ;
+		u_uviluxPAH_is_calibrated:_FillValue = -127b ;
 		u_uviluxPAH_is_calibrated:units = "bool" ;
 	float u_vacuum_air_bag_inflated(i) ;
 		u_vacuum_air_bag_inflated:_FillValue = NaNf ;
@@ -4218,6 +4471,7 @@ variables:
 		u_vacuum_time:_FillValue = NaNf ;
 		u_vacuum_time:units = "sec" ;
 	byte u_valve_display_position(i) ;
+		u_valve_display_position:_FillValue = -127b ;
 		u_valve_display_position:units = "bool" ;
 	float u_valve_open_max_depth(i) ;
 		u_valve_open_max_depth:_FillValue = NaNf ;
@@ -4247,12 +4501,16 @@ variables:
 		u_vsf_150_sf:_FillValue = NaNf ;
 		u_vsf_150_sf:units = "Mnodim" ;
 	byte u_vsf_is_calibrated(i) ;
+		u_vsf_is_calibrated:_FillValue = -127b ;
 		u_vsf_is_calibrated:units = "bool" ;
 	byte u_wetlabsA_is_calibrated(i) ;
+		u_wetlabsA_is_calibrated:_FillValue = -127b ;
 		u_wetlabsA_is_calibrated:units = "bool" ;
 	byte u_wetlabsB_is_calibrated(i) ;
+		u_wetlabsB_is_calibrated:_FillValue = -127b ;
 		u_wetlabsB_is_calibrated:units = "bool" ;
 	byte u_wetlabsC_is_calibrated(i) ;
+		u_wetlabsC_is_calibrated:_FillValue = -127b ;
 		u_wetlabsC_is_calibrated:units = "bool" ;
 	float u_wetlabs_sim_num_eng_units(i) ;
 		u_wetlabs_sim_num_eng_units:_FillValue = NaNf ;
@@ -4324,6 +4582,7 @@ variables:
 		xs_thruster_speed:_FillValue = NaNf ;
 		xs_thruster_speed:units = "m/s" ;
 	byte xs_under_ice(i) ;
+		xs_under_ice:_FillValue = -127b ;
 		xs_under_ice:units = "bool" ;
 	float xs_vehicle_temp(i) ;
 		xs_vehicle_temp:_FillValue = NaNf ;
@@ -4374,16 +4633,22 @@ variables:
 		x_alt_time:_FillValue = NaNf ;
 		x_alt_time:units = "sec" ;
 	byte x_are_in_lab(i) ;
+		x_are_in_lab:_FillValue = -127b ;
 		x_are_in_lab:units = "bool" ;
 	byte x_are_motors_moving(i) ;
+		x_are_motors_moving:_FillValue = -127b ;
 		x_are_motors_moving:units = "bool" ;
 	byte x_are_pumping(i) ;
+		x_are_pumping:_FillValue = -127b ;
 		x_are_pumping:units = "bool" ;
 	byte x_are_running_onetime_sequence(i) ;
+		x_are_running_onetime_sequence:_FillValue = -127b ;
 		x_are_running_onetime_sequence:units = "bool" ;
 	byte x_are_simulating(i) ;
+		x_are_simulating:_FillValue = -127b ;
 		x_are_simulating:units = "enum" ;
 	byte x_argos_type(i) ;
+		x_argos_type:_FillValue = -127b ;
 		x_argos_type:units = "enum" ;
 	float x_att_cal_sample(i) ;
 		x_att_cal_sample:_FillValue = NaNf ;
@@ -4413,6 +4678,7 @@ variables:
 		x_ballast_pumped_passive_retraction_depth:_FillValue = NaNf ;
 		x_ballast_pumped_passive_retraction_depth:units = "m" ;
 	byte x_battpos_achieved(i) ;
+		x_battpos_achieved:_FillValue = -127b ;
 		x_battpos_achieved:units = "enum" ;
 	float x_battpos_deadband(i) ;
 		x_battpos_deadband:_FillValue = NaNf ;
@@ -4424,6 +4690,7 @@ variables:
 		x_calc_water_vel:_FillValue = NaNf ;
 		x_calc_water_vel:units = "nodim" ;
 	byte x_check_pressure_ducer(i) ;
+		x_check_pressure_ducer:_FillValue = -127b ;
 		x_check_pressure_ducer:units = "bool" ;
 	float x_climb_bpump_fast(i) ;
 		x_climb_bpump_fast:_FillValue = NaNf ;
@@ -4441,6 +4708,7 @@ variables:
 		x_climb_surface:_FillValue = NaNf ;
 		x_climb_surface:units = "nodim" ;
 	byte x_clothesline_state(i) ;
+		x_clothesline_state:_FillValue = -127b ;
 		x_clothesline_state:units = "enum" ;
 	float x_console_announcement_made(i) ;
 		x_console_announcement_made:_FillValue = NaNf ;
@@ -4452,6 +4720,7 @@ variables:
 		x_critical_abort_update_status:_FillValue = NaNf ;
 		x_critical_abort_update_status:units = "int" ;
 	byte x_critical_mission_fail(i) ;
+		x_critical_mission_fail:_FillValue = -127b ;
 		x_critical_mission_fail:units = "bool" ;
 	float x_current_target_altitude(i) ;
 		x_current_target_altitude:_FillValue = NaNf ;
@@ -4469,11 +4738,13 @@ variables:
 		x_dbd_segment_number:_FillValue = NaNf ;
 		x_dbd_segment_number:units = "nodim" ;
 	byte x_dc_lookup_status(i) ;
+		x_dc_lookup_status:_FillValue = -127b ;
 		x_dc_lookup_status:units = "enum" ;
 	float x_dc_time(i) ;
 		x_dc_time:_FillValue = NaNf ;
 		x_dc_time:units = "msec" ;
 	byte x_deactivate_hover(i) ;
+		x_deactivate_hover:_FillValue = -127b ;
 		x_deactivate_hover:units = "bool" ;
 	float x_dead_time(i) ;
 		x_dead_time:_FillValue = NaNf ;
@@ -4485,6 +4756,7 @@ variables:
 		x_de_avg_oil_vol_ierr_on_descent:_FillValue = NaNf ;
 		x_de_avg_oil_vol_ierr_on_descent:units = "cc" ;
 	byte x_de_ignore_tvalve_oddity(i) ;
+		x_de_ignore_tvalve_oddity:_FillValue = -127b ;
 		x_de_ignore_tvalve_oddity:units = "bool" ;
 	float x_de_oil_flux(i) ;
 		x_de_oil_flux:_FillValue = NaNf ;
@@ -4502,6 +4774,7 @@ variables:
 		x_de_oil_vol_max:_FillValue = NaNf ;
 		x_de_oil_vol_max:units = "cc" ;
 	byte x_de_pump_disable(i) ;
+		x_de_pump_disable:_FillValue = -127b ;
 		x_de_pump_disable:units = "bool" ;
 	float x_disk_files_removed(i) ;
 		x_disk_files_removed:_FillValue = NaNf ;
@@ -4519,13 +4792,16 @@ variables:
 		x_dive_speed_slow:_FillValue = NaNf ;
 		x_dive_speed_slow:units = "m/s" ;
 	byte x_drop_weight_for_max_time(i) ;
+		x_drop_weight_for_max_time:_FillValue = -127b ;
 		x_drop_weight_for_max_time:units = "bool" ;
 	byte x_dr_state(i) ;
+		x_dr_state:_FillValue = -127b ;
 		x_dr_state:units = "enum" ;
 	float x_ds_time(i) ;
 		x_ds_time:_FillValue = NaNf ;
 		x_ds_time:units = "msec" ;
 	byte x_enable_steering_during_hover(i) ;
+		x_enable_steering_during_hover:_FillValue = -127b ;
 		x_enable_steering_during_hover:units = "bool" ;
 	float x_fin_deadband(i) ;
 		x_fin_deadband:_FillValue = NaNf ;
@@ -4540,10 +4816,13 @@ variables:
 		x_hardware_ver:_FillValue = NaNf ;
 		x_hardware_ver:units = "nodim" ;
 	byte x_have_we_moved_vertically(i) ;
+		x_have_we_moved_vertically:_FillValue = -127b ;
 		x_have_we_moved_vertically:units = "bool" ;
 	byte x_hd_broll_ap_is_hardover(i) ;
+		x_hd_broll_ap_is_hardover:_FillValue = -127b ;
 		x_hd_broll_ap_is_hardover:units = "bool" ;
 	byte x_hd_broll_ap_ran(i) ;
+		x_hd_broll_ap_ran:_FillValue = -127b ;
 		x_hd_broll_ap_ran:units = "bool" ;
 	float x_hd_fin_ap_dgain(i) ;
 		x_hd_fin_ap_dgain:_FillValue = NaNf ;
@@ -4555,15 +4834,19 @@ variables:
 		x_hd_fin_ap_igain:_FillValue = NaNf ;
 		x_hd_fin_ap_igain:units = "1/rad-sec" ;
 	byte x_hd_fin_ap_is_hardover(i) ;
+		x_hd_fin_ap_is_hardover:_FillValue = -127b ;
 		x_hd_fin_ap_is_hardover:units = "bool" ;
 	byte x_hd_fin_ap_ran(i) ;
+		x_hd_fin_ap_ran:_FillValue = -127b ;
 		x_hd_fin_ap_ran:units = "bool" ;
 	float x_heading_reversal(i) ;
 		x_heading_reversal:_FillValue = NaNf ;
 		x_heading_reversal:units = "rad" ;
 	byte x_hit_a_waypoint(i) ;
+		x_hit_a_waypoint:_FillValue = -127b ;
 		x_hit_a_waypoint:units = "bool" ;
 	byte x_hover_active(i) ;
+		x_hover_active:_FillValue = -127b ;
 		x_hover_active:units = "bool" ;
 	float x_hover_ballast(i) ;
 		x_hover_ballast:_FillValue = NaNf ;
@@ -4575,6 +4858,7 @@ variables:
 		x_hover_ballast_shallow:_FillValue = NaNf ;
 		x_hover_ballast_shallow:units = "cc" ;
 	byte x_hover_depth_ap_ran(i) ;
+		x_hover_depth_ap_ran:_FillValue = -127b ;
 		x_hover_depth_ap_ran:units = "bool" ;
 	float x_hover_depth_deep(i) ;
 		x_hover_depth_deep:_FillValue = NaNf ;
@@ -4586,6 +4870,7 @@ variables:
 		x_hover_depth_i_gain:_FillValue = NaNf ;
 		x_hover_depth_i_gain:units = "X" ;
 	byte x_hover_depth_pitch_is_maxed(i) ;
+		x_hover_depth_pitch_is_maxed:_FillValue = -127b ;
 		x_hover_depth_pitch_is_maxed:units = "bool" ;
 	float x_hover_depth_pitch_limit(i) ;
 		x_hover_depth_pitch_limit:_FillValue = NaNf ;
@@ -4597,6 +4882,7 @@ variables:
 		x_hover_depth_shallow:_FillValue = NaNf ;
 		x_hover_depth_shallow:units = "m" ;
 	byte x_ice_abort_activated(i) ;
+		x_ice_abort_activated:_FillValue = -127b ;
 		x_ice_abort_activated:units = "bool" ;
 	float x_ice_abort_active(i) ;
 		x_ice_abort_active:_FillValue = NaNf ;
@@ -4605,8 +4891,10 @@ variables:
 		x_ice_abort_code:_FillValue = NaNf ;
 		x_ice_abort_code:units = "int" ;
 	byte x_increase_vacuum_time(i) ;
+		x_increase_vacuum_time:_FillValue = -127b ;
 		x_increase_vacuum_time:units = "bool" ;
 	byte x_inflecting(i) ;
+		x_inflecting:_FillValue = -127b ;
 		x_inflecting:units = "bool" ;
 	float x_invalid_gps(i) ;
 		x_invalid_gps:_FillValue = NaNf ;
@@ -4615,6 +4903,7 @@ variables:
 		x_invalid_gps_total:_FillValue = NaNf ;
 		x_invalid_gps_total:units = "nodim" ;
 	byte x_in_gliderdos(i) ;
+		x_in_gliderdos:_FillValue = -127b ;
 		x_in_gliderdos:units = "bool" ;
 	float x_in_surface_dialog(i) ;
 		x_in_surface_dialog:_FillValue = NaNf ;
@@ -4644,14 +4933,19 @@ variables:
 		x_lmc_utm_veh_northing_correction:_FillValue = NaNf ;
 		x_lmc_utm_veh_northing_correction:units = "m" ;
 	byte x_lmc_utm_veh_zone_char(i) ;
+		x_lmc_utm_veh_zone_char:_FillValue = -127b ;
 		x_lmc_utm_veh_zone_char:units = "byte" ;
 	byte x_lmc_utm_veh_zone_digit(i) ;
+		x_lmc_utm_veh_zone_digit:_FillValue = -127b ;
 		x_lmc_utm_veh_zone_digit:units = "byte" ;
 	byte x_lmc_utm_zone_char(i) ;
+		x_lmc_utm_zone_char:_FillValue = -127b ;
 		x_lmc_utm_zone_char:units = "byte" ;
 	byte x_lmc_utm_zone_digit(i) ;
+		x_lmc_utm_zone_digit:_FillValue = -127b ;
 		x_lmc_utm_zone_digit:units = "byte" ;
 	byte x_lmc_xy_source(i) ;
+		x_lmc_xy_source:_FillValue = -127b ;
 		x_lmc_xy_source:units = "enum" ;
 	float x_log_time(i) ;
 		x_log_time:_FillValue = NaNf ;
@@ -4666,15 +4960,19 @@ variables:
 		x_mission_num:_FillValue = NaNf ;
 		x_mission_num:units = "nodim" ;
 	byte x_mission_status(i) ;
+		x_mission_status:_FillValue = -127b ;
 		x_mission_status:units = "enum" ;
 	float x_num_bang_cmds_done(i) ;
 		x_num_bang_cmds_done:_FillValue = NaNf ;
 		x_num_bang_cmds_done:units = "nodim" ;
 	byte x_old_mission_status_1(i) ;
+		x_old_mission_status_1:_FillValue = -127b ;
 		x_old_mission_status_1:units = "enum" ;
 	byte x_old_mission_status_2(i) ;
+		x_old_mission_status_2:_FillValue = -127b ;
 		x_old_mission_status_2:units = "enum" ;
 	byte x_old_mission_status_3(i) ;
+		x_old_mission_status_3:_FillValue = -127b ;
 		x_old_mission_status_3:units = "enum" ;
 	float x_ping_glider_to_sci(i) ;
 		x_ping_glider_to_sci:_FillValue = NaNf ;
@@ -4692,10 +4990,13 @@ variables:
 		x_pitch_ap_period:_FillValue = NaNf ;
 		x_pitch_ap_period:units = "sec" ;
 	byte x_pitch_ap_ran(i) ;
+		x_pitch_ap_ran:_FillValue = -127b ;
 		x_pitch_ap_ran:units = "bool" ;
 	byte x_prepare_gps_is_valid(i) ;
+		x_prepare_gps_is_valid:_FillValue = -127b ;
 		x_prepare_gps_is_valid:units = "bool" ;
 	byte x_pressure_manual_cal_now(i) ;
+		x_pressure_manual_cal_now:_FillValue = -127b ;
 		x_pressure_manual_cal_now:units = "bool" ;
 	float x_prior_seg_water_vx(i) ;
 		x_prior_seg_water_vx:_FillValue = NaNf ;
@@ -4704,14 +5005,19 @@ variables:
 		x_prior_seg_water_vy:_FillValue = NaNf ;
 		x_prior_seg_water_vy:units = "m/s" ;
 	byte x_reset_depth_rate_thr(i) ;
+		x_reset_depth_rate_thr:_FillValue = -127b ;
 		x_reset_depth_rate_thr:units = "bool" ;
 	byte x_reset_no_comms(i) ;
+		x_reset_no_comms:_FillValue = -127b ;
 		x_reset_no_comms:units = "enum" ;
 	byte x_science_logging_state(i) ;
+		x_science_logging_state:_FillValue = -127b ;
 		x_science_logging_state:units = "enum" ;
 	byte x_science_on(i) ;
+		x_science_on:_FillValue = -127b ;
 		x_science_on:units = "bool" ;
 	byte x_sci_cmd_mode_state(i) ;
+		x_sci_cmd_mode_state:_FillValue = -127b ;
 		x_sci_cmd_mode_state:units = "enum" ;
 	float x_secs_surface_depth_reached(i) ;
 		x_secs_surface_depth_reached:_FillValue = NaNf ;
@@ -4729,6 +5035,7 @@ variables:
 		x_sp_time:_FillValue = NaNf ;
 		x_sp_time:units = "msec" ;
 	byte x_started_logging(i) ;
+		x_started_logging:_FillValue = -127b ;
 		x_started_logging:units = "bool" ;
 	float x_stuck_depth(i) ;
 		x_stuck_depth:_FillValue = NaNf ;
@@ -4737,10 +5044,13 @@ variables:
 		x_surface_active:_FillValue = NaNf ;
 		x_surface_active:units = "nodim" ;
 	byte x_surface_drift_gps_is_valid(i) ;
+		x_surface_drift_gps_is_valid:_FillValue = -127b ;
 		x_surface_drift_gps_is_valid:units = "bool" ;
 	byte x_surface_final_gps_is_valid(i) ;
+		x_surface_final_gps_is_valid:_FillValue = -127b ;
 		x_surface_final_gps_is_valid:units = "bool" ;
 	byte x_surface_initial_gps_is_valid(i) ;
+		x_surface_initial_gps_is_valid:_FillValue = -127b ;
 		x_surface_initial_gps_is_valid:units = "bool" ;
 	float x_target_bpump_depth_rate(i) ;
 		x_target_bpump_depth_rate:_FillValue = NaNf ;
@@ -4767,6 +5077,7 @@ variables:
 		x_thermal_reqd_acc_vol:_FillValue = NaNf ;
 		x_thermal_reqd_acc_vol:units = "cc" ;
 	byte x_thermal_valve_move_backwards(i) ;
+		x_thermal_valve_move_backwards:_FillValue = -127b ;
 		x_thermal_valve_move_backwards:units = "bool" ;
 	float x_thruster_ap_period(i) ;
 		x_thruster_ap_period:_FillValue = NaNf ;
@@ -4775,10 +5086,13 @@ variables:
 		x_thruster_inflection_holdoff:_FillValue = NaNf ;
 		x_thruster_inflection_holdoff:units = "sec" ;
 	byte x_thruster_state(i) ;
+		x_thruster_state:_FillValue = -127b ;
 		x_thruster_state:units = "enum" ;
 	byte x_under_ice(i) ;
+		x_under_ice:_FillValue = -127b ;
 		x_under_ice:units = "bool" ;
 	byte x_use_thruster_for_abort_ascent(i) ;
+		x_use_thruster_for_abort_ascent:_FillValue = -127b ;
 		x_use_thruster_for_abort_ascent:units = "bool" ;
 	float x_utm_to_lmc_00(i) ;
 		x_utm_to_lmc_00:_FillValue = NaNf ;
@@ -4799,6 +5113,7 @@ variables:
 		x_utm_to_lmc_y0:_FillValue = NaNf ;
 		x_utm_to_lmc_y0:units = "nodim" ;
 	byte x_water_speed_too_high(i) ;
+		x_water_speed_too_high:_FillValue = -127b ;
 		x_water_speed_too_high:units = "bool" ;
 	float x_why_lens_completed(i) ;
 		x_why_lens_completed:_FillValue = NaNf ;
@@ -4851,8 +5166,7 @@ data:
  cc_final_pitch_value = 0, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 
     0.9, 0.9, 0.9 ;
 
- cc_final_threng_mode = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ cc_final_threng_mode = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  cc_final_thruster_mode = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ;
 
@@ -4876,8 +5190,7 @@ data:
  cc_pitch_value = 0, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 
     0.9, 0.9 ;
 
- cc_threng_mode = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127 ;
+ cc_threng_mode = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  cc_thruster_mode = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ;
 
@@ -4885,8 +5198,7 @@ data:
 
  cc_time_til_inflect = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 ;
 
- c_acoustic_modem_target_id = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ c_acoustic_modem_target_id = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  c_ad2cp_on = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 ;
 
@@ -4902,18 +5214,15 @@ data:
 
  c_argos_on = 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ;
 
- c_att_debug = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127 ;
+ c_att_debug = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  c_att_recall = -1, -1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  c_att_time = 0, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 ;
 
- c_autoballast_bpump_state = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ c_autoballast_bpump_state = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- c_autoballast_state = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ c_autoballast_state = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  c_autoballast_volume = 1000, 1000, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -4925,8 +5234,7 @@ data:
 
  c_azfp_on = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 ;
 
- c_badd_clear_remote_data = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ c_badd_clear_remote_data = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  c_badd_datacol_status_secs = 300, 300, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -4934,8 +5242,7 @@ data:
 
  c_badd_data_min_tries = 5, 5, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- c_badd_debug = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127 ;
+ c_badd_debug = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  c_badd_download_range = -1, -1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -4943,8 +5250,7 @@ data:
 
  c_badd_input_parse_secs = 60, 60, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- c_badd_mode = 57, 57, -127, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127 ;
+ c_badd_mode = 57, 57, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  c_badd_on = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 ;
 
@@ -4956,8 +5262,7 @@ data:
 
  c_badd_session_secs = 3600, 3600, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- c_badd_target_id = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ c_badd_target_id = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  c_badd_transaction_num = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -4972,26 +5277,22 @@ data:
 
  c_bam_inactivity_secs = 60, 60, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- c_bam_mode = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127 ;
+ c_bam_mode = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  c_bam_number_of_echos = 3, 3, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  c_bam_on = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 ;
 
- c_bam_target_id = 1, 1, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ c_bam_target_id = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  c_bam_update_secs = 120, 120, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  c_battpos = 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 
     0.9 ;
 
- c_baud_attempt_max = 8, 8, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ c_baud_attempt_max = 8, 8, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- c_baud_attempt_min = 3, 3, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ c_baud_attempt_min = 3, 3, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  c_bb2c_num_fields_to_send = 9, 9, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -5097,8 +5398,7 @@ data:
 
  c_delta_bpump_speed = 50, 50, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- c_depth_rate_running_avg_num = 10, 10, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, -127 ;
+ c_depth_rate_running_avg_num = 10, 10, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  c_de_oil_vol = 420, 420, 420, 420, 420, 420, 420, 420, 420, 420, 420, 420, 
     420, 420 ;
@@ -5219,11 +5519,9 @@ data:
 
  c_iridium_await_connect_max = 5, 5, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- c_iridium_cmd_echo = 1, 1, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ c_iridium_cmd_echo = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- c_iridium_current_num = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ c_iridium_current_num = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  c_iridium_lead_zeros = 2, 2, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -5278,15 +5576,13 @@ data:
 
  c_moteopd_data_overtime = 600, 600, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- c_moteopd_debug = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ c_moteopd_debug = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  c_moteopd_on = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 ;
 
  c_nbctd_num_fields_to_send = 3, 3, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- c_obsolete_on = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127 ;
+ c_obsolete_on = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  c_obsvr_num_fields_to_send = 6, 6, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -5345,11 +5641,9 @@ data:
 
  c_rbrodo_on = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 ;
 
- c_recovery_on = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127 ;
+ c_recovery_on = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- c_reread_mafiles = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ c_reread_mafiles = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  c_rinkoII_num_fields_to_send = 3, 3, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -5371,16 +5665,13 @@ data:
 
  c_science_all_on = -1, -1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ;
 
- c_science_all_on_enabled = 1, 1, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ c_science_all_on_enabled = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- c_science_on = 1, 1, -127, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127 ;
+ c_science_on = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  c_science_printout = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- c_science_send_all = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ c_science_send_all = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  c_science_stress_on = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -5394,8 +5685,7 @@ data:
 
  c_speed = -1, -1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- c_speed_ctrl = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127 ;
+ c_speed_ctrl = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  c_speed_max = -100, -100, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -5403,7 +5693,7 @@ data:
 
  c_sscsd_on = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 ;
 
- c_strobe_ctrl = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, -127, -127 ;
+ c_strobe_ctrl = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, _, _ ;
 
  c_suna_num_fields_to_send = 4, 4, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -5423,14 +5713,11 @@ data:
 
  c_thermal_acc_pres_time = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- c_thermal_pump = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127 ;
+ c_thermal_pump = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- c_thermal_updown = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ c_thermal_updown = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- c_thermal_valve = 2, 2, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ c_thermal_valve = 2, 2, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  c_thruster_current_cal = 0.0414, 0.0414, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -5452,8 +5739,7 @@ data:
 
  c_time_ratio = 1.1, 1.1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- c_time_sync = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127 ;
+ c_time_sync = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  c_ubat_num_fields_to_send = 9, 9, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -5461,15 +5747,13 @@ data:
 
  c_uModem_on = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 ;
 
- c_use_sc_model = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127 ;
+ c_use_sc_model = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  c_uviluxPAH_num_fields_to_send = 4, 4, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  c_uviluxPAH_on = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 ;
 
- c_valve_pos = 3, 3, -127, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127 ;
+ c_valve_pos = 3, 3, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  c_veh_temp_recall = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -5507,11 +5791,9 @@ data:
 
  c_wait_for_ballast = 100, 100, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- c_wait_for_pitch = 1, 1, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ c_wait_for_pitch = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- c_weight_drop = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127 ;
+ c_weight_drop = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  c_wetlabsA_num_fields_to_send = 10, 10, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -5545,8 +5827,7 @@ data:
  dc_c_oil_volume = 0, 420, 420, 420, 420, 420, 420, 420, 420, 420, 420, 420, 
     420, 420 ;
 
- dc_c_thermal_updown = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ dc_c_thermal_updown = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  dc_c_thruster_on = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ;
 
@@ -5556,15 +5837,13 @@ data:
 
  dhs_gain = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- dhs_sampling = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127 ;
+ dhs_sampling = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  dhs_silence_lvl = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  dhs_start_time = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- dhs_valid = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127 ;
+ dhs_valid = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  dhs_xmit_files = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -5574,13 +5853,11 @@ data:
  f_airmar_altimeter_time_until_good_reading = 5, 5, _, _, _, _, _, _, _, _, 
     _, _, _, _ ;
 
- f_altimeter_model = 1, 1, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ f_altimeter_model = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  f_alt_mount_offset = -1.11701, -1.11701, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- f_argos_format = 1, 1, -127, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127 ;
+ f_argos_format = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  f_ballast_passive_retraction_delay = 10, 10, _, _, _, _, _, _, _, _, _, _, 
     _, _ ;
@@ -5623,8 +5900,7 @@ data:
 
  f_ccd_time = 400, 400, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- f_clock_source = 1, 1, -127, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127 ;
+ f_clock_source = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  f_coulomb_battery_capacity = 300, 300, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -5632,8 +5908,7 @@ data:
 
  f_crush_depth = 400, 400, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- f_depth_rate_method = 3, 3, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ f_depth_rate_method = 3, 3, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  f_depth_subsampling_rate = -1, -1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -5757,8 +6032,7 @@ data:
 
  f_thermal_reqd_acc_pres = 200, 200, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- f_thruster_has_feedback = 1, 1, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ f_thruster_has_feedback = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  f_thruster_i0 = 0.1473, 0.1473, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -5835,8 +6109,7 @@ data:
 
  m_argos_is_xmitting = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ;
 
- m_argos_on = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127 ;
+ m_argos_on = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  m_argos_sent_data = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ;
 
@@ -5898,8 +6171,7 @@ data:
 
  m_battery_inst_pump_depth = -1, -1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- m_battery_inst_pump_depth_failure = 0, 0, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, -127, -127 ;
+ m_battery_inst_pump_depth_failure = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  m_battery_inst_volt_diff = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -5948,8 +6220,7 @@ data:
 
  m_bms_status = 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5 ;
 
- m_bpump_fault_bit = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ m_bpump_fault_bit = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  m_breadcr_mission_counter = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -5972,11 +6243,9 @@ data:
 
  m_console_cd = 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ;
 
- m_console_is_disabled = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ m_console_is_disabled = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- m_console_on = 1, 1, -127, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127 ;
+ m_console_on = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  m_cop_tickle_timestamp = 1731922799.001, 1731922815.908, 1731922821.563, 
     1731922825.563, 1731922829.566, 1731922833.568, 1731922837.57, 
@@ -6029,19 +6298,16 @@ data:
  m_depth_rate_running_avg = -0.1871039, 0.0700102, _, _, -0.008770679, _, _, 
     -0.005847119, _, _, -0.00438534, _, _, -0.003508272 ;
 
- m_depth_rate_running_avg_n = 1, 1, -127, -127, 2, -127, -127, 3, -127, -127, 
-    4, -127, -127, 5 ;
+ m_depth_rate_running_avg_n = 1, 1, _, _, 2, _, _, 3, _, _, 4, _, _, 5 ;
 
  m_depth_rate_subsampled = 0.01699444, 0.01699444, _, _, _, _, _, _, _, _, _, 
     _, _, 0 ;
 
  m_depth_rate_thr_avg_final = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- m_depth_rejected = 0, 0, -127, -127, 0, -127, -127, 0, -127, -127, 0, -127, 
-    -127, 0 ;
+ m_depth_rejected = 0, 0, _, _, 0, _, _, 0, _, _, 0, _, _, 0 ;
 
- m_depth_state = 0, 0, -127, -127, -127, -127, -127, 0, -127, -127, 0, -127, 
-    -127, 0 ;
+ m_depth_state = 0, 0, _, _, _, _, _, 0, _, _, 0, _, _, 0 ;
 
  m_depth_subsampled = 2.290975, 2.290975, _, _, 0, _, _, _, _, _, _, _, _, 0 ;
 
@@ -6201,7 +6467,7 @@ data:
 
  m_gps_speed = 0, 0, 0, 0, 0, 0, _, 0, 0, 0, 0, _, 0, 0 ;
 
- m_gps_status = 0, 0, 0, 0, 0, 0, -127, 0, 0, 0, 0, -127, 0, 0 ;
+ m_gps_status = 0, 0, 0, 0, 0, 0, _, 0, 0, 0, 0, _, 0, 0 ;
 
  m_gps_timestamp = 1731922820, 1731922835, 1731922840, 1731922845, 
     1731922850, 1731922855, _, 1731922860, 1731922865, 1731922870, 
@@ -6214,17 +6480,17 @@ data:
  m_gps_uncertainty = 0.8, 0.8, 0.8, 0.8, 0.8, 0.8, _, 0.8, 0.8, 0.8, 0.8, _, 
     0.8, 0.8 ;
 
- m_gps_utc_day = 18, 18, 18, 18, 18, 18, -127, 18, 18, 18, 18, -127, 18, 18 ;
+ m_gps_utc_day = 18, 18, 18, 18, 18, 18, _, 18, 18, 18, 18, _, 18, 18 ;
 
- m_gps_utc_hour = 9, 9, 9, 9, 9, 9, -127, 9, 9, 9, 9, -127, 9, 9 ;
+ m_gps_utc_hour = 9, 9, 9, 9, 9, 9, _, 9, 9, 9, 9, _, 9, 9 ;
 
- m_gps_utc_minute = 40, 40, 40, 40, 40, 40, -127, 41, 41, 41, 41, -127, 41, 41 ;
+ m_gps_utc_minute = 40, 40, 40, 40, 40, 40, _, 41, 41, 41, 41, _, 41, 41 ;
 
- m_gps_utc_month = 11, 11, 11, 11, 11, 11, -127, 11, 11, 11, 11, -127, 11, 11 ;
+ m_gps_utc_month = 11, 11, 11, 11, 11, 11, _, 11, 11, 11, 11, _, 11, 11 ;
 
  m_gps_utc_second = 20, 35, 40, 45, 50, 55, _, 0, 5, 10, 15, _, 20, 25 ;
 
- m_gps_utc_year = 24, 24, 24, 24, 24, 24, -127, 24, 24, 24, 24, -127, 24, 24 ;
+ m_gps_utc_year = 24, 24, 24, 24, 24, 24, _, 24, 24, 24, 24, _, 24, 24 ;
 
  m_gps_x_lmc = -0.1822431, 0.3661928, 0.1822431, -0.003412933, -0.1856561, 
     -0.3713121, _, -0.3713121, -0.0051194, 0.3627798, 0.730679, _, 0.5484359, 
@@ -6262,8 +6528,7 @@ data:
 
  m_iridium_connected = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ;
 
- m_iridium_console_on = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ m_iridium_console_on = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  m_iridium_dialed_num = 131, 131, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -6275,30 +6540,23 @@ data:
 
  m_iridium_signal_strength = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- m_iridium_status = 99, 99, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ m_iridium_status = 99, 99, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- m_iridium_waiting_redial_delay = 0, 0, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, -127 ;
+ m_iridium_waiting_redial_delay = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- m_iridium_waiting_registration = 0, 0, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, -127 ;
+ m_iridium_waiting_registration = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- m_is_ballast_pump_moving = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ m_is_ballast_pump_moving = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  m_is_battpos_moving = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ;
 
  m_is_de_pump_moving = 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 ;
 
- m_is_fin_moving = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ m_is_fin_moving = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- m_is_speed_estimated = 1, 1, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ m_is_speed_estimated = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- m_is_thermal_valve_moving = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ m_is_thermal_valve_moving = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  m_last_abort = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -6325,8 +6583,7 @@ data:
     720.292599940573, 720.292699940573, 720.292699940573, 720.292699940573, 
     _, 720.292599940573, 720.292399940573 ;
 
- m_leak = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127 ;
+ m_leak = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  m_leakdetect_voltage = 2.474115, 2.475305, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -6339,13 +6596,11 @@ data:
  m_leakdetect_voltage_stack_on = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 
     -1, -1, -1 ;
 
- m_leak_digifin = 0, 0, 0, -127, 0, -127, 0, -127, 0, -127, 0, -127, 0, -127 ;
+ m_leak_digifin = 0, 0, 0, _, 0, _, 0, _, 0, _, 0, _, 0, _ ;
 
- m_leak_forward = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127 ;
+ m_leak_forward = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- m_leak_science = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127 ;
+ m_leak_science = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  m_leak_stack_on = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ;
 
@@ -6434,11 +6689,9 @@ data:
  m_science_clothesline_lag = 3.049, 2.781, 2.612, _, _, _, _, _, _, 1.114, _, 
     _, _, _ ;
 
- m_science_on = 1, 1, -127, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127 ;
+ m_science_on = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- m_science_ready_for_consci = 1, 1, -127, 0, -127, -127, -127, -127, 0, 1, 0, 
-    -127, -127, -127 ;
+ m_science_ready_for_consci = 1, 1, _, 0, _, _, _, _, 0, 1, 0, _, _, _ ;
 
  m_science_sent_some_data = 8775, 8905, 11055, 12866, _, _, _, _, 17461, 
     20433, 21845, _, _, _ ;
@@ -6446,8 +6699,7 @@ data:
  m_science_sync_time = 1731922250.314, 1731922250.314, _, _, _, _, _, _, 
     1731922847.765, _, _, _, _, _ ;
 
- m_science_unreadiness_for_consci = 0, 0, -127, 1, -127, -127, -127, -127, 2, 
-    0, 1, -127, -127, -127 ;
+ m_science_unreadiness_for_consci = 0, 0, _, 1, _, _, _, _, 2, 0, 1, _, _, _ ;
 
  m_speed = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -6470,8 +6722,7 @@ data:
 
  m_surface_bpump = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- m_surface_depth_reached = 0, 1, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ m_surface_depth_reached = 0, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  m_surface_est_cmd = 0.8751733, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ;
 
@@ -6487,8 +6738,7 @@ data:
  m_surface_est_total = 2.875173, 3, 3, 3, 3, 3, 2.875173, 3, 3, 3, 4, 
     3.750347, 3.765928, 3.67032 ;
 
- m_surfacing = 0, 1, -127, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, 0 ;
+ m_surfacing = 0, 1, _, _, _, _, _, _, _, _, _, _, _, 0 ;
 
  m_surf_water_vel_mag = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -6502,8 +6752,7 @@ data:
 
  m_tanr = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- m_tcm3_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ m_tcm3_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  m_tcm3_magbearth = -1, -1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -6527,17 +6776,13 @@ data:
 
  m_thermal_acc_vol = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- m_thermal_enuf_acc_vol = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ m_thermal_enuf_acc_vol = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- m_thermal_pump = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127 ;
+ m_thermal_pump = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- m_thermal_updown = 3, 3, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ m_thermal_updown = 3, 3, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- m_thermal_valve = 2, 2, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ m_thermal_valve = 2, 2, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  m_thermal_valve_opto = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -6549,8 +6794,7 @@ data:
 
  m_thruster_amphr = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- m_thruster_burst = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ m_thruster_burst = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  m_thruster_current = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -6562,8 +6806,7 @@ data:
 
  m_thruster_power_error = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- m_thruster_power_spike = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ m_thruster_power_spike = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  m_thruster_raw = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -6605,8 +6848,7 @@ data:
 
  m_valve_open_time = 1.08, 1.08, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- m_valve_pos = 3, 3, -127, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127 ;
+ m_valve_pos = 3, 3, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  m_valve_pos_ad = 2011, 2011, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -6644,11 +6886,9 @@ data:
 
  m_water_vy = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- m_weight_drop = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127 ;
+ m_weight_drop = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- m_why_started = 18, 18, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ m_why_started = 18, 18, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  m_x_lmc = 0, 0.3661928, 0.1822431, -0.003412933, -0.1856561, -0.3713121, _, 
     -0.3713121, -0.0051194, 0.3627798, 0.730679, _, 0.5484359, 0.3678992 ;
@@ -6675,8 +6915,7 @@ data:
     1731922822.711, 1731922822.711, 1731922852.417, 1731922852.417, 
     1731922852.417, 1731922852.417, 1731922852.417 ;
 
- sci_m_science_on = 1, 1, -127, 0, -127, -127, -127, -127, 1, -127, 0, -127, 
-    -127, -127 ;
+ sci_m_science_on = 1, 1, _, 0, _, _, _, _, 1, _, 0, _, _, _ ;
 
  sci_m_sram_free_heap = 2783752, 2783752, _, 2914856, _, _, _, _, _, 2833120, 
     2914856, _, _, _ ;
@@ -6686,45 +6925,33 @@ data:
 
  s_battery = -1, -1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- s_corrupted_altitude = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ s_corrupted_altitude = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- s_corrupted_bpump_overheated = 0, 0, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, -127 ;
+ s_corrupted_bpump_overheated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- s_corrupted_bpump_stalled = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ s_corrupted_bpump_stalled = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- s_corrupted_gps = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ s_corrupted_gps = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- s_corrupted_gps_error = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ s_corrupted_gps_error = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- s_corrupted_memory_leak = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ s_corrupted_memory_leak = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- s_corrupted_pitch_stalled = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ s_corrupted_pitch_stalled = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- s_corrupted_pressure_drift = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ s_corrupted_pressure_drift = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- s_corrupted_pressure_noise = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ s_corrupted_pressure_noise = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- s_corrupted_pressure_spike = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ s_corrupted_pressure_spike = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- s_corrupted_watchdog_oddity = 0, 0, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, -127 ;
+ s_corrupted_watchdog_oddity = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  s_coulomb_relative_charge = 50, 50, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  s_de_oil_pot_volt_flux = 0.01, 0.01, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- s_hardware_cop_jumper = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ s_hardware_cop_jumper = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  s_hardware_ver = 128, 128, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -6792,16 +7019,13 @@ data:
 
  u_ab_min_lookup_thruster = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_adj_overshoot = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ u_adj_overshoot = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_allowable_cycle_overrun = 1000, 1000, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_alt_debug = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127 ;
+ u_alt_debug = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_alt_filter_enabled = 1, 1, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ u_alt_filter_enabled = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_alt_measure_fraction = 0.5, 0.5, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -6812,16 +7036,13 @@ data:
 
  u_alt_min_post_inflection_time = 10, 10, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_alt_reduced_usage_mode = 1, 1, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_alt_reduced_usage_mode = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_alt_reqd_good_in_a_row = 3, 3, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_alt_use_pitch_adjustment = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_alt_use_pitch_adjustment = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_always_cop_tickle_hardware = 0, 0, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, -127 ;
+ u_always_cop_tickle_hardware = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_angle_of_attack = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -6842,21 +7063,17 @@ data:
 
  u_att_cal_min_samples = 85, 85, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_att_cal_pause_surface = 1, 1, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_att_cal_pause_surface = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_att_consecutive_error_max = 5, 5, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_att_rev_cal_ignore_warnings = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_att_rev_ignore_warnings = 1, 1, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_att_rev_ignore_warnings = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_autoballast_abort = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ u_autoballast_abort = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_autoballast_end_on_converge = 0, 0, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, -127 ;
+ u_autoballast_end_on_converge = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_avg_depth_pitch_battpos_alpha = 0.05, 0.05, _, _, _, _, _, _, _, _, _, _, 
     _, _ ;
@@ -6875,11 +7092,9 @@ data:
 
  u_avg_thruster_power_num = 10, 10, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_avg_thruster_speed_num = 10, 10, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_avg_thruster_speed_num = 10, 10, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_ballast_pumped_microposition = 0, 0, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, -127 ;
+ u_ballast_pumped_microposition = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_ballast_pumped_micropos_dc = 10, 10, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -6898,8 +7113,7 @@ data:
  u_battery_inst_pump_depth_diff_threshold = 10, 10, _, _, _, _, _, _, _, _, 
     _, _, _, _ ;
 
- u_battery_monitor_enable = 1, 1, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_battery_monitor_enable = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_battery_recall = -1, -1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -6907,11 +7121,9 @@ data:
 
  u_battpos_ap_deadband = 0.068, 0.068, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_battpos_avg_num_min = 5, 5, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_battpos_avg_num_min = 5, 5, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_battpos_microposition = 1, 1, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_battpos_microposition = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_battpos_micropos_dc = 10, 10, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -6929,8 +7141,7 @@ data:
 
  u_bb2c_beta660_offset = 55, 55, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_bb2c_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ u_bb2c_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_bb2flsV2_b470_cwo = 51, 51, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -6944,8 +7155,7 @@ data:
 
  u_bb2flsV2_chl_sf = 0.0133, 0.0133, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_bb2flsV2_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_bb2flsV2_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_bb2flsV3_b715_cwo = 55, 55, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -6955,8 +7165,7 @@ data:
 
  u_bb2flsV3_b880_sf = 2.97, 2.97, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_bb2flsV3_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_bb2flsV3_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_bb2flsV3_pe_cwo = 51, 51, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -6974,8 +7183,7 @@ data:
 
  u_bb2flsV4_chl_sf = 0.0118, 0.0118, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_bb2flsV4_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_bb2flsV4_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_bb2flsV5_b532_cwo = 52, 52, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -6989,8 +7197,7 @@ data:
 
  u_bb2flsV5_cdom_sf = 0.0959, 0.0959, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_bb2flsV5_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_bb2flsV5_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_bb2flsV6_b532_cwo = 53, 53, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7004,8 +7211,7 @@ data:
 
  u_bb2flsV6_cdom_sf = 0.0905, 0.0905, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_bb2flsV6_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_bb2flsV6_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_bb2flsV7_b532_cwo = 46, 46, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7019,8 +7225,7 @@ data:
 
  u_bb2flsV7_chl_sf = 0.0121, 0.0121, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_bb2flsV7_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_bb2flsV7_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_bb2flsV8_b470_cwo = 45, 45, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7034,8 +7239,7 @@ data:
 
  u_bb2flsV8_chl_sf = 0.0121, 0.0121, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_bb2flsV8_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_bb2flsV8_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_bb2flsV9_b532_cwo = 40, 40, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7049,8 +7253,7 @@ data:
 
  u_bb2flsV9_chl_sf = 0.0073, 0.0073, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_bb2flsV9_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_bb2flsV9_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_bb2fls_b660_cwo = 38, 38, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7064,8 +7267,7 @@ data:
 
  u_bb2fls_cdom_sf = 0.1695, 0.1695, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_bb2fls_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_bb2fls_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_bb2fV2_b470_cwo = 54, 54, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7079,15 +7281,13 @@ data:
 
  u_bb2fV2_chlor_sf = 0.0152, 0.0152, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_bb2fV2_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_bb2fV2_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_bb2lss_beta880_factor = 2.664, 2.664, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_bb2lss_beta880_offset = 52.97, 52.97, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_bb2lss_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_bb2lss_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_bb3sloV2_b532_do = 44, 44, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7101,8 +7301,7 @@ data:
 
  u_bb3sloV2_b880_sf = 3.27, 3.27, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_bb3sloV2_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_bb3sloV2_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_bb3sloV3_b532_do = 20, 20, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7116,8 +7315,7 @@ data:
 
  u_bb3sloV3_b880_sf = 2.37, 2.37, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_bb3sloV3_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_bb3sloV3_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_bb3slo_b470_do = 51, 51, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7131,8 +7329,7 @@ data:
 
  u_bb3slo_b660_sf = 3.85, 3.85, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_bb3slo_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_bb3slo_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_bbfl2sV2_bb_cwo = 42, 42, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7146,8 +7343,7 @@ data:
 
  u_bbfl2sV2_fl2_sf = 0.093, 0.093, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_bbfl2sV2_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_bbfl2sV2_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_bbfl2s_bb_cwo = 55, 55, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7161,8 +7357,7 @@ data:
 
  u_bbfl2s_chlor_sf = 0.0125, 0.0125, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_bbfl2s_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_bbfl2s_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_bms_battery_pack_current_diff_threshold = 75, 75, _, _, _, _, _, _, _, _, 
     _, _, _, _ ;
@@ -7177,16 +7372,13 @@ data:
 
  u_bsipar_dark_offset = 0.0102, 0.0102, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_bsipar_is_calibrated = 1, 1, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_bsipar_is_calibrated = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_bsipar_scale_factor = 532.4, 532.4, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_c3sfl_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_c3sfl_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_calc_angle_of_attack = 1, 1, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_calc_angle_of_attack = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_calc_water_vel_min_dist = -1, -1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7196,16 +7388,13 @@ data:
 
  u_comatose_deadband_mult = 10, 10, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_comatose_enabled = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ u_comatose_enabled = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_console_announce_time = 60, 60, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_console_disabled_in_mission = 0, 0, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, -127 ;
+ u_console_disabled_in_mission = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_console_off_if_mission_iridium = 1, 1, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, -127 ;
+ u_console_off_if_mission_iridium = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_console_reqd_cd_off_time = 15, 15, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7225,61 +7414,50 @@ data:
 
  u_cycle_time = 4, 4, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_dbd_sensor_list_xmit_control = 2, 2, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, -127 ;
+ u_dbd_sensor_list_xmit_control = 2, 2, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_deep_pitch_surface_zero = 1, 1, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_deep_pitch_surface_zero = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_depth_rate_filter_factor = 4, 4, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_depth_rate_filter_sub_sur_dep = 0.05, 0.05, _, _, _, _, _, _, _, _, _, _, 
     _, _ ;
 
- u_depth_rate_thr_avg_num = 3, 3, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_depth_rate_thr_avg_num = 3, 3, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_de_avg_oil_vol_err_alpha = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_de_oil_display_volume = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_de_oil_display_volume = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_de_oil_vol_check_time = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_digifin_debug = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_digifin_hide_oddities_at_surface = 0, 0, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, -127, -127 ;
+ u_digifin_hide_oddities_at_surface = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_digifin_leakdetect_count = 5, 5, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_digifin_mask_movement_warning_at_surface = 0, 0, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, -127, -127, -127 ;
+ u_digifin_mask_movement_warning_at_surface = 0, 0, _, _, _, _, _, _, _, _, 
+    _, _, _, _ ;
 
  u_diveclimb_msg_print = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_dmon_ctd_msg_period = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_drop_time_ms_abort_device = 0, 0, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, -127 ;
+ u_drop_time_ms_abort_device = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_drop_time_ms_abort_dynamics = 0, 0, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, -127 ;
+ u_drop_time_ms_abort_dynamics = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_drop_time_ms_abort_ice = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_drop_time_ms_abort_ice = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_drop_time_ms_abort_mission_or_config = 0, 0, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, -127, -127 ;
+ u_drop_time_ms_abort_mission_or_config = 0, 0, _, _, _, _, _, _, _, _, _, _, 
+    _, _ ;
 
- u_drop_time_ms_abort_processor = 0, 0, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, -127 ;
+ u_drop_time_ms_abort_processor = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_drop_time_ms_abort_vehicle = 0, 0, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, -127 ;
+ u_drop_time_ms_abort_vehicle = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_dvl_bk_water_mass_layer_mode = 2, 2, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, -127 ;
+ u_dvl_bk_water_mass_layer_mode = 2, 2, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_dvl_debug_level = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7289,24 +7467,19 @@ data:
 
  u_dvl_num_errors_before_restart = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_dvl_pd6_data_supports_hm = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_dvl_pd6_data_supports_hm = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_dvl_pd_data_stream_select = 0, 0, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, -127 ;
+ u_dvl_pd_data_stream_select = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_dvl_single_pd0_file = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_dvl_single_pd0_file = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_expect_ice_near_surface = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_expect_ice_near_surface = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_exp_alt_correction = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_exp_alt_pwr_stb_time = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_fin_microposition = 1, 1, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ u_fin_microposition = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_fin_micropos_dc = 5, 5, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7320,15 +7493,13 @@ data:
 
  u_fl2PeCdom_cdom_sf = 0.0898, 0.0898, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_fl2PeCdom_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_fl2PeCdom_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_fl2PeCdom_pe_do = 49, 49, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_fl2PeCdom_pe_sf = 0.0414, 0.0414, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_fl2UrRh_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_fl2UrRh_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_fl2UrRh_rhod_do = 46, 46, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7346,8 +7517,7 @@ data:
 
  u_fl3sloV2_chlor_sf = 0.0127, 0.0127, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_fl3sloV2_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_fl3sloV2_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_fl3sloV2_rhod_cwo = 49, 49, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7361,8 +7531,7 @@ data:
 
  u_fl3slo_chlor_sf = 0.0126, 0.0126, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_fl3slo_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_fl3slo_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_fl3slo_phyco_cwo = 55, 55, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7380,8 +7549,7 @@ data:
 
  u_flbbbbV1_fl_sf = 0.0073, 0.0073, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_flbbbbV1_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_flbbbbV1_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_flbbbbV2_bb1_cwo = 38, 38, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7395,8 +7563,7 @@ data:
 
  u_flbbbbV2_fl_sf = 0.0073, 0.0073, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_flbbbbV2_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_flbbbbV2_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_flbbcd_bb_cwo = 49, 49, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7410,8 +7577,7 @@ data:
 
  u_flbbcd_chlor_sf = 0.0119, 0.0119, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_flbbcd_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_flbbcd_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_flbbrh_bb_cwo = 48, 48, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7421,8 +7587,7 @@ data:
 
  u_flbbrh_chlor_sf = 0.0123, 0.0123, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_flbbrh_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_flbbrh_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_flbbrh_rhod_cwo = 58, 58, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7436,15 +7601,13 @@ data:
 
  u_flbb_chlor_sf = 0.0072, 0.0072, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_flbb_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ u_flbb_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_flntu_chlor_do = 39, 39, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_flntu_chlor_sf = 0.0125, 0.0125, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_flntu_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_flntu_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_flntu_turb_do = 47, 47, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7452,20 +7615,17 @@ data:
 
  u_flrh_cwo = 48, 48, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_flrh_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ u_flrh_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_flrh_sf = 0.0141, 0.0141, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_flur_cwo = 50, 50, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_flur_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ u_flur_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_flur_sf = 0.0281, 0.0281, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_fly_deep_in_shallow = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_fly_deep_in_shallow = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_freewave_data_rate = 3, 3, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7479,8 +7639,7 @@ data:
 
  u_hd_broll_abort_after_y_misses = 3, 3, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_hd_broll_ap_deadband_reset = 0, 0, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, -127 ;
+ u_hd_broll_ap_deadband_reset = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_hd_broll_ap_dgain = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7499,13 +7658,11 @@ data:
 
  u_hd_broll_ap_run_time = -1, -1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_hd_broll_ap_scale_by_max = 1, 1, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_hd_broll_ap_scale_by_max = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_hd_fin_abort_after_y_misses = 5, 5, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_hd_fin_ap_deadband_reset = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_hd_fin_ap_deadband_reset = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_hd_fin_ap_dgain = -4, -4, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7522,13 +7679,11 @@ data:
  u_hd_fin_ap_limit_gain_x_error = 1000, 1000, _, _, _, _, _, _, _, _, _, _, 
     _, _ ;
 
- u_hd_fin_ap_pause_hardover = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_hd_fin_ap_pause_hardover = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_hd_fin_ap_run_time = -1, -1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_hd_fin_ap_scale_by_max = 1, 1, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_hd_fin_ap_scale_by_max = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_heading_deadband = 0.087, 0.087, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7547,8 +7702,7 @@ data:
  u_hover_depth_abort_after_y_misses = -1, -1, _, _, _, _, _, _, _, _, _, _, 
     _, _ ;
 
- u_hover_depth_deadband_reset = 0, 0, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, -127 ;
+ u_hover_depth_deadband_reset = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_hover_depth_gain_scale_b = -0.33, -0.33, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7563,8 +7717,7 @@ data:
  u_hover_depth_limit_gain_x_error = 1000, 1000, _, _, _, _, _, _, _, _, _, _, 
     _, _ ;
 
- u_hover_depth_pause_hardover = 0, 0, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, -127 ;
+ u_hover_depth_pause_hardover = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_hover_depth_pitch_deadband = -1, -1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7574,8 +7727,7 @@ data:
 
  u_hover_depth_run_time = -1, -1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_hover_depth_scale_by_max = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_hover_depth_scale_by_max = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_increase_vacuum_time = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7583,8 +7735,7 @@ data:
 
  u_iridium_failover_retries = 5, 5, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_iridium_force_port = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ u_iridium_force_port = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_iridium_idle_off_time = 600, 600, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7597,8 +7748,7 @@ data:
 
  u_lat_goto_l99 = 69696969, 69696969, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_leakdetect_stack_on_present = 0, 0, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, -127 ;
+ u_leakdetect_stack_on_present = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_lithium_battery_debug = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7704,8 +7854,7 @@ data:
  u_ocr504I_immersion_coeff_c4 = 1.372, 1.372, _, _, _, _, _, _, _, _, _, _, 
     _, _ ;
 
- u_ocr504I_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_ocr504I_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_ocr504I_itemp_a0 = -50, -50, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7750,8 +7899,7 @@ data:
  u_ocr504R_immersion_coeff_c4 = 1.739, 1.739, _, _, _, _, _, _, _, _, _, _, 
     _, _ ;
 
- u_ocr504R_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_ocr504R_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_ocr504R_itemp_a0 = -50, -50, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7817,8 +7965,7 @@ data:
  u_ocr507I_immersion_coeff_c7 = 1.347, 1.347, _, _, _, _, _, _, _, _, _, _, 
     _, _ ;
 
- u_ocr507I_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_ocr507I_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_ocr507I_itemp_a0 = -50, -50, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7893,8 +8040,7 @@ data:
  u_ocr507R_immersion_coeff_c7 = 1.729, 1.729, _, _, _, _, _, _, _, _, _, _, 
     _, _ ;
 
- u_ocr507R_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_ocr507R_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_ocr507R_itemp_a0 = -50, -50, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7908,8 +8054,7 @@ data:
 
  u_ocr507R_Vin_a1 = 0.03, 0.03, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_oxy4_slow_surface_mode = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_oxy4_slow_surface_mode = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_pitch_ap_deadband = 0.0524, 0.0524, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7936,36 +8081,30 @@ data:
 
  u_pitch_max_delta_battpos = 0.2, 0.2, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_pitch_motor_test_availability = 1, 1, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, -127 ;
+ u_pitch_motor_test_availability = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_pitch_surface = 0.087, 0.087, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_pressure_autocal_deadband = 0.025, 0.025, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_pressure_autocal_enabled = 1, 1, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_pressure_autocal_enabled = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_pressure_autocal_max_allowed = 0.2, 0.2, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_pressure_autocal_min_time_between = 180, 180, _, _, _, _, _, _, _, _, _, 
     _, _, _ ;
 
- u_pressure_autocal_performed = 1, 1, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, -127 ;
+ u_pressure_autocal_performed = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_pressure_median = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ u_pressure_median = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_pressure_median_debug = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_pressure_median_debug = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_pressure_median_iter = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_pressure_median_k = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_pressure_median_median = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_pressure_median_median = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_print_engine_status = -1, -1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7973,14 +8112,11 @@ data:
 
  u_reqd_disk_space = 500, 500, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_reset_tickle_after_abort = 1, 1, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_reset_tickle_after_abort = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_retry_no_tickle_ice = 1, 1, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_retry_no_tickle_ice = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_rinkoII_output_engineering_data = 0, 0, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, -127, -127 ;
+ u_rinkoII_output_engineering_data = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_roll_avg_alpha = 0.15, 0.15, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -7996,8 +8132,7 @@ data:
 
  u_sam_exp2coeff = 4.448, 4.448, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_sam_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ u_sam_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_sam_median_window = 10, 10, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -8010,11 +8145,9 @@ data:
 
  u_satpar_immersion_coeff = 1.3589, 1.3589, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_satpar_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_satpar_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_satpar_loose_parse = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ u_satpar_loose_parse = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_satpar_slope = 2.44356, 2.44356, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -8028,15 +8161,13 @@ data:
 
  u_sbe41n_ph_f4 = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_sbe41n_ph_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_sbe41n_ph_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_sbe41n_ph_k0 = -1.394881, -1.394881, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_sbe41n_ph_k2 = -1029.1, -1029.1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_science_logging_error = 1, 1, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_science_logging_error = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_science_low_power = -1, -1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -8053,11 +8184,9 @@ data:
 
  u_sci_cycle_time = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_sci_dbd_sensor_list_xmit_control = 2, 2, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, -127, -127 ;
+ u_sci_dbd_sensor_list_xmit_control = 2, 2, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_seaOWL_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_seaOWL_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_secs_for_oil_vol_stabilization = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -8095,8 +8224,7 @@ data:
 
  u_svs603_sample_time = 1200, 1200, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_svs603_set_time = 1, 1, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ u_svs603_set_time = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_tarr_dsp_power_on_delay = 75, 75, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -8151,29 +8279,24 @@ data:
 
  u_thruster_power_limit_cmd = 80, 80, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_thruster_water_speed_control_pump_maxed = 1, 1, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, -127, -127, -127 ;
+ u_thruster_water_speed_control_pump_maxed = 1, 1, _, _, _, _, _, _, _, _, _, 
+    _, _, _ ;
 
- u_tickle_on_console_cd = 1, 1, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_tickle_on_console_cd = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_tickle_on_gps = 1, 1, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ u_tickle_on_gps = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_ubat_flow_rate_cal_coeff = 472, 472, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_ubat_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ u_ubat_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_ubat_no_data_timeout = 60, 60, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_ubat_power_up_wait = 15, 15, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_uModem_BND = 1, 1, -127, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127 ;
+ u_uModem_BND = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_uModem_CST = 1, 1, -127, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127 ;
+ u_uModem_CST = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_uModem_DTO = 8, 8, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -8185,30 +8308,24 @@ data:
 
  u_uModem_SRC = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_update_gps_with_invalid = 1, 1, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_update_gps_with_invalid = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_upward_inflection_overshoot_alpha = 0.25, 0.25, _, _, _, _, _, _, _, _, _, 
     _, _, _ ;
 
- u_use_ctd_depth_for_flying = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_use_ctd_depth_for_flying = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_use_current_correction = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_use_file_compression = 1, 1, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_use_file_compression = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_use_modified_comms_or_gps = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_use_pitch_servo_memory = 1, 1, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_use_pitch_servo_memory = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_use_real_thruster_in_simulation = 0, 0, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, -127, -127 ;
+ u_use_real_thruster_in_simulation = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_uviluxPAH_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_uviluxPAH_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_vacuum_air_bag_inflated = 1.5, 1.5, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -8223,8 +8340,7 @@ data:
  u_vacuum_time = 0, 0, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 120, 
     120 ;
 
- u_valve_display_position = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_valve_display_position = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_valve_open_max_depth = 20, 20, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -8244,17 +8360,13 @@ data:
 
  u_vsf_150_sf = 3.006, 3.006, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_vsf_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ u_vsf_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_wetlabsA_is_calibrated = 1, 1, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_wetlabsA_is_calibrated = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_wetlabsB_is_calibrated = 1, 1, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_wetlabsB_is_calibrated = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- u_wetlabsC_is_calibrated = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ u_wetlabsC_is_calibrated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  u_wetlabs_sim_num_eng_units = 3, 3, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -8302,8 +8414,7 @@ data:
 
  xs_thruster_speed = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- xs_under_ice = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127 ;
+ xs_under_ice = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  xs_vehicle_temp = 25, 25, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -8337,21 +8448,17 @@ data:
 
  x_alt_time = -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 ;
 
- x_are_in_lab = 1, 1, -127, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127 ;
+ x_are_in_lab = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  x_are_motors_moving = 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0 ;
 
  x_are_pumping = 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 ;
 
- x_are_running_onetime_sequence = 0, 0, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, -127 ;
+ x_are_running_onetime_sequence = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- x_are_simulating = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ x_are_simulating = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- x_argos_type = 1, 1, -127, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127 ;
+ x_argos_type = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  x_att_cal_sample = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -8374,8 +8481,7 @@ data:
  x_ballast_pumped_passive_retraction_depth = 200, 200, _, _, _, _, _, _, _, 
     _, _, _, _, _ ;
 
- x_battpos_achieved = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ x_battpos_achieved = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  x_battpos_deadband = 0.1, 0.1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -8383,8 +8489,7 @@ data:
 
  x_calc_water_vel = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- x_check_pressure_ducer = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ x_check_pressure_ducer = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  x_climb_bpump_fast = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -8396,8 +8501,7 @@ data:
 
  x_climb_surface = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- x_clothesline_state = 1, 1, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ x_clothesline_state = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  x_console_announcement_made = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -8405,8 +8509,7 @@ data:
 
  x_critical_abort_update_status = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- x_critical_mission_fail = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ x_critical_mission_fail = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  x_current_target_altitude = -1, -1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -8418,13 +8521,11 @@ data:
 
  x_dbd_segment_number = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- x_dc_lookup_status = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ x_dc_lookup_status = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  x_dc_time = 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0 ;
 
- x_deactivate_hover = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ x_deactivate_hover = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  x_dead_time = 0, 0, 0, 184, 20, 13, 3, 6, 0, 0, 0, 0, 3, 0 ;
 
@@ -8432,8 +8533,7 @@ data:
 
  x_de_avg_oil_vol_ierr_on_descent = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- x_de_ignore_tvalve_oddity = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ x_de_ignore_tvalve_oddity = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  x_de_oil_flux = 13.59621, 13.42836, 14.60334, 13.59621, 13.42836, 13.2605, 
     13.59621, 15.1069, 13.59621, 12.58908, 14.26763, 13.09265, 0, _ ;
@@ -8446,8 +8546,7 @@ data:
 
  x_de_oil_vol_max = 420, 420, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- x_de_pump_disable = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ x_de_pump_disable = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  x_disk_files_removed = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -8459,16 +8558,14 @@ data:
 
  x_dive_speed_slow = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- x_drop_weight_for_max_time = 1, 1, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ x_drop_weight_for_max_time = 1, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  x_dr_state = 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4 ;
 
  x_ds_time = 0, 5580, 3758, 3924, 3932, 3942, 3945, 3950, 3947, 3946, 3965, 
     3940, 3946, 3939 ;
 
- x_enable_steering_during_hover = 0, 0, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, -127 ;
+ x_enable_steering_during_hover = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  x_fin_deadband = 0.02, 0.02, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -8478,14 +8575,11 @@ data:
 
  x_hardware_ver = 65, 65, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- x_have_we_moved_vertically = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ x_have_we_moved_vertically = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- x_hd_broll_ap_is_hardover = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ x_hd_broll_ap_is_hardover = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- x_hd_broll_ap_ran = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ x_hd_broll_ap_ran = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  x_hd_fin_ap_dgain = -4, -4, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -8493,19 +8587,15 @@ data:
 
  x_hd_fin_ap_igain = 0.03, 0.03, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- x_hd_fin_ap_is_hardover = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ x_hd_fin_ap_is_hardover = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- x_hd_fin_ap_ran = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ x_hd_fin_ap_ran = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  x_heading_reversal = 2.96, 2.96, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- x_hit_a_waypoint = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ x_hit_a_waypoint = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- x_hover_active = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127 ;
+ x_hover_active = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  x_hover_ballast = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -8513,8 +8603,7 @@ data:
 
  x_hover_ballast_shallow = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- x_hover_depth_ap_ran = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ x_hover_depth_ap_ran = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  x_hover_depth_deep = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -8522,8 +8611,7 @@ data:
 
  x_hover_depth_i_gain = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- x_hover_depth_pitch_is_maxed = 0, 0, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, -127 ;
+ x_hover_depth_pitch_is_maxed = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  x_hover_depth_pitch_limit = 0.174, 0.174, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -8531,15 +8619,13 @@ data:
 
  x_hover_depth_shallow = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- x_ice_abort_activated = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ x_ice_abort_activated = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  x_ice_abort_active = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  x_ice_abort_code = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- x_increase_vacuum_time = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ x_increase_vacuum_time = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  x_inflecting = 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ;
 
@@ -8547,8 +8633,7 @@ data:
 
  x_invalid_gps_total = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- x_in_gliderdos = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127 ;
+ x_in_gliderdos = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  x_in_surface_dialog = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2 ;
 
@@ -8568,17 +8653,13 @@ data:
 
  x_lmc_utm_veh_northing_correction = 0, 0, 0, 0, 0, 0, _, 0, 0, 0, 0, _, 0, 0 ;
 
- x_lmc_utm_veh_zone_char = 13, 13, 13, 13, 13, 13, -127, 13, 13, 13, 13, 
-    -127, 13, 13 ;
+ x_lmc_utm_veh_zone_char = 13, 13, 13, 13, 13, 13, _, 13, 13, 13, 13, _, 13, 13 ;
 
- x_lmc_utm_veh_zone_digit = 53, 53, 53, 53, 53, 53, -127, 53, 53, 53, 53, 
-    -127, 53, 53 ;
+ x_lmc_utm_veh_zone_digit = 53, 53, 53, 53, 53, 53, _, 53, 53, 53, 53, _, 53, 53 ;
 
- x_lmc_utm_zone_char = 13, 13, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ x_lmc_utm_zone_char = 13, 13, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- x_lmc_utm_zone_digit = 53, 53, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ x_lmc_utm_zone_digit = 53, 53, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  x_lmc_xy_source = 0, 3, 3, 3, 3, 3, 0, 3, 3, 3, 3, 0, 3, 3 ;
 
@@ -8590,19 +8671,15 @@ data:
 
  x_mission_num = 0, 2432200, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- x_mission_status = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ x_mission_status = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  x_num_bang_cmds_done = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- x_old_mission_status_1 = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ x_old_mission_status_1 = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- x_old_mission_status_2 = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ x_old_mission_status_2 = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- x_old_mission_status_3 = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ x_old_mission_status_3 = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  x_ping_glider_to_sci = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -8614,32 +8691,25 @@ data:
 
  x_pitch_ap_period = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- x_pitch_ap_ran = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127 ;
+ x_pitch_ap_ran = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- x_prepare_gps_is_valid = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ x_prepare_gps_is_valid = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- x_pressure_manual_cal_now = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ x_pressure_manual_cal_now = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  x_prior_seg_water_vx = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  x_prior_seg_water_vy = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- x_reset_depth_rate_thr = 0, 1, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ x_reset_depth_rate_thr = 0, 1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- x_reset_no_comms = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ x_reset_no_comms = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- x_science_logging_state = 2, 2, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ x_science_logging_state = 2, 2, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  x_science_on = 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ;
 
- x_sci_cmd_mode_state = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ x_sci_cmd_mode_state = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  x_secs_surface_depth_reached = 60, 60, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -8651,21 +8721,17 @@ data:
 
  x_sp_time = 0, 1, 2, 2, 1, 1, 0, 1, 1, 1, 3, 0, 1, 1 ;
 
- x_started_logging = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127 ;
+ x_started_logging = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  x_stuck_depth = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  x_surface_active = 0, 2, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- x_surface_drift_gps_is_valid = 0, 0, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, -127 ;
+ x_surface_drift_gps_is_valid = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- x_surface_final_gps_is_valid = 0, 0, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, -127 ;
+ x_surface_final_gps_is_valid = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- x_surface_initial_gps_is_valid = 0, 0, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, 1 ;
+ x_surface_initial_gps_is_valid = 0, 0, _, _, _, _, _, _, _, _, _, _, _, 1 ;
 
  x_target_bpump_depth_rate = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -8684,8 +8750,7 @@ data:
  x_thermal_reqd_acc_vol = 416.1048, 416.1048, _, _, _, _, _, _, _, _, _, _, 
     _, _ ;
 
- x_thermal_valve_move_backwards = 0, 0, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, -127 ;
+ x_thermal_valve_move_backwards = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  x_thruster_ap_period = -1, -1, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -8693,11 +8758,9 @@ data:
 
  x_thruster_state = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ;
 
- x_under_ice = 0, 0, -127, -127, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127 ;
+ x_under_ice = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- x_use_thruster_for_abort_ascent = 0, 0, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127, -127 ;
+ x_use_thruster_for_abort_ascent = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  x_utm_to_lmc_00 = 0.9999452, 0.9999452, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
@@ -8711,8 +8774,7 @@ data:
 
  x_utm_to_lmc_y0 = -811173, -811173, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
- x_water_speed_too_high = 0, 0, -127, -127, -127, -127, -127, -127, -127, 
-    -127, -127, -127, -127, -127 ;
+ x_water_speed_too_high = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 
  x_why_lens_completed = 0, 0, _, _, _, _, _, _, _, _, _, _, _, _ ;
 

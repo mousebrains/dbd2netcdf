@@ -212,7 +212,15 @@ NetCDF::createVar(const std::string& name,
             oss.str());
   }
 
-  if (idType == NC_FLOAT) {
+  if (idType == NC_BYTE) {
+    const int8_t badValue(-127);
+    basicOp(nc_def_var_fill(mId, varId, NC_FILL, &badValue),
+            "setting fill value for '" + name + "'");
+  } else if (idType == NC_SHORT) {
+    const int16_t badValue(-32768);
+    basicOp(nc_def_var_fill(mId, varId, NC_FILL, &badValue),
+            "setting fill value for '" + name + "'");
+  } else if (idType == NC_FLOAT) {
     const float badValue(std::nanf(""));
     basicOp(nc_def_var_fill(mId, varId, NC_FILL, &badValue),
             "setting fill value for '" + name + "'");
