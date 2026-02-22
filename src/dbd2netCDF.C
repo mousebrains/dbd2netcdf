@@ -141,6 +141,7 @@ main(int argc,
 
   typedef std::vector<int> tVars;
   tVars vars(smap.allSensors().nToStore());
+  std::vector<size_t> varSizes(smap.allSensors().nToStore());
 
   try {
     NetCDF ncid(ofn, qAppend);
@@ -173,6 +174,7 @@ main(int argc,
       } // switch
 
       vars[index] = ncid.maybeCreateVar(name, idType, iDim, units);
+      varSizes[index] = sensor.size();
     } // if sensor.qKeep
   } // for all
 
@@ -237,8 +239,6 @@ main(int argc,
       const size_t n(data.size());
       const size_t kStart(ii == 0 ? 0 : k0);
 
-      std::vector<double> values(n);  // RAII - automatic cleanup
-
       { // Update file info
         for (tVars::size_type j(0), je(hdrVars.size()); j < je; ++j) {
           const std::string str(hdr.find(hdrNames[j]));
@@ -257,38 +257,25 @@ main(int argc,
         continue;
       }
 
+      const size_t writeCount(n - kStart);
+      std::vector<double> values(writeCount); // Buffer for integer-type sensors
+
       for (tVars::size_type j(0), je(vars.size()); j < je; ++j) {
         const int var(vars[j]);
         const Data::tColumn& col(data.column(j));
-        size_t iFirst(0);
-        bool qLooking(true);
-        for (size_t k(kStart); k < n; ++k) {
-          const double value(col[k]);
-          const bool qSkip(std::isnan(value) || std::isinf(value));
-          if (!qSkip) {
-            values[k] = value;
-            if (qLooking) {
-              qLooking = false;
-              iFirst = k;
-            }
-          } else { // isnan
-            if (!qLooking) { // We have some data to write out
-              qLooking = true;
-              const size_t start(indexOffset + iFirst - kStart);
-              const size_t count(k - iFirst);
-              ncid.putVars(var, start, count, &values[iFirst]);
-            }
+        if (varSizes[j] <= 2) {
+          // Integer types: NaN can't be stored, substitute fill value
+          const double fillValue = (varSizes[j] == 1) ? -127.0 : -32768.0;
+          for (size_t k(0); k < writeCount; ++k) {
+            const double v(col[kStart + k]);
+            values[k] = (std::isnan(v) || std::isinf(v)) ? fillValue : v;
           }
-        }
-
-        if (!qLooking) {
-          const size_t start(indexOffset + iFirst - kStart);
-          const size_t count(n - iFirst);
-          ncid.putVars(var, start, count, &values[iFirst]);
+          ncid.putVars(var, indexOffset, writeCount, values.data());
+        } else {
+          // Float/double: NaN is the fill value, write column directly
+          ncid.putVars(var, indexOffset, writeCount, &col[kStart]);
         }
       }
-
-      // values automatically cleaned up on scope exit
 
       indexOffset += data.size() - kStart;
 
