@@ -258,22 +258,24 @@ main(int argc,
       }
 
       const size_t writeCount(n - kStart);
-      std::vector<double> values(writeCount); // Buffer for integer-type sensors
+      std::vector<double> values(writeCount);
 
       for (tVars::size_type j(0), je(vars.size()); j < je; ++j) {
         const int var(vars[j]);
         const Data::tColumn& col(data.column(j));
-        if (varSizes[j] <= 2) {
-          // Integer types: NaN can't be stored, substitute fill value
-          const double fillValue = (varSizes[j] == 1) ? -127.0 : -32768.0;
+        if (varSizes[j] == 8) {
+          // NC_DOUBLE: NaN and inf are both representable
+          ncid.putVars(var, indexOffset, writeCount, &col[kStart]);
+        } else {
+          // NC_FLOAT/SHORT/BYTE: replace NaN/inf with fill value
+          double fillValue = NAN;
+          if (varSizes[j] == 1) fillValue = -127.0;
+          else if (varSizes[j] == 2) fillValue = -32768.0;
           for (size_t k(0); k < writeCount; ++k) {
             const double v(col[kStart + k]);
             values[k] = (std::isnan(v) || std::isinf(v)) ? fillValue : v;
           }
           ncid.putVars(var, indexOffset, writeCount, values.data());
-        } else {
-          // Float/double: NaN is the fill value, write column directly
-          ncid.putVars(var, indexOffset, writeCount, &col[kStart]);
         }
       }
 
