@@ -48,6 +48,12 @@ Files excluded from trailing-whitespace hook (ncdump outputs trailing spaces):
 - Requires Clang with libFuzzer (`-DBUILD_FUZZ_TESTS=ON`)
 - Targets: `fuzz_sensor`, `fuzz_header`, `fuzz_knownbytes`
 
+## Performance Notes
+
+- **Data storage**: `Data` uses column-major layout (`mData[sensor][record]`) so the NetCDF write loop accesses contiguous memory per sensor.
+- **NetCDF writes**: Each sensor column is written in a single `putVars` call (not split at NaN gaps) to minimize HDF5 per-call overhead (`H5Pcreate`/`H5Pclose`).
+- **`--batch-size N`** (default 100): Closes and reopens the NetCDF file every N input files to release HDF5 B-tree chunk metadata (~6 KB per chunk). With 1706 sensors, each file adds ~10 MB of metadata that persists until `nc_close`. Set to 0 to disable batching.
+
 ## C++20 Migration Notes
 
 When dropping GCC 8.x support, consider:
