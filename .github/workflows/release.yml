@@ -32,14 +32,166 @@ jobs:
         fi
         echo "version=$TAG_VERSION" >> $GITHUB_OUTPUT
 
-  create-release:
-    name: Create Release
+  build-linux:
+    name: Linux
     needs: validate-version
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y cmake libnetcdf-dev libhdf5-dev netcdf-bin
+
+    - name: Configure CMake
+      run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build
+      run: cmake --build build --config Release
+
+    - name: Run tests
+      run: |
+        cd build
+        ctest --output-on-failure
+
+    - name: Create binary package
+      run: |
+        cd build
+        cpack -G TGZ
+
+    - name: Create source packages
+      run: |
+        cd build
+        cpack --config CPackSourceConfig.cmake
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: linux-packages
+        path: |
+          build/dbd2netcdf-*-Linux*.tar.gz
+          build/dbd2netcdf-*-Source.tar.gz
+          build/dbd2netcdf-*-Source.zip
+
+  build-macos:
+    name: macOS - ${{ matrix.os }}
+    needs: validate-version
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            arch: arm64
+          - os: macos-13
+            arch: x86_64
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        for pkg in cmake netcdf hdf5; do
+          brew list $pkg &>/dev/null || brew install $pkg
+        done
+
+    - name: Configure CMake
+      run: cmake -B build -DCMAKE_BUILD_TYPE=Release
+
+    - name: Build
+      run: cmake --build build --config Release
+
+    - name: Run tests
+      run: |
+        cd build
+        ctest --output-on-failure
+
+    - name: Create binary package
+      run: |
+        cd build
+        cpack -G TGZ
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: macos-${{ matrix.arch }}-packages
+        path: build/dbd2netcdf-*-Darwin*.tar.gz
+
+  build-windows:
+    name: Windows (MSVC)
+    needs: validate-version
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup MSVC
+      uses: ilammy/msvc-dev-cmd@v1
+
+    - name: Setup Miniconda
+      uses: conda-incubator/setup-miniconda@v3
+      with:
+        auto-update-conda: true
+        python-version: '3.11'
+        channels: conda-forge
+        channel-priority: strict
+        activate-environment: dbd2netcdf
+        conda-remove-defaults: true
+
+    - name: Install dependencies via conda
+      run: |
+        conda install -y libnetcdf hdf5 cmake ninja
+
+    - name: Configure CMake
+      run: |
+        cmake -B build -G Ninja -DCMAKE_BUILD_TYPE=Release `
+          -DCMAKE_C_COMPILER=cl -DCMAKE_CXX_COMPILER=cl `
+          -DCMAKE_PREFIX_PATH="$env:CONDA_PREFIX\Library"
+
+    - name: Build
+      run: cmake --build build --config Release
+
+    - name: Run tests
+      run: |
+        Set-Location build
+        ctest -C Release --output-on-failure
+
+    - name: Create binary package
+      run: |
+        Set-Location build
+        cpack -G ZIP
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: windows-packages
+        path: build/dbd2netcdf-*-win64*.zip
+
+  create-release:
+    name: Create Release
+    needs: [validate-version, build-linux, build-macos, build-windows]
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Download all artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts
+        merge-multiple: true
+
+    - name: List release artifacts
+      run: ls -lhR artifacts/
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
@@ -48,6 +200,20 @@ jobs:
         body: |
           ## dbd2netcdf v${{ needs.validate-version.outputs.version }}
 
+          ### Downloads
+
+          | Platform | File |
+          |----------|------|
+          | Linux x86_64 | `dbd2netcdf-${{ needs.validate-version.outputs.version }}-Linux-x86_64.tar.gz` |
+          | macOS ARM (Apple Silicon) | `dbd2netcdf-${{ needs.validate-version.outputs.version }}-Darwin-arm64.tar.gz` |
+          | macOS Intel | `dbd2netcdf-${{ needs.validate-version.outputs.version }}-Darwin-x86_64.tar.gz` |
+          | Windows x64 | `dbd2netcdf-${{ needs.validate-version.outputs.version }}-win64.zip` |
+          | Source (tar.gz) | `dbd2netcdf-${{ needs.validate-version.outputs.version }}-Source.tar.gz` |
+          | Source (zip) | `dbd2netcdf-${{ needs.validate-version.outputs.version }}-Source.zip` |
+
+          > **Note:** Linux and macOS binaries require system-installed NetCDF and HDF5 libraries.
+          > Install via `apt-get install libnetcdf-dev` (Debian/Ubuntu) or `brew install netcdf` (macOS).
+
           ### Installation
 
           See [README.md](https://github.com/mousebrains/dbd2netcdf#readme) for build instructions.
@@ -55,6 +221,7 @@ jobs:
           ### Changes
 
           See commit history for changes since the last release.
+        files: artifacts/*
         draft: false
         prerelease: false
       env:
