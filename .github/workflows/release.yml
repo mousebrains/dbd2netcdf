@@ -77,17 +77,9 @@ jobs:
           build/dbd2netcdf-*-Source.zip
 
   build-macos:
-    name: macOS - ${{ matrix.os }}
+    name: macOS
     needs: validate-version
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: macos-latest
-            arch: arm64
-          - os: macos-13
-            arch: x86_64
+    runs-on: macos-latest
 
     steps:
     - name: Checkout code
@@ -118,7 +110,7 @@ jobs:
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: macos-${{ matrix.arch }}-packages
+        name: macos-packages
         path: build/dbd2netcdf-*-Darwin*.tar.gz
 
   build-windows:
@@ -206,7 +198,6 @@ jobs:
           |----------|------|
           | Linux x86_64 | `dbd2netcdf-${{ needs.validate-version.outputs.version }}-Linux-x86_64.tar.gz` |
           | macOS ARM (Apple Silicon) | `dbd2netcdf-${{ needs.validate-version.outputs.version }}-Darwin-arm64.tar.gz` |
-          | macOS Intel | `dbd2netcdf-${{ needs.validate-version.outputs.version }}-Darwin-x86_64.tar.gz` |
           | Windows x64 | `dbd2netcdf-${{ needs.validate-version.outputs.version }}-win64.zip` |
           | Source (tar.gz) | `dbd2netcdf-${{ needs.validate-version.outputs.version }}-Source.tar.gz` |
           | Source (zip) | `dbd2netcdf-${{ needs.validate-version.outputs.version }}-Source.zip` |
