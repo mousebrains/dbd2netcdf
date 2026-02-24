@@ -1,3 +1,62 @@
+Version 1.7.0
+
+Feb-2026, Performance improvements
+  - Switch Data storage from row-major to column-major for cache locality
+  - Write whole sensor columns per putVars call instead of splitting at NaN gaps
+  - Use unordered containers for O(1) sensor name lookups
+Feb-2026, New features
+  - Add --batch-size option to cap HDF5 metadata memory usage (default 100)
+  - Add --compression/-z option to control zlib compression level (default 5)
+  - Add INSTALL.sh quick-start build+test+install script
+  - Merge mkTwo.py directory-walking into mkOne.py
+Feb-2026, Bug fixes
+  - Fix --skipFirst off-by-one in NetCDF record writing
+  - Fix --skipMission/--keepMission consuming positional arguments
+  - Fix NC_ERANGE writing inf to NC_FLOAT variables
+  - Fix Data::load() not pruning mData when sensor.read() throws
+  - Fix swapped output filename suffix in mkTwo.py (sdb.nc -> sbd.nc)
+  - Add fill values for NC_BYTE (-127) and NC_SHORT (-32768) variables
+Feb-2026, Build and CI
+  - Prevent in-source builds and add build/ to .gitignore
+  - Add cross-platform release workflow with binary packages
+  - Upgrade codecov-action to v5 with upload token
+  - Add concurrency group to release workflow
+  - Drop macOS 13 Intel build from release workflow
+Feb-2026, Code quality
+  - Fix clang-tidy warnings: assignment-in-if-condition, implicit bool
+    conversions, uninitialized Sensor members, modernize destructors
+  - Re-enable bugprone-assignment-in-if-condition in clang-tidy CI
+Feb-2026, Documentation
+  - Add fuzz testing, license, C++17, and platform badges to README
+  - Document performance notes and batch-size in CLAUDE.md
+
+Version 1.6.7
+
+Feb-2026, Testing infrastructure
+  - Add real Slocum glider test data files
+  - Add unit testing framework with Catch2
+  - Add fuzz testing infrastructure with libFuzzer and KnownBytes target
+  - Add performance benchmarks using Catch2
+  - Improve integration tests with option and error handling tests
+Feb-2026, Code quality
+  - Add structured logging with spdlog, strict mode, and -Werror
+  - Remove sgMergeNetCDF (dead code)
+  - Fix MSVC compiler warnings (size_t conversions, signed/unsigned)
+  - Exclude spdlog/fmt from clang-tidy checks
+  - Upgrade CLI11 from v2.4.2 to v2.6.1
+Feb-2026, Build and CI
+  - Add Rocky Linux 9 to CI workflow
+  - Expand CI compiler and macOS coverage
+  - Fix Cygwin test failures with CR handling and Unix line endings
+  - Fix conda defaults channel warning in Windows CI
+  - Fix lcov coverage for missing dependency sources
+Feb-2026, Documentation
+  - Add architecture documentation
+  - Add CLAUDE.md project notes
+  - Modernize INSTALL.md with CMake best practices
+  - Update Cygwin and macOS installation documentation
+  - Add code coverage badge to README
+
 Version 1.6.6
 
 Feb-2025, Improve CI/CD workflow
@@ -11,6 +70,10 @@ Feb-2025, Fix undefined behavior in bit shift operations
   - Fix signed int8/int16 left shift in PD0.C meld operations
   - Fix signed char left shift in Decompress.C
 Feb-2025, Enable POSIX extensions on Cygwin for mkstemp
+Feb-2025, Add Windows 11 compatibility
+  - Use conda-forge for NetCDF/HDF5 on Windows MSVC
+  - Use winsock2.h for byte-order functions
+  - Fix binary file handling on Windows
 
 Version 1.6.5
 
@@ -30,5 +93,9 @@ Jan-2023, Add --append
 Oct-2023, Fix --sensor to --sensors and update version
 Oct-2023, Add streaming to decompressTWR
 Nov-2023, Fix not closing directory
+Dec-2024, Modernize C++ codebase to C++17 standards
+  - Add compiler version checks for C++17 support
+  - Fix GCC 8.x compatibility (stdc++fs linking, implicit fallthrough)
+  - Add comprehensive CI workflow for compiler version testing
 
 Pat Welch, pat@mousebrains.com
