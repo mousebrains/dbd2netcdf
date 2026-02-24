@@ -1,0 +1,56 @@
+name: Dependency Update Check
+
+on:
+  schedule:
+    # First Monday of each month at 09:00 UTC
+    - cron: '0 9 1-7 * 1'
+  workflow_dispatch:
+
+jobs:
+  check-dependencies:
+    name: Check for new releases
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Check for dependency updates
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        updates=""
+
+        check_release() {
+          local name="$1" repo="$2" current="$3"
+          local latest
+          latest=$(gh api "repos/${repo}/releases/latest" --jq '.tag_name' 2>/dev/null) || return
+          if [ -n "$latest" ] && [ "$latest" != "$current" ]; then
+            updates="${updates}- **${name}**: ${current} -> ${latest} (https://github.com/${repo}/releases/tag/${latest})\n"
+          else
+            echo "${name}: ${current} is up to date"
+          fi
+        }
+
+        check_release "CLI11"  "CLIUtils/CLI11"    "v2.6.1"
+        check_release "spdlog" "gabime/spdlog"     "v1.15.0"
+        check_release "Catch2" "catchorg/Catch2"   "v3.7.1"
+
+        if [ -z "$updates" ]; then
+          echo "All dependencies are up to date."
+          exit 0
+        fi
+
+        title="Dependency updates available"
+
+        # Close any existing open issue with the same title
+        existing=$(gh issue list --state open --search "\"${title}\" in:title" --json number --jq '.[0].number' 2>/dev/null)
+        if [ -n "$existing" ]; then
+          gh issue close "$existing" --comment "Superseded by new check."
+        fi
+
+        printf -v body "The following FetchContent dependencies in \`CMakeLists.txt\` have newer releases:\n\n%b\nTo update, change the \`GIT_TAG\` in \`CMakeLists.txt\`, build, and run the full test suite." "$updates"
+
+        gh issue create --title "$title" --body "$body" --label "enhancement"
