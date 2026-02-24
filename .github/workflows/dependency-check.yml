@@ -35,8 +35,8 @@ jobs:
         }
 
         check_release "CLI11"  "CLIUtils/CLI11"    "v2.6.1"
-        check_release "spdlog" "gabime/spdlog"     "v1.15.0"
-        check_release "Catch2" "catchorg/Catch2"   "v3.7.1"
+        check_release "spdlog" "gabime/spdlog"     "v1.17.0"
+        check_release "Catch2" "catchorg/Catch2"   "v3.13.0"
 
         if [ -z "$updates" ]; then
           echo "All dependencies are up to date."
