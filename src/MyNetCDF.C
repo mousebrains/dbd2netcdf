@@ -34,7 +34,7 @@ void
 NetCDF::basicOp(int retval,
                 const std::string& label) const
 {
-  if (!retval) {
+  if (retval == 0) {
     return;
   }
   std::ostringstream oss;
@@ -163,7 +163,7 @@ NetCDF::createVar(const std::string& name,
       }
     }
 
-    if (availSize) { // space available for unlimited dimensions
+    if (availSize > 0) { // space available for unlimited dimensions
       const size_t iStart(mChunkPriority ? 0 : nDims - 1);
       const int iOp(mChunkPriority ? 1 : -1);
       for (size_t i(iStart); i < nDims; i += iOp) {
@@ -184,7 +184,8 @@ NetCDF::createVar(const std::string& name,
         }
       }
 
-      if ((retval = nc_def_var_chunking(mId, varId, NC_CHUNKED, chunkSizes.data()))) {
+      retval = nc_def_var_chunking(mId, varId, NC_CHUNKED, chunkSizes.data());
+      if (retval != 0) {
         std::ostringstream oss;
         oss << "Error setting chunk size to {";
         for (tLengths::size_type i(0), e(lengths.size()); i < e; ++i) {
@@ -374,7 +375,7 @@ void
 NetCDF::putVarError(const int retval,
                     const int varId)
 {
-  if (!retval)
+  if (retval == 0)
     return;
 
   char varName[NC_MAX_NAME + 1];

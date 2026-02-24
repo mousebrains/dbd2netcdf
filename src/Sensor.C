@@ -29,7 +29,10 @@
 #include <cstdio>
 
 Sensor::Sensor(std::istream& is)
-  : mqKeep(true)
+  : mSize(0)
+  , mIndex(0)
+  , mqAvailable(false)
+  , mqKeep(true)
   , mqCriteria(true)
 {
   std::string line;
@@ -44,7 +47,10 @@ Sensor::Sensor(std::istream& is)
 }
 
 Sensor::Sensor(const std::string& line)
-  : mqKeep(true)
+  : mSize(0)
+  , mIndex(0)
+  , mqAvailable(false)
+  , mqKeep(true)
   , mqCriteria(true)
 {
   procLine(line);

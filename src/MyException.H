@@ -9,9 +9,9 @@ private:
   const std::string mWhat;
 public:
   MyException(const std::string& msg) : mWhat(msg) {}
-  virtual ~MyException() noexcept {}
+  ~MyException() noexcept override = default;
 
-  virtual const char* what() const noexcept {return mWhat.c_str();}
+  const char* what() const noexcept override {return mWhat.c_str();}
 }; // MyException
 
 #endif // INC_MyException_H_

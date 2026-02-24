@@ -18,7 +18,7 @@ private:
 
   Sensors mAllSensors;
 public:
-  SensorsMap() {}
+  SensorsMap() = default;
 
   explicit SensorsMap(const std::string& dir) : mDir(dir) {}
 
