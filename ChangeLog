@@ -22,10 +22,14 @@ Feb-2026, Build and CI
   - Upgrade codecov-action to v5 with upload token
   - Add concurrency group to release workflow
   - Drop macOS 13 Intel build from release workflow
+  - Add monthly dependency update check workflow
+  - Update spdlog from v1.15.0 to v1.17.0
+  - Update Catch2 from v3.7.1 to v3.13.0
 Feb-2026, Code quality
   - Fix clang-tidy warnings: assignment-in-if-condition, implicit bool
     conversions, uninitialized Sensor members, modernize destructors
   - Re-enable bugprone-assignment-in-if-condition in clang-tidy CI
+  - Fix license badge link to use master branch instead of main
 Feb-2026, Documentation
   - Add fuzz testing, license, C++17, and platform badges to README
   - Document performance notes and batch-size in CLAUDE.md
