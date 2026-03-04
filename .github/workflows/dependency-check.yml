@@ -23,6 +23,25 @@ jobs:
       run: |
         updates=""
 
+        # Extract FetchContent dependencies from CMakeLists.txt.
+        # Each block has GIT_REPOSITORY and GIT_TAG on consecutive lines.
+        parse_deps() {
+          local cmake="CMakeLists.txt"
+          local name repo tag
+          while IFS= read -r line; do
+            if [[ "$line" =~ GIT_REPOSITORY[[:space:]]+https://github.com/(.+)\.git ]]; then
+              repo="${BASH_REMATCH[1]}"
+              name="${repo##*/}"
+            elif [[ "$line" =~ GIT_TAG[[:space:]]+(.*) ]]; then
+              tag="${BASH_REMATCH[1]}"
+              if [ -n "$repo" ]; then
+                check_release "$name" "$repo" "$tag"
+              fi
+              repo="" name="" tag=""
+            fi
+          done < "$cmake"
+        }
+
         check_release() {
           local name="$1" repo="$2" current="$3"
           local latest
@@ -34,9 +53,7 @@ jobs:
           fi
         }
 
-        check_release "CLI11"  "CLIUtils/CLI11"    "v2.6.1"
-        check_release "spdlog" "gabime/spdlog"     "v1.17.0"
-        check_release "Catch2" "catchorg/Catch2"   "v3.13.0"
+        parse_deps
 
         if [ -z "$updates" ]; then
           echo "All dependencies are up to date."
