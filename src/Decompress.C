@@ -45,15 +45,30 @@ int DecompressTWRBuf::underflow() {
       return std::char_traits<char>::eof();
     }
     this->setg(this->mBuffer, this->mBuffer, this->mBuffer + j);
+    this->mPos += j;
   } else { // Not compressed
     if (this->mIS.read(this->mBuffer, sizeof(this->mBuffer)) || this->mIS.gcount()) {
-      this->setg(this->mBuffer, this->mBuffer, this->mBuffer + this->mIS.gcount());
+      const auto n = this->mIS.gcount();
+      this->setg(this->mBuffer, this->mBuffer, this->mBuffer + n);
+      this->mPos += static_cast<size_t>(n);
     } else {
       return std::char_traits<char>::eof();
     }
   } // mqCompressed
 
   return std::char_traits<char>::to_int_type(*this->gptr());
+}
+
+DecompressTWRBuf::pos_type
+DecompressTWRBuf::seekoff(off_type off, std::ios_base::seekdir dir,
+                          std::ios_base::openmode /*which*/) {
+  // Only support tellg(): seekoff(0, cur)
+  if (dir == std::ios_base::cur && off == 0) {
+    // mPos is total bytes loaded; subtract unread bytes remaining in buffer
+    const auto remaining = this->egptr() - this->gptr();
+    return static_cast<pos_type>(this->mPos - static_cast<size_t>(remaining));
+  }
+  return pos_type(off_type(-1)); // Seeking not supported
 }
 
 bool qCompressed(const std::string& fn) {

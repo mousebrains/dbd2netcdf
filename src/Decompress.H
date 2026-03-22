@@ -11,6 +11,7 @@ class DecompressTWRBuf: public std::streambuf {
   const bool mqCompressed;
   char mBuffer[65536];
   const std::string mFilename;
+  size_t mPos = 0; // Total decompressed bytes loaded into buffer
 public:
   DecompressTWRBuf(const std::string& fn, const bool qCompressed)
     : mIS(fn.c_str(), std::ios::binary)
@@ -23,7 +24,11 @@ public:
 
   void close() {mIS.close();}
 
-  int underflow();
+  int underflow() override;
+
+protected:
+  pos_type seekoff(off_type off, std::ios_base::seekdir dir,
+                   std::ios_base::openmode which = std::ios_base::in) override;
 };
 
 class DecompressTWR: public std::istream {
