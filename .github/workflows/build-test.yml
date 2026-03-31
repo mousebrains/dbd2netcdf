@@ -542,7 +542,7 @@ jobs:
 
     - name: Install dependencies via conda
       run: |
-        conda install -y libnetcdf hdf5 cmake ninja
+        conda install -y libnetcdf hdf5 zlib cmake ninja
 
     - name: Configure CMake
       run: |
