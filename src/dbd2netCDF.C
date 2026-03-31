@@ -99,7 +99,7 @@ main(int argc,
 
   // Initialize logger
   dbd::logger().init("dbd2netCDF", dbd::logLevelFromString(logLevel));
-  if (qVerbose) {
+  if (qVerbose && logLevel == "warn") {
     dbd::logger().setLevel(dbd::LogLevel::Info);
   }
 
@@ -237,6 +237,12 @@ main(int argc,
 
     NetCDF ncid(ofn, qAppend || batchStart > 0);
     ncid.compressionLevel(compressionLevel);
+
+    if (batchStart == 0 && !qAppend) {
+      ncid.putGlobalAtt("Conventions", "CF-1.10");
+      ncid.putGlobalAtt("history", std::string("Created by dbd2netCDF ") + VERSION);
+      ncid.putGlobalAtt("source", "Slocum Glider Dinkum Binary Data files");
+    }
 
     const int iDim(ncid.maybeCreateDim(DATA_DIMENSION));
     const int jDim(ncid.maybeCreateDim(FILE_DIMENSION));

@@ -23,6 +23,7 @@
 #include "MyNetCDF.H"
 #include "PD0.H"
 #include "MyException.H"
+#include "Logger.H"
 #include "config.h"
 #include <iostream>
 #include <cstdlib>
@@ -34,6 +35,7 @@ main(int argc,
 {
   std::string outputFilename;
   std::vector<std::string> inputFiles;
+  std::string logLevel = "warn";
   bool qVerbose(false);
 
   CLI::App app{"Convert PD0 files to NetCDF", "pd02netCDF"};
@@ -41,10 +43,17 @@ main(int argc,
 
   app.add_option("-o,--output", outputFilename, "Where to store the data")->required();
   app.add_flag("-v,--verbose", qVerbose, "Enable some diagnostic output");
+  app.add_option("-l,--log-level", logLevel, "Log level (trace,debug,info,warn,error,critical,off)")
+     ->default_val("warn");
   app.add_option("files", inputFiles, "Input PD0 files")->required()->check(CLI::ExistingFile);
   app.set_version_flag("-V,--version", VERSION);
 
   CLI11_PARSE(app, argc, argv);
+
+  dbd::logger().init("pd02netCDF", dbd::logLevelFromString(logLevel));
+  if (qVerbose && logLevel == "warn") {
+    dbd::logger().setLevel(dbd::LogLevel::Info);
+  }
 
   const char *ofn = outputFilename.c_str();
 
@@ -55,8 +64,7 @@ main(int argc,
     nCells = (nCells >= mCells) ? nCells : mCells;
   }
 
-  if (qVerbose)
-    std::cout << "Maximum number of cells " << static_cast<unsigned int>(nCells) << std::endl;
+  LOG_INFO("Maximum number of cells {}", static_cast<unsigned int>(nCells));
 
   NetCDF nc(ofn);
   const int hDim(nc.createDim("h"));
@@ -83,10 +91,9 @@ main(int argc,
       nc.putVar(hdrStartIndex, hIndex, static_cast<unsigned int>(sIndex));
       nc.putVar(hdrStopIndex, hIndex, static_cast<unsigned int>(index - 1));
 
-      if (qVerbose)
-        std::cout << "Found " << (index - sIndex) << " records in " << fn << std::endl;
-    } else if (qVerbose) {
-        std::cout << "No records found in " << fn << std::endl;
+      LOG_INFO("Found {} records in {}", index - sIndex, fn);
+    } else {
+      LOG_WARN("No records found in {}", fn);
     }
   }
 

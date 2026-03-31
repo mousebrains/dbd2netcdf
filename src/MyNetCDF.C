@@ -211,7 +211,7 @@ NetCDF::createVar(const std::string& name,
       // chunkSizes automatically cleaned up on scope exit
     } // Chunking
 
-  const bool qShuffle((idType == NC_SHORT) || (idType == NC_INT) || (idType == NC_INT64));
+  const bool qShuffle(idType != NC_STRING && idType != NC_BYTE && idType != NC_UBYTE);
   const bool qCompress(idType != NC_STRING);
 
   if (qShuffle || qCompress) {
@@ -403,6 +403,13 @@ NetCDF::mkCountOne(const size_t len)
     std::fill(mCountOne.begin(), mCountOne.end(), 1);
   }
   return mCountOne.data();
+}
+
+void
+NetCDF::putGlobalAtt(const std::string& name, const std::string& value)
+{
+  basicOp(nc_put_att_text(mId, NC_GLOBAL, name.c_str(), value.size(), value.c_str()),
+          "setting global attribute '" + name + "'");
 }
 
 std::string

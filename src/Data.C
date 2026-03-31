@@ -88,11 +88,14 @@ Data::load(std::istream& is,
       // Not a data tag, so assume we've encountered garbage and look for a data tag
       const size_t pos = is.tellg(); // Where the bad tag was found
       bool qContinue = false;
-      while (true) { // look for the next d
+      size_t scanCount = 0;
+      constexpr size_t MAX_REPAIR_SCAN = 65536;
+      while (scanCount < MAX_REPAIR_SCAN) { // look for the next d
           int8_t c;
 	  if (!is.read(reinterpret_cast<char*>(&c), 1)) { // EOF looking for the next 'd'
 	    break;
 	  }
+	  ++scanCount;
 	  if (c == 'd') {
 	    qContinue = true;
 	    break;
@@ -151,7 +154,8 @@ Data::load(std::istream& is,
         const size_t index(sensor.index());
         qKeep |= sensor.qCriteria();
         if (sensor.qKeep()) {
-          mData[index][nRows] = prevValue[index];
+          const double prev = prevValue[index];
+          mData[index][nRows] = std::isinf(prev) ? NAN : prev;
         }
       } else if (code == 2) { // New Value
         const Sensor& sensor(sensors[i]);

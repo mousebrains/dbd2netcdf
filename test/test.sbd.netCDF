@@ -1,4 +1,4 @@
-netcdf test.sbd {
+netcdf sbd {
 dimensions:
 	i = UNLIMITED ; // (94 currently)
 	j = UNLIMITED ; // (1 currently)
@@ -46,6 +46,11 @@ variables:
 	uint hdr_start_index(j) ;
 	uint hdr_stop_index(j) ;
 	uint hdr_nRecords(j) ;
+
+// global attributes:
+		:Conventions = "CF-1.10" ;
+		:history = "Created by dbd2netCDF 1.7.2" ;
+		:source = "Slocum Glider Dinkum Binary Data files" ;
 data:
 
  m_altitude = 0, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, 

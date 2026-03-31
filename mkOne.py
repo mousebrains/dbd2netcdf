@@ -114,8 +114,6 @@ def processAll(filenames:list, args:ArgumentParser, suffix:str, sensorsFilename:
     filenames = list(filenames) # ensure it is a list
     if not filenames: return # Nothing to do
 
-    filenames.sort() # Sort the input files for consistent processing order
-
     ofn = args.outputPrefix + suffix # Output filename
 
     cmd = [os.path.join(args.bindir, "dbd2netCDF"),
@@ -124,7 +122,11 @@ def processAll(filenames:list, args:ArgumentParser, suffix:str, sensorsFilename:
            ]
     if args.verbose: cmd.append("--verbose")
     if args.repair: cmd.append("--repair")
-    if not args.keepFirst: cmd.append("--skipFirst")
+    if args.keepFirst:
+        cmd.append("--keepFirst")
+    else:
+        cmd.append("--skipAll")
+    cmd.extend(["--sort", args.sort])
     if args.compression is not None:
         cmd.extend(["--compression", str(args.compression)])
     if sensorsFilename: cmd.extend(["--sensorOutput", sensorsFilename])
@@ -190,6 +192,9 @@ grp.add_argument("--verbose", action="store_true", help="Verbose output")
 grp.add_argument("--repair", action="store_true", help="Should corrupted files be 'repaired'")
 grp.add_argument("--keepFirst", action="store_true",
                  help="Should the first record not be discarded on all the files?")
+grp.add_argument("--sort", type=str, default="header_time",
+                 choices=["none", "header_time", "lexicographic"],
+                 help="File sort order (default: header_time)")
 grp.add_argument("--compression", type=int, default=None, choices=range(10),
                  metavar="[0-9]",
                  help="Zlib compression level (0=none, 9=max)")

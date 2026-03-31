@@ -133,6 +133,8 @@ Header::qProcessMission(const tMissions& toSkip,
   return toKeep.empty() || (toKeep.find(mission) != toKeep.end());
 }
 
+// Parse fileopen_time header value (format: "Day_Mon_DD_HH:MM:SS_YYYY") to UTC epoch.
+// Assumes all timestamps are UTC (standard for Slocum glider data at sea).
 time_t
 Header::parseFileOpenTime(const std::string& timeStr)
 {

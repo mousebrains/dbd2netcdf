@@ -1,6 +1,7 @@
 #include "PD0.H"
 #include "MyNetCDF.H"
 #include "MyException.H"
+#include "Logger.H"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -28,7 +29,6 @@ PD0::load(const std::string& fn,
 
   if (!is) {
     const std::string msg("Error opening '" + fn + "', " + strerror(errno));
-    std::cerr << msg << std::endl;
     throw(MyException(msg));
   }
 
@@ -79,7 +79,6 @@ PD0::loadBlock(std::istream& is)
     const std::string reason(is.eof() ? "end-of-file" : (is.fail() ? "fail" : "bad"));
     std::ostringstream oss;
     oss << "Error reading " << nBytes << " bytes from '" << mFilename << "', " << reason;
-    std::cerr << oss.str() << std::endl;
     if (!is.eof())
       throw(MyException(oss.str()));  // buffer automatically cleaned up
     return false;
@@ -100,7 +99,6 @@ PD0::loadBlock(std::istream& is)
         << " calculated check sum 0x" << std::hex << sum
         << " file's checksum 0x" << chkSum
         << std::dec;
-    std::cerr << oss.str() << std::endl;
     throw(MyException(oss.str()));  // buffer automatically cleaned up
   }
 
@@ -158,9 +156,7 @@ PD0::loadBlock(std::istream& is)
       default:
 	if (mSeenHeaderTypes.find(hdr) == mSeenHeaderTypes.end()) {
 		mSeenHeaderTypes.insert(hdr);
-		std::cerr << "Unsupported header type 0x" << std::hex << hdr
-			<< " in " << mFilename
-			<< std::endl;
+		LOG_WARN("Unsupported header type 0x{:x} in {}", hdr, mFilename);
         }
     }
   }
@@ -228,7 +224,6 @@ PD0::readByte(std::istream& is,
     if (qThrow) {
       std::ostringstream msg;
       msg << "Error reading a byte from " << mFilename << ", " << strerror(errno);
-      std::cerr << msg.str() << std::endl;
       throw(MyException(msg.str()));
     }
     return 0;
@@ -247,8 +242,7 @@ PD0::readUInt16(std::istream& is,
   if (!is) { // EOF
     if (qThrow) {
       std::ostringstream msg;
-      msg << "Error reading a byte from " << mFilename << ", " << strerror(errno);
-      std::cerr << msg.str() << std::endl;
+      msg << "Error reading two bytes from " << mFilename << ", " << strerror(errno);
       throw(MyException(msg.str()));
     }
     return 0;
@@ -267,8 +261,7 @@ PD0::readUInt32(std::istream& is,
   if (!is) { // EOF
     if (qThrow) {
       std::ostringstream msg;
-      msg << "Error reading a byte from " << mFilename << ", " << strerror(errno);
-      std::cerr << msg.str() << std::endl;
+      msg << "Error reading four bytes from " << mFilename << ", " << strerror(errno);
       throw(MyException(msg.str()));
     }
     return 0;
@@ -295,12 +288,11 @@ PD0::readAndCheckByte(std::istream& is,
 
   std::ostringstream msg;
   msg << "Incorrect header byte(0x" << std::hex << c << ") should have been 0x" << expectedValue << ")";
-  std::cerr << msg.str() << std::endl;
-
   if (qThrow) {
     throw(MyException(msg.str()));
   }
 
+  LOG_WARN("{}", msg.str());
   return false;
 }
 
@@ -722,7 +714,6 @@ PD0::maxNumberOfCells(const std::string& fn)
 
   if (!is) {
     const std::string msg("Error opening '" + fn + "', " + strerror(errno));
-    std::cerr << msg << std::endl;
     throw(MyException(msg));
   }
 

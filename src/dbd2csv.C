@@ -88,7 +88,7 @@ main(int argc,
 
   // Initialize logger
   dbd::logger().init("dbd2csv", dbd::logLevelFromString(logLevel));
-  if (qVerbose) {
+  if (qVerbose && logLevel == "warn") {
     dbd::logger().setLevel(dbd::LogLevel::Info);
   }
 

@@ -39,7 +39,7 @@ namespace {
     const std::string fn(inPath.filename().string());
     fs::path outPath = dir.empty() ? fs::path(fn) : (fs::path(dir) / fn);
     std::string ext(outPath.extension().string());
-    if ((ext.size() == 4) && (tolower(ext[2]) == 'c')) {
+    if ((ext.size() == 4) && (std::tolower(static_cast<unsigned char>(ext[2])) == 'c')) {
       switch (ext[3]) {
         case 'g': ext[2] = 'l'; break;
         case 'G': ext[2] = 'L'; break;
@@ -53,9 +53,9 @@ namespace {
 
   // Cross-platform unique ID generation (replaces getpid())
   std::string uniqueSuffix() {
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
-    static std::uniform_int_distribution<> dis(100000, 999999);
+    thread_local std::random_device rd;
+    thread_local std::mt19937 gen(rd());
+    thread_local std::uniform_int_distribution<> dis(100000, 999999);
     return std::to_string(dis(gen));
   }
 } // Anonymous namespace
@@ -74,7 +74,7 @@ main(int argc,
   app.footer(std::string("\nReport bugs to ") + MAINTAINER);
 
   app.add_option("-o,--output", directory, "Directory where to store the data");
-  app.add_flag("-s,--stdout", qStdOut, "Output to stdout");
+  app.add_flag("-p,--pipe", qStdOut, "Output to stdout");
   app.add_flag("-v,--verbose", qVerbose, "Enable some diagnostic output");
   app.add_option("-l,--log-level", logLevel, "Log level (trace,debug,info,warn,error,critical,off)")
      ->default_val("warn");
@@ -85,7 +85,7 @@ main(int argc,
 
   // Initialize logger
   dbd::logger().init("decompressTWR", dbd::logLevelFromString(logLevel));
-  if (qVerbose) {
+  if (qVerbose && logLevel == "warn") {
     dbd::logger().setLevel(dbd::LogLevel::Info);
   }
 
@@ -128,7 +128,8 @@ main(int argc,
       LOG_INFO("Decompressed '{}' -> '{}'", ifn, ofn);
     } catch (int e) {
       LOG_ERROR("Error creating '{}': {}", ofn, strerror(e));
-      // remove(tfn); // Not found on Macos
+      std::error_code ec;
+      fs::remove(tfn, ec);
     }
   }
 
