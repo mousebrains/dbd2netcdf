@@ -7,6 +7,7 @@
 #include <string>
 #include <map>
 #include <set>
+#include <ctime>
 
 class Header {
 private:
@@ -29,6 +30,8 @@ public:
   typedef std::set<std::string> tMissions;
   static void addMission(std::string name, tMissions& missionList);
   bool qProcessMission(const tMissions& toSkip, const tMissions& toProcess) const;
+
+  static time_t parseFileOpenTime(const std::string& timeStr);
 
   friend std::ostream& operator << (std::ostream& os, const Header& hdr);
 }; // Header

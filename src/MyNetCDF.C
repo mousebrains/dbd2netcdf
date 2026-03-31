@@ -164,25 +164,34 @@ NetCDF::createVar(const std::string& name,
     }
 
     if (availSize > 0) { // space available for unlimited dimensions
-      const size_t iStart(mChunkPriority ? 0 : nDims - 1);
-      const int iOp(mChunkPriority ? 1 : -1);
-      for (size_t i(iStart); i < nDims; i += iOp) {
-          if (lengths[i] == 0) { // An unlimited dimension
-            tDimensionLimits::const_iterator it(mDimensionLimits.find(dims[i]));
-            if ((it != mDimensionLimits.end()) &&
-                (it->second > 0) &&
-                (it->second < availSize)) {
-                chunkSizes[i] = it->second;
-                availSize /= it->second;
-                if (availSize == 0)
-                  break;
-            } else {
-              chunkSizes[i] = availSize;
-              break;
-            }
+      auto assignUnlimited = [&](size_t i) -> bool {
+        if (lengths[i] == 0) { // An unlimited dimension
+          tDimensionLimits::const_iterator it(mDimensionLimits.find(dims[i]));
+          if ((it != mDimensionLimits.end()) &&
+              (it->second > 0) &&
+              (it->second < availSize)) {
+              chunkSizes[i] = it->second;
+              availSize /= it->second;
+              if (availSize == 0)
+                return false; // stop iterating
+          } else {
+            chunkSizes[i] = availSize;
+            return false; // stop iterating
           }
         }
+        return true; // continue
+      };
+
+      if (mChunkPriority) {
+        for (size_t i(0); i < nDims; ++i) {
+          if (!assignUnlimited(i)) break;
+        }
+      } else {
+        for (size_t i(nDims); i-- > 0; ) {
+          if (!assignUnlimited(i)) break;
+        }
       }
+    }
 
       retval = nc_def_var_chunking(mId, varId, NC_CHUNKED, chunkSizes.data());
       if (retval != 0) {

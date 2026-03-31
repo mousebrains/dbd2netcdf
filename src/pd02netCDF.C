@@ -56,7 +56,7 @@ main(int argc,
   }
 
   if (qVerbose)
-    std::cout << "Maximum number of cells " << ((unsigned int) nCells) << std::endl;
+    std::cout << "Maximum number of cells " << static_cast<unsigned int>(nCells) << std::endl;
 
   NetCDF nc(ofn);
   const int hDim(nc.createDim("h"));
@@ -80,8 +80,8 @@ main(int argc,
 
     if (index != sIndex) {
       nc.putVar(hdrFilename, hIndex, fn);
-      nc.putVar(hdrStartIndex, hIndex, (unsigned int) sIndex);
-      nc.putVar(hdrStopIndex, hIndex, (unsigned int) index - 1);
+      nc.putVar(hdrStartIndex, hIndex, static_cast<unsigned int>(sIndex));
+      nc.putVar(hdrStopIndex, hIndex, static_cast<unsigned int>(index - 1));
 
       if (qVerbose)
         std::cout << "Found " << (index - sIndex) << " records in " << fn << std::endl;

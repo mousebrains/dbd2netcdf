@@ -87,9 +87,9 @@ Sensor::read(std::istream& is,
   double val(NAN);
 
   switch (mSize) {
-    case 1: val = (double) kb.read8(is); break;
-    case 2: val = (double) kb.read16(is); break;
-    case 4: val = (double) kb.read32(is); break;
+    case 1: val = static_cast<double>(kb.read8(is)); break;
+    case 2: val = static_cast<double>(kb.read16(is)); break;
+    case 4: val = static_cast<double>(kb.read32(is)); break;
     case 8: val = kb.read64(is); break;
     default:
       std::ostringstream oss;

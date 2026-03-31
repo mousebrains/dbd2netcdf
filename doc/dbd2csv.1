@@ -1,18 +1,20 @@
-.TH dbd2csv "February 2012" "Version 1.0" "USER COMMANDS"
+.TH dbd2csv "March 2026" "Version 1.7.1" "USER COMMANDS"
 .SH NAME
 dbd2csv \- translate
 .I "Dinkum Binary Data"
- files into a comma seperated value,
+ files into a comma separated value,
 .I CSV,
 .SH SYNOPSIS
 .B dbd2csv
-.B [\-hsVv]
+.B [\-hrsASVv]
 .B "[\-c filename]"
 .B "[\-C directory]"
 .B "[\-k filename]"
+.B "[\-l level]"
 .B "[\-m mission]"
 .B "[\-M mission]"
 .B "[\-o filename]"
+.B "[--sort order]"
 dbdFiles...
 .SH DESCRIPTION
 Read in a set of
@@ -82,10 +84,31 @@ Filename of generated comma separated value output.
 
 .B "The \-o option is required."
 .TP
-.B \-s
+.B \-r, \-\-repair
+Attempt to repair bad data records by scanning for the next valid data tag.
+.TP
+.B \-s, \-\-skipFirst
 Skip the first data record in each
 .I "Dinkum Binary Data"
-file, except for the first file.
+file, except for the first file. Mutually exclusive with \-A and \-\-keepFirst.
+.TP
+.B \-A, \-\-skipAll
+Skip the first data record in ALL files including the first.
+Mutually exclusive with \-s and \-\-keepFirst.
+.TP
+.B \-\-keepFirst
+Keep the first record of all files (default behavior). Mutually exclusive
+with \-s and \-A.
+.TP
+.B \-S, \-\-strict
+Fail immediately on any file error (no partial results).
+.TP
+.B "\-\-sort order"
+File sort order before processing. Choices: none (default, preserve command\-line order),
+header_time (sort by fileopen_time from DBD headers), lexicographic (alphabetical).
+.TP
+.B "\-l level, \-\-log\-level level"
+Set the logging level (trace, debug, info, warn, error, critical, off). Default: warn.
 .TP
 .B \-V
 Print out software version.

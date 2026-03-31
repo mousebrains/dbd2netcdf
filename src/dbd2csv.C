@@ -35,6 +35,8 @@
 #include <cstring>
 #include <cstdlib>
 #include <cerrno>
+#include <algorithm>
+#include <numeric>
 #include <CLI/CLI.hpp>
 
 int
@@ -50,9 +52,12 @@ main(int argc,
   std::vector<std::string> inputFiles;
   std::string logLevel = "warn";
   bool qSkipFirstRecord(false);
+  bool qSkipAllFirst(false);
+  bool qKeepFirst(false);
   bool qRepair(false);
   bool qStrict(false);
   bool qVerbose(false);
+  std::string sortOrder = "none";
 
   CLI::App app{"Convert Dinkum Binary Data files to CSV", "dbd2csv"};
   app.footer(std::string("\nReport bugs to ") + MAINTAINER);
@@ -63,10 +68,17 @@ main(int argc,
   app.add_option("-m,--skipMission", missionsToSkipVec, "Mission to skip (can be repeated)")->type_size(1)->allow_extra_args(false);
   app.add_option("-M,--keepMission", missionsToKeepVec, "Mission to keep (can be repeated)")->type_size(1)->allow_extra_args(false);
   app.add_option("-o,--output", outputFilename, "Where to store the data");
-  app.add_flag("-s,--skipFirst", qSkipFirstRecord, "Skip first record in each file, but the first file");
+  auto* skipGroup = app.add_option_group("first-record", "First record handling");
+  skipGroup->add_flag("-s,--skipFirst", qSkipFirstRecord, "Skip first record in each file, but the first");
+  skipGroup->add_flag("-A,--skipAll", qSkipAllFirst, "Skip first record in ALL files including the first");
+  skipGroup->add_flag("--keepFirst", qKeepFirst, "Keep first record of all files (default)");
+  skipGroup->require_option(0, 1);
   app.add_flag("-r,--repair", qRepair, "Attempt to repair bad data records");
   app.add_flag("-S,--strict", qStrict, "Fail immediately on any file error (no partial results)");
   app.add_flag("-v,--verbose", qVerbose, "Enable some diagnostic output");
+  app.add_option("--sort", sortOrder, "File sort order (none, header_time, lexicographic)")
+     ->default_val("none")
+     ->check(CLI::IsMember({"none", "header_time", "lexicographic"}));
   app.add_option("-l,--log-level", logLevel, "Log level (trace,debug,info,warn,error,critical,off)")
      ->default_val("warn");
   app.add_option("files", inputFiles, "Input DBD files")->required()->check(CLI::ExistingFile);
@@ -115,8 +127,11 @@ main(int argc,
 
   // Go through and grab all the known sensors
 
+  // First pass: discover sensors across all files (files re-opened in second pass for data)
   typedef std::vector<size_t> tFileIndices;
   tFileIndices fileIndices;
+  std::vector<time_t> fileOpenTimes;
+  std::vector<size_t> fileSizes;
 
   for (size_t i = 0; i < inputFiles.size(); ++i) {
     const char* fn = inputFiles[i].c_str();
@@ -130,6 +145,8 @@ main(int argc,
       if (!hdr.empty() && hdr.qProcessMission(missionsToSkip, missionsToKeep)) {
         smap.insert(is, hdr, false);
         fileIndices.push_back(i);
+        fileOpenTimes.push_back(Header::parseFileOpenTime(hdr.find("fileopen_time")));
+        fileSizes.push_back(fs::file_size(fn));
       }
     } catch (MyException& e) {
       if (qStrict) {
@@ -143,6 +160,36 @@ main(int argc,
   if (fileIndices.empty()) {
     LOG_ERROR("No input files found to process!");
     return(1);
+  }
+
+  if (sortOrder == "header_time") {
+    std::vector<size_t> perm(fileIndices.size());
+    std::iota(perm.begin(), perm.end(), 0);
+    std::sort(perm.begin(), perm.end(), [&](size_t a, size_t b) {
+      return fileOpenTimes[a] < fileOpenTimes[b];
+    });
+    tFileIndices sortedIdx(fileIndices.size());
+    std::vector<size_t> sortedSizes(fileSizes.size());
+    for (size_t i = 0; i < perm.size(); ++i) {
+      sortedIdx[i] = fileIndices[perm[i]];
+      sortedSizes[i] = fileSizes[perm[i]];
+    }
+    fileIndices = std::move(sortedIdx);
+    fileSizes = std::move(sortedSizes);
+  } else if (sortOrder == "lexicographic") {
+    std::vector<size_t> perm(fileIndices.size());
+    std::iota(perm.begin(), perm.end(), 0);
+    std::sort(perm.begin(), perm.end(), [&](size_t a, size_t b) {
+      return inputFiles[fileIndices[a]] < inputFiles[fileIndices[b]];
+    });
+    tFileIndices sortedIdx(fileIndices.size());
+    std::vector<size_t> sortedSizes(fileSizes.size());
+    for (size_t i = 0; i < perm.size(); ++i) {
+      sortedIdx[i] = fileIndices[perm[i]];
+      sortedSizes[i] = fileSizes[perm[i]];
+    }
+    fileIndices = std::move(sortedIdx);
+    fileSizes = std::move(sortedSizes);
   }
 
   smap.qKeep(toKeep);
@@ -182,7 +229,7 @@ main(int argc,
     const Sensors& sensors(smap.find(hdr));
     const KnownBytes kb(is);          // Get little/big endian
     Data data;
-    const size_t nBytes(fs::file_size(fn));
+    const size_t nBytes(fileSizes[ii]);
 
     try {
       data.load(is, kb, sensors, qRepair, nBytes);
@@ -199,7 +246,7 @@ main(int argc,
     data.delim(",");
 
     const size_t n(data.size());
-    const size_t kStart(ii == 0 ? 0 : k0);
+    const size_t kStart(qSkipAllFirst ? 1 : (ii == 0 ? 0 : k0));
 
     if (n > kStart) { // some data to output
       for (size_t k(kStart); k < n; ++k) {

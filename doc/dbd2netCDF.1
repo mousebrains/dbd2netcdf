@@ -1,4 +1,4 @@
-.TH dbd2netCDF "February 2012" "Version 1.0" "USER COMMANDS"
+.TH dbd2netCDF "March 2026" "Version 1.7.1" "USER COMMANDS"
 .SH NAME
 dbd2netCDF \- translate
 .I "Dinkum Binary Data"
@@ -7,13 +7,17 @@ dbd2netCDF \- translate
 file
 .SH SYNOPSIS
 .B dbd2netCDF
-.B [\-hsVv]
+.B [\-ahrsASVv]
+.B "[\-b size]"
 .B "[\-c filename]"
 .B "[\-C directory]"
 .B "[\-k filename]"
+.B "[\-l level]"
 .B "[\-m mission]"
 .B "[\-M mission]"
 .B "[\-o filename]"
+.B "[\-z level]"
+.B "[--sort order]"
 dbdFiles...
 .SH DESCRIPTION
 Read in a set of
@@ -87,10 +91,41 @@ output file.
 
 .B "The \-o option is required."
 .TP
-.B \-s
+.B \-a, \-\-append
+Append to an existing NetCDF file instead of overwriting.
+.TP
+.B "\-b size, \-\-batch\-size size"
+Number of files per batch (default 100). Set to 0 to process all files at once.
+Batching releases HDF5 chunk metadata between batches to reduce memory usage.
+.TP
+.B \-r, \-\-repair
+Attempt to repair bad data records by scanning for the next valid data tag.
+.TP
+.B \-s, \-\-skipFirst
 Skip the first data record in each
 .I "Dinkum Binary Data"
-file, except for the first file.
+file, except for the first file. Mutually exclusive with \-A and \-\-keepFirst.
+.TP
+.B \-A, \-\-skipAll
+Skip the first data record in ALL files including the first.
+Mutually exclusive with \-s and \-\-keepFirst.
+.TP
+.B \-\-keepFirst
+Keep the first record of all files (default behavior). Mutually exclusive
+with \-s and \-A.
+.TP
+.B \-S, \-\-strict
+Fail immediately on any file error (no partial results).
+.TP
+.B "\-z level, \-\-compression level"
+Zlib compression level for the NetCDF output (0=none, 9=max, default 5).
+.TP
+.B "\-\-sort order"
+File sort order before processing. Choices: none (default, preserve command\-line order),
+header_time (sort by fileopen_time from DBD headers), lexicographic (alphabetical).
+.TP
+.B "\-l level, \-\-log\-level level"
+Set the logging level (trace, debug, info, warn, error, critical, off). Default: warn.
 .TP
 .B \-V
 Print out software version.
@@ -128,8 +163,8 @@ Each dbd file's header information is recorded in a set of variables prefixed
 by
 .B hdr_
 and indexed by
-.B i
-.
+.B j
+(the file dimension).
 
 Use
 .B ncdump -h foobar.nc

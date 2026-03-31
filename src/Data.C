@@ -66,7 +66,8 @@ Data::load(std::istream& is,
   };
 
   auto growColumns = [&]() {
-    const size_t newSize(mData[0].size() + dSize);
+    const size_t oldSize(mData[0].size());
+    const size_t newSize(oldSize + oldSize / 2 + 1); // 1.5x exponential growth
     for (size_t j(0); j < nToStore; ++j) {
       mData[j].resize(newSize, NAN);
     }

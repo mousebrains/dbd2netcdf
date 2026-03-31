@@ -60,6 +60,12 @@ PD0::loadBlock(std::istream& is)
 
   const size_t nBytes(readUInt16(is)); // Number of bytes in ensemble
 
+  if (nBytes < 4) {
+    std::ostringstream oss;
+    oss << "PD0 ensemble size too small (" << nBytes << " bytes) in '" << mFilename << "'";
+    throw(MyException(oss.str()));
+  }
+
   std::vector<char> buffer(nBytes);  // RAII - automatic cleanup
 
   buffer[0] = 0x7f;
@@ -84,7 +90,7 @@ PD0::loadBlock(std::istream& is)
 
   unsigned int sum(0);
   for (size_t i(0); i < nBytes; ++i) {
-    sum = (sum + (unsigned char) buffer[i]) & 0xffff;
+    sum = (sum + static_cast<unsigned char>(buffer[i])) & 0xffff;
   }
 
   if (sum != chkSum) {
@@ -228,7 +234,7 @@ PD0::readByte(std::istream& is,
     return 0;
   }
 
-  return ((unsigned char) c) & 0xff;
+  return static_cast<unsigned char>(c) & 0xff;
 }
 
 uint16_t
@@ -371,12 +377,12 @@ PD0::Common::dump(std::ostream& os)
     }
     for (tArray::size_type j(0), je(mItems[i].mArray.size()); j < je; ++j) {
       switch (mItems[i].mType) {
-        case dtUInt8:  os << " " << (uint16_t)  mItems[i].mArray[j].ui32; break;
-        case dtUInt16: os << " " << (uint16_t) mItems[i].mArray[j].ui32; break;
-        case dtUInt32: os << " " << (uint32_t) mItems[i].mArray[j].ui32; break;
-        case dtInt8:   os << " " << (int16_t)   mItems[i].mArray[j].ui32; break;
-        case dtInt16:  os << " " << (int16_t)  mItems[i].mArray[j].ui32; break;
-        case dtInt32:  os << " " << (int32_t)  mItems[i].mArray[j].ui32; break;
+        case dtUInt8:  os << " " << static_cast<uint16_t>(mItems[i].mArray[j].ui32); break;
+        case dtUInt16: os << " " << static_cast<uint16_t>(mItems[i].mArray[j].ui32); break;
+        case dtUInt32: os << " " << static_cast<uint32_t>(mItems[i].mArray[j].ui32); break;
+        case dtInt8:   os << " " << static_cast<int16_t>(mItems[i].mArray[j].ui32); break;
+        case dtInt16:  os << " " << static_cast<int16_t>(mItems[i].mArray[j].ui32); break;
+        case dtInt32:  os << " " << static_cast<int32_t>(mItems[i].mArray[j].ui32); break;
       }
     }
     os << std::endl;
@@ -568,7 +574,7 @@ PD0::Velocity::load(std::istream& is,
     mItems.push_back(Item("velocity", dtInt16, nSize, -1, "mm/s"));
   }
 
-  return ((Common *) this)->load(is, pd0);
+  return static_cast<Common*>(this)->load(is, pd0);
 }
 
 void
@@ -611,7 +617,7 @@ PD0::Correlation::load(std::istream& is,
     mItems.push_back(Item(mName, dtUInt8, nSize));
   }
 
-  return ((Common *) this)->load(is, pd0);
+  return static_cast<Common*>(this)->load(is, pd0);
 }
 
 void
@@ -673,7 +679,7 @@ bool
 PD0::BottomTrack::load(std::istream& is,
                        PD0& pd0)
 {
-  return ((Common *) this)->load(is, pd0);
+  return static_cast<Common*>(this)->load(is, pd0);
 }
 
 PD0::VMDAS::VMDAS()
@@ -706,7 +712,7 @@ bool
 PD0::VMDAS::load(std::istream& is,
                        PD0& pd0)
 {
-  return ((Common *) this)->load(is, pd0);
+  return static_cast<Common*>(this)->load(is, pd0);
 }
 
 uint8_t

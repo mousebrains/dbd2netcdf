@@ -22,6 +22,10 @@
 #include "Logger.H"
 #include <iostream>
 #include <cstdlib>
+#include <sstream>
+#include <iomanip>
+#include <algorithm>
+#include <limits>
 
 namespace {
   std::string tolower(std::string str) {
@@ -52,7 +56,10 @@ Header::Header(std::istream& is, const char *fn)
     mRecords.insert(std::make_pair(key, value));
     if (key == "num_ascii_tags") {
       try {
-        nLines = std::stoi(value);
+        const int parsed = std::stoi(value);
+        nLines = (parsed > 0 && parsed <= 10000)
+                     ? static_cast<tRecords::size_type>(parsed)
+                     : 0;
       } catch (const std::exception&) {
         nLines = 0;  // Default to 0 on parse error
       }
@@ -124,6 +131,23 @@ Header::qProcessMission(const tMissions& toSkip,
   }
 
   return toKeep.empty() || (toKeep.find(mission) != toKeep.end());
+}
+
+time_t
+Header::parseFileOpenTime(const std::string& timeStr)
+{
+  if (timeStr.empty()) return std::numeric_limits<time_t>::max();
+  std::string s(timeStr);
+  std::replace(s.begin(), s.end(), '_', ' ');
+  struct tm tm = {};
+  std::istringstream iss(s);
+  iss >> std::get_time(&tm, "%a %b %d %H:%M:%S %Y");
+  if (iss.fail()) return std::numeric_limits<time_t>::max();
+#ifdef _WIN32
+  return _mkgmtime(&tm);
+#else
+  return timegm(&tm);
+#endif
 }
 
 std::ostream&
