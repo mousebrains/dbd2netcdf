@@ -37,6 +37,8 @@
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
+#include <algorithm>
+#include <numeric>
 #include <CLI/CLI.hpp>
 
 int
@@ -53,11 +55,14 @@ main(int argc,
   std::string logLevel = "warn";
   bool qAppend(false);
   bool qSkipFirstRecord(false);
+  bool qSkipAllFirst(false);
+  bool qKeepFirst(false);
   bool qRepair(false);
   bool qStrict(false);
   bool qVerbose(false);
   int compressionLevel(5);
   size_t batchSize(100);
+  std::string sortOrder = "none";
 
   CLI::App app{"Convert Dinkum Binary Data files to NetCDF", "dbd2netCDF"};
   app.footer(std::string("\nReport bugs to ") + MAINTAINER);
@@ -69,7 +74,11 @@ main(int argc,
   app.add_option("-m,--skipMission", missionsToSkipVec, "Mission to skip (can be repeated)")->type_size(1)->allow_extra_args(false);
   app.add_option("-M,--keepMission", missionsToKeepVec, "Mission to keep (can be repeated)")->type_size(1)->allow_extra_args(false);
   app.add_option("-o,--output", outputFilename, "Where to store the data")->required();
-  app.add_flag("-s,--skipFirst", qSkipFirstRecord, "Skip first record in each file, but the first");
+  auto* skipGroup = app.add_option_group("first-record", "First record handling");
+  skipGroup->add_flag("-s,--skipFirst", qSkipFirstRecord, "Skip first record in each file, but the first");
+  skipGroup->add_flag("-A,--skipAll", qSkipAllFirst, "Skip first record in ALL files including the first");
+  skipGroup->add_flag("--keepFirst", qKeepFirst, "Keep first record of all files (default)");
+  skipGroup->require_option(0, 1);
   app.add_flag("-r,--repair", qRepair, "Attempt to repair bad data records");
   app.add_flag("-S,--strict", qStrict, "Fail immediately on any file error (no partial results)");
   app.add_flag("-v,--verbose", qVerbose, "Enable some diagnostic output");
@@ -78,6 +87,9 @@ main(int argc,
      ->check(CLI::Range(0, 9));
   app.add_option("-b,--batch-size", batchSize, "Files per batch (0=all at once, reduces memory)")
      ->default_val("100");
+  app.add_option("--sort", sortOrder, "File sort order (none, header_time, lexicographic)")
+     ->default_val("none")
+     ->check(CLI::IsMember({"none", "header_time", "lexicographic"}));
   app.add_option("-l,--log-level", logLevel, "Log level (trace,debug,info,warn,error,critical,off)")
      ->default_val("warn");
   app.add_option("files", inputFiles, "Input DBD files")->required()->check(CLI::ExistingFile);
@@ -87,7 +99,7 @@ main(int argc,
 
   // Initialize logger
   dbd::logger().init("dbd2netCDF", dbd::logLevelFromString(logLevel));
-  if (qVerbose) {
+  if (qVerbose && logLevel == "warn") {
     dbd::logger().setLevel(dbd::LogLevel::Info);
   }
 
@@ -116,8 +128,11 @@ main(int argc,
 
   // Go through and grab all the known sensors
 
+  // First pass: discover sensors across all files (files re-opened in second pass for data)
   typedef std::vector<size_t> tFileIndices;
   tFileIndices fileIndices;
+  std::vector<time_t> fileOpenTimes;
+  std::vector<size_t> fileSizes; // Cache file sizes to avoid repeated fs::file_size calls
 
   for (size_t i = 0; i < inputFiles.size(); ++i) {
     const char* fn = inputFiles[i].c_str();
@@ -126,16 +141,57 @@ main(int argc,
       LOG_ERROR("Error opening '{}': {}", fn, strerror(errno));
       return(1);
     }
-    const Header hdr(is, fn);
-    if (!hdr.empty() && hdr.qProcessMission(missionsToSkip, missionsToKeep)) {
-      smap.insert(is, hdr, false);
-      fileIndices.push_back(i);
+    try {
+      const Header hdr(is, fn);
+      if (!hdr.empty() && hdr.qProcessMission(missionsToSkip, missionsToKeep)) {
+        smap.insert(is, hdr, false);
+        fileIndices.push_back(i);
+        fileOpenTimes.push_back(Header::parseFileOpenTime(hdr.find("fileopen_time")));
+        fileSizes.push_back(fs::file_size(fn));
+      }
+    } catch (MyException& e) {
+      if (qStrict) {
+        LOG_ERROR("Error processing '{}': {}", fn, e.what());
+        return(1);
+      }
+      LOG_WARN("Error processing '{}': {} (skipping file)", fn, e.what());
     }
   }
 
   if (fileIndices.empty()) {
     LOG_ERROR("No input files found to process!");
     return(1);
+  }
+
+  if (sortOrder == "header_time") {
+    std::vector<size_t> perm(fileIndices.size());
+    std::iota(perm.begin(), perm.end(), 0);
+    std::sort(perm.begin(), perm.end(), [&](size_t a, size_t b) {
+      return fileOpenTimes[a] < fileOpenTimes[b];
+    });
+    tFileIndices sortedIdx(fileIndices.size());
+    std::vector<size_t> sortedSizes(fileSizes.size());
+    for (size_t i = 0; i < perm.size(); ++i) {
+      sortedIdx[i] = fileIndices[perm[i]];
+      sortedSizes[i] = fileSizes[perm[i]];
+    }
+    fileIndices = std::move(sortedIdx);
+    fileSizes = std::move(sortedSizes);
+  } else if (sortOrder == "lexicographic") {
+    // Build permutation to keep fileSizes in sync
+    std::vector<size_t> perm(fileIndices.size());
+    std::iota(perm.begin(), perm.end(), 0);
+    std::sort(perm.begin(), perm.end(), [&](size_t a, size_t b) {
+      return inputFiles[fileIndices[a]] < inputFiles[fileIndices[b]];
+    });
+    tFileIndices sortedIdx(fileIndices.size());
+    std::vector<size_t> sortedSizes(fileSizes.size());
+    for (size_t i = 0; i < perm.size(); ++i) {
+      sortedIdx[i] = fileIndices[perm[i]];
+      sortedSizes[i] = fileSizes[perm[i]];
+    }
+    fileIndices = std::move(sortedIdx);
+    fileSizes = std::move(sortedSizes);
   }
 
   smap.qKeep(toKeep);
@@ -181,6 +237,12 @@ main(int argc,
 
     NetCDF ncid(ofn, qAppend || batchStart > 0);
     ncid.compressionLevel(compressionLevel);
+
+    if (batchStart == 0 && !qAppend) {
+      ncid.putGlobalAtt("Conventions", "CF-1.10");
+      ncid.putGlobalAtt("history", std::string("Created by dbd2netCDF ") + VERSION);
+      ncid.putGlobalAtt("source", "Slocum Glider Dinkum Binary Data files");
+    }
 
     const int iDim(ncid.maybeCreateDim(DATA_DIMENSION));
     const int jDim(ncid.maybeCreateDim(FILE_DIMENSION));
@@ -236,7 +298,7 @@ main(int argc,
         const Sensors& sensors(smap.find(hdr));
         const KnownBytes kb(is);          // Get little/big endian
         Data data;
-        const size_t nBytes(fs::file_size(fn));
+        const size_t nBytes(fileSizes[ii]);
 
         try {
           data.load(is, kb, sensors, qRepair, nBytes);
@@ -251,20 +313,20 @@ main(int argc,
         if (data.empty()) continue;
 
         const size_t n(data.size());
-        const size_t kStart(ii == 0 ? 0 : k0);
+        const size_t kStart(qSkipAllFirst ? 1 : (ii == 0 ? 0 : k0));
 
         { // Update file info
           for (tVars::size_type j(0), je(hdrVars.size()); j < je; ++j) {
             const std::string str(hdr.find(hdrNames[j]));
-            ncid.putVar(hdrVars[j], (size_t) ii + jOffset, str);
+            ncid.putVar(hdrVars[j], static_cast<size_t>(ii) + jOffset, str);
           }
           if (n > kStart) {
             const unsigned int stopIndex(static_cast<unsigned int>(indexOffset + n - kStart - 1));
 
-            ncid.putVar(hdrStartIndex, (size_t) ii + jOffset, (unsigned int) indexOffset);
-            ncid.putVar(hdrStopIndex, (size_t) ii + jOffset, stopIndex);
+            ncid.putVar(hdrStartIndex, static_cast<size_t>(ii) + jOffset, static_cast<unsigned int>(indexOffset));
+            ncid.putVar(hdrStopIndex, static_cast<size_t>(ii) + jOffset, stopIndex);
           }
-          ncid.putVar(hdrLength, (size_t) ii + jOffset, (unsigned int)(n - kStart));
+          ncid.putVar(hdrLength, static_cast<size_t>(ii) + jOffset, static_cast<unsigned int>(n - kStart));
         }
 
         if (n <= kStart) { // No data to be written

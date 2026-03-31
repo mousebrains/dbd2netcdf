@@ -21,7 +21,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Get version from tag
       id: get-version
@@ -43,7 +43,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Install dependencies
       run: |
@@ -72,7 +72,7 @@ jobs:
         cpack --config CPackSourceConfig.cmake
 
     - name: Upload artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: linux-packages
         path: |
@@ -87,7 +87,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Install dependencies
       run: |
@@ -112,7 +112,7 @@ jobs:
         cpack -G TGZ
 
     - name: Upload artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: macos-packages
         path: build/dbd2netcdf-*-Darwin*.tar.gz
@@ -121,13 +121,15 @@ jobs:
     name: Windows (MSVC)
     needs: validate-version
     runs-on: windows-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     defaults:
       run:
         shell: pwsh
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Setup MSVC
       uses: ilammy/msvc-dev-cmd@v1
@@ -144,7 +146,7 @@ jobs:
 
     - name: Install dependencies via conda
       run: |
-        conda install -y libnetcdf hdf5 cmake ninja
+        conda install -y libnetcdf hdf5 zlib cmake ninja
 
     - name: Configure CMake
       run: |
@@ -166,7 +168,7 @@ jobs:
         cpack -G ZIP
 
     - name: Upload artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: windows-packages
         path: build/dbd2netcdf-*-win64*.zip
@@ -178,10 +180,10 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v6
 
     - name: Download all artifacts
-      uses: actions/download-artifact@v4
+      uses: actions/download-artifact@v8
       with:
         path: artifacts
         merge-multiple: true

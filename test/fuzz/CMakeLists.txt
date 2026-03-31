@@ -50,10 +50,34 @@ if(BUILD_FUZZ_TESTS)
         RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
     )
 
+    # Fuzz target: Data binary record parsing
+    add_executable(fuzz_data fuzz_data.cpp ${dbd2netcdf_SOURCE_DIR}/src/Data.C)
+    target_link_libraries(fuzz_data PRIVATE dbd_common)
+    target_compile_options(fuzz_data PRIVATE ${FUZZ_COMPILE_FLAGS})
+    target_link_options(fuzz_data PRIVATE ${FUZZ_LINK_FLAGS})
+    set_target_properties(fuzz_data PROPERTIES
+        CXX_STANDARD 17
+        CXX_STANDARD_REQUIRED ON
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+    )
+
+    # Fuzz target: LZ4 decompression stream
+    add_executable(fuzz_decompress fuzz_decompress.cpp)
+    target_link_libraries(fuzz_decompress PRIVATE dbd_common)
+    target_compile_options(fuzz_decompress PRIVATE ${FUZZ_COMPILE_FLAGS})
+    target_link_options(fuzz_decompress PRIVATE ${FUZZ_LINK_FLAGS})
+    set_target_properties(fuzz_decompress PROPERTIES
+        CXX_STANDARD 17
+        CXX_STANDARD_REQUIRED ON
+        RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin
+    )
+
     # Create corpus directories for seeds
     file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/fuzz_corpus/sensor)
     file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/fuzz_corpus/header)
     file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/fuzz_corpus/knownbytes)
+    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/fuzz_corpus/data)
+    file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/fuzz_corpus/decompress)
 
     # Custom target to run fuzz tests
     add_custom_target(fuzz
@@ -61,7 +85,9 @@ if(BUILD_FUZZ_TESTS)
         COMMAND ${CMAKE_COMMAND} -E echo "  ./bin/fuzz_sensor fuzz_corpus/sensor -max_total_time=60"
         COMMAND ${CMAKE_COMMAND} -E echo "  ./bin/fuzz_header fuzz_corpus/header -max_total_time=60"
         COMMAND ${CMAKE_COMMAND} -E echo "  ./bin/fuzz_knownbytes fuzz_corpus/knownbytes -max_total_time=60"
-        DEPENDS fuzz_sensor fuzz_header fuzz_knownbytes
+        COMMAND ${CMAKE_COMMAND} -E echo "  ./bin/fuzz_data fuzz_corpus/data -max_total_time=60"
+        COMMAND ${CMAKE_COMMAND} -E echo "  ./bin/fuzz_decompress fuzz_corpus/decompress -max_total_time=60"
+        DEPENDS fuzz_sensor fuzz_header fuzz_knownbytes fuzz_data fuzz_decompress
         WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
     )
 endif()

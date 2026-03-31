@@ -108,6 +108,93 @@ if [ "$actual_dim" != "287" ]; then
 fi
 rm -f "$skipfn"
 
+# Test --skipAll with single file
+echo "Testing --skipAll with single file..."
+skipall1=$TMP/skipAll1.nc
+if ! "$CMD" -A -o "$skipall1" test.sbd; then
+  echo "Failed to execute $CMD with --skipAll (single file)"
+  rm -f "$skipall1"
+  exit 1
+fi
+# sbd has 94 records; --skipAll skips first => 93
+actual_dim=$(ncdump -h "$skipall1" | grep 'i = UNLIMITED' | grep -o '[0-9]\+')
+if [ "$actual_dim" != "93" ]; then
+  echo "skipAll single-file dimension mismatch: expected 93, got $actual_dim"
+  rm -f "$skipall1"
+  exit 1
+fi
+rm -f "$skipall1"
+
+# Test --skipAll with two files
+echo "Testing --skipAll with two files..."
+skipall2=$TMP/skipAll2.nc
+if ! "$CMD" -A -o "$skipall2" test.sbd test.tbd; then
+  echo "Failed to execute $CMD with --skipAll (two files)"
+  rm -f "$skipall2"
+  exit 1
+fi
+# sbd=94, tbd=194; --skipAll skips first of both => 93+193=286
+actual_dim=$(ncdump -h "$skipall2" | grep 'i = UNLIMITED' | grep -o '[0-9]\+')
+if [ "$actual_dim" != "286" ]; then
+  echo "skipAll two-file dimension mismatch: expected 286, got $actual_dim"
+  rm -f "$skipall2"
+  exit 1
+fi
+rm -f "$skipall2"
+
+# Test mutual exclusion of skip flags
+echo "Testing mutual exclusion of --skipFirst and --skipAll..."
+if "$CMD" -s -A -o /dev/null test.sbd 2>/dev/null; then
+  echo "Should have failed with both --skipFirst and --skipAll"
+  exit 1
+fi
+
+# Test --sort header_time
+echo "Testing --sort header_time..."
+sorthdr=$TMP/sort_hdr.nc
+if ! "$CMD" --sort header_time -o "$sorthdr" test.sbd test.tbd; then
+  echo "Failed to execute $CMD with --sort header_time"
+  rm -f "$sorthdr"
+  exit 1
+fi
+rm -f "$sorthdr"
+
+# Test --sort header_time produces correct order (pass files in reverse time order)
+echo "Testing --sort header_time order..."
+sorthdr_order=$TMP/sort_hdr_order.nc
+if ! "$CMD" --sort header_time -o "$sorthdr_order" test.tbd test.sbd; then
+  echo "Failed to execute $CMD with --sort header_time (order test)"
+  rm -f "$sorthdr_order"
+  exit 1
+fi
+# sbd=Sep_20 (earlier), tbd=Sep_21 (later). After sort, sbd should come first.
+first_time=$(ncdump -v hdr_fileopen_time "$sorthdr_order" | grep 'hdr_fileopen_time =' | grep -o '"[^"]*"' | head -1)
+if echo "$first_time" | grep -q "Sep_20"; then
+  echo "Sort order correct: Sep_20 before Sep_21"
+else
+  echo "Sort order WRONG: expected Sep_20 first, got $first_time"
+  rm -f "$sorthdr_order"
+  exit 1
+fi
+rm -f "$sorthdr_order"
+
+# Test --sort lexicographic
+echo "Testing --sort lexicographic..."
+sortlex=$TMP/sort_lex.nc
+if ! "$CMD" --sort lexicographic -o "$sortlex" test.sbd test.tbd; then
+  echo "Failed to execute $CMD with --sort lexicographic"
+  rm -f "$sortlex"
+  exit 1
+fi
+rm -f "$sortlex"
+
+# Test invalid --sort value
+echo "Testing invalid --sort value..."
+if "$CMD" --sort bogus -o /dev/null test.sbd 2>/dev/null; then
+  echo "Should have failed with invalid sort value"
+  exit 1
+fi
+
 # Test command-line options
 echo "Testing version flag..."
 if ! "$CMD" --version >/dev/null 2>&1; then

@@ -1,4 +1,4 @@
-netcdf test.both {
+netcdf both {
 dimensions:
 	i = UNLIMITED ; // (288 currently)
 	j = UNLIMITED ; // (2 currently)
@@ -70,6 +70,11 @@ variables:
 	uint hdr_start_index(j) ;
 	uint hdr_stop_index(j) ;
 	uint hdr_nRecords(j) ;
+
+// global attributes:
+		:Conventions = "CF-1.10" ;
+		:history = "Created by dbd2netCDF 1.7.2" ;
+		:source = "Slocum Glider Dinkum Binary Data files" ;
 data:
 
  sci_m_present_time = _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, _, 

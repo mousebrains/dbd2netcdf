@@ -156,9 +156,9 @@ Sensors::mkFilename(const std::string& dir) const
 namespace {
   // Generate a unique temporary filename suffix
   std::string uniqueTempSuffix() {
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
-    static std::uniform_int_distribution<> dis(100000, 999999);
+    thread_local std::random_device rd;
+    thread_local std::mt19937 gen(rd());
+    thread_local std::uniform_int_distribution<> dis(100000, 999999);
     return std::to_string(dis(gen));
   }
 }
@@ -257,9 +257,13 @@ Sensors::load(const std::string& dir,
   }
 
   for (std::string line; getline(is, line);) {
-    const Sensor sensor(line);
-    if (sensor.qAvailable()) {
-      mSensors.push_back(sensor);
+    try {
+      const Sensor sensor(line);
+      if (sensor.qAvailable()) {
+        mSensors.push_back(sensor);
+      }
+    } catch (const MyException& e) {
+      LOG_WARN("Skipping corrupt cache line in '{}': {}", filename, e.what());
     }
   }
 

@@ -1,6 +1,7 @@
 #include "PD0.H"
 #include "MyNetCDF.H"
 #include "MyException.H"
+#include "Logger.H"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -28,7 +29,6 @@ PD0::load(const std::string& fn,
 
   if (!is) {
     const std::string msg("Error opening '" + fn + "', " + strerror(errno));
-    std::cerr << msg << std::endl;
     throw(MyException(msg));
   }
 
@@ -60,6 +60,12 @@ PD0::loadBlock(std::istream& is)
 
   const size_t nBytes(readUInt16(is)); // Number of bytes in ensemble
 
+  if (nBytes < 4) {
+    std::ostringstream oss;
+    oss << "PD0 ensemble size too small (" << nBytes << " bytes) in '" << mFilename << "'";
+    throw(MyException(oss.str()));
+  }
+
   std::vector<char> buffer(nBytes);  // RAII - automatic cleanup
 
   buffer[0] = 0x7f;
@@ -73,7 +79,6 @@ PD0::loadBlock(std::istream& is)
     const std::string reason(is.eof() ? "end-of-file" : (is.fail() ? "fail" : "bad"));
     std::ostringstream oss;
     oss << "Error reading " << nBytes << " bytes from '" << mFilename << "', " << reason;
-    std::cerr << oss.str() << std::endl;
     if (!is.eof())
       throw(MyException(oss.str()));  // buffer automatically cleaned up
     return false;
@@ -84,7 +89,7 @@ PD0::loadBlock(std::istream& is)
 
   unsigned int sum(0);
   for (size_t i(0); i < nBytes; ++i) {
-    sum = (sum + (unsigned char) buffer[i]) & 0xffff;
+    sum = (sum + static_cast<unsigned char>(buffer[i])) & 0xffff;
   }
 
   if (sum != chkSum) {
@@ -94,7 +99,6 @@ PD0::loadBlock(std::istream& is)
         << " calculated check sum 0x" << std::hex << sum
         << " file's checksum 0x" << chkSum
         << std::dec;
-    std::cerr << oss.str() << std::endl;
     throw(MyException(oss.str()));  // buffer automatically cleaned up
   }
 
@@ -152,9 +156,7 @@ PD0::loadBlock(std::istream& is)
       default:
 	if (mSeenHeaderTypes.find(hdr) == mSeenHeaderTypes.end()) {
 		mSeenHeaderTypes.insert(hdr);
-		std::cerr << "Unsupported header type 0x" << std::hex << hdr
-			<< " in " << mFilename
-			<< std::endl;
+		LOG_WARN("Unsupported header type 0x{:x} in {}", hdr, mFilename);
         }
     }
   }
@@ -222,13 +224,12 @@ PD0::readByte(std::istream& is,
     if (qThrow) {
       std::ostringstream msg;
       msg << "Error reading a byte from " << mFilename << ", " << strerror(errno);
-      std::cerr << msg.str() << std::endl;
       throw(MyException(msg.str()));
     }
     return 0;
   }
 
-  return ((unsigned char) c) & 0xff;
+  return static_cast<unsigned char>(c) & 0xff;
 }
 
 uint16_t
@@ -241,8 +242,7 @@ PD0::readUInt16(std::istream& is,
   if (!is) { // EOF
     if (qThrow) {
       std::ostringstream msg;
-      msg << "Error reading a byte from " << mFilename << ", " << strerror(errno);
-      std::cerr << msg.str() << std::endl;
+      msg << "Error reading two bytes from " << mFilename << ", " << strerror(errno);
       throw(MyException(msg.str()));
     }
     return 0;
@@ -261,8 +261,7 @@ PD0::readUInt32(std::istream& is,
   if (!is) { // EOF
     if (qThrow) {
       std::ostringstream msg;
-      msg << "Error reading a byte from " << mFilename << ", " << strerror(errno);
-      std::cerr << msg.str() << std::endl;
+      msg << "Error reading four bytes from " << mFilename << ", " << strerror(errno);
       throw(MyException(msg.str()));
     }
     return 0;
@@ -289,12 +288,11 @@ PD0::readAndCheckByte(std::istream& is,
 
   std::ostringstream msg;
   msg << "Incorrect header byte(0x" << std::hex << c << ") should have been 0x" << expectedValue << ")";
-  std::cerr << msg.str() << std::endl;
-
   if (qThrow) {
     throw(MyException(msg.str()));
   }
 
+  LOG_WARN("{}", msg.str());
   return false;
 }
 
@@ -371,12 +369,12 @@ PD0::Common::dump(std::ostream& os)
     }
     for (tArray::size_type j(0), je(mItems[i].mArray.size()); j < je; ++j) {
       switch (mItems[i].mType) {
-        case dtUInt8:  os << " " << (uint16_t)  mItems[i].mArray[j].ui32; break;
-        case dtUInt16: os << " " << (uint16_t) mItems[i].mArray[j].ui32; break;
-        case dtUInt32: os << " " << (uint32_t) mItems[i].mArray[j].ui32; break;
-        case dtInt8:   os << " " << (int16_t)   mItems[i].mArray[j].ui32; break;
-        case dtInt16:  os << " " << (int16_t)  mItems[i].mArray[j].ui32; break;
-        case dtInt32:  os << " " << (int32_t)  mItems[i].mArray[j].ui32; break;
+        case dtUInt8:  os << " " << static_cast<uint16_t>(mItems[i].mArray[j].ui32); break;
+        case dtUInt16: os << " " << static_cast<uint16_t>(mItems[i].mArray[j].ui32); break;
+        case dtUInt32: os << " " << static_cast<uint32_t>(mItems[i].mArray[j].ui32); break;
+        case dtInt8:   os << " " << static_cast<int16_t>(mItems[i].mArray[j].ui32); break;
+        case dtInt16:  os << " " << static_cast<int16_t>(mItems[i].mArray[j].ui32); break;
+        case dtInt32:  os << " " << static_cast<int32_t>(mItems[i].mArray[j].ui32); break;
       }
     }
     os << std::endl;
@@ -568,7 +566,7 @@ PD0::Velocity::load(std::istream& is,
     mItems.push_back(Item("velocity", dtInt16, nSize, -1, "mm/s"));
   }
 
-  return ((Common *) this)->load(is, pd0);
+  return static_cast<Common*>(this)->load(is, pd0);
 }
 
 void
@@ -611,7 +609,7 @@ PD0::Correlation::load(std::istream& is,
     mItems.push_back(Item(mName, dtUInt8, nSize));
   }
 
-  return ((Common *) this)->load(is, pd0);
+  return static_cast<Common*>(this)->load(is, pd0);
 }
 
 void
@@ -673,7 +671,7 @@ bool
 PD0::BottomTrack::load(std::istream& is,
                        PD0& pd0)
 {
-  return ((Common *) this)->load(is, pd0);
+  return static_cast<Common*>(this)->load(is, pd0);
 }
 
 PD0::VMDAS::VMDAS()
@@ -706,7 +704,7 @@ bool
 PD0::VMDAS::load(std::istream& is,
                        PD0& pd0)
 {
-  return ((Common *) this)->load(is, pd0);
+  return static_cast<Common*>(this)->load(is, pd0);
 }
 
 uint8_t
@@ -716,7 +714,6 @@ PD0::maxNumberOfCells(const std::string& fn)
 
   if (!is) {
     const std::string msg("Error opening '" + fn + "', " + strerror(errno));
-    std::cerr << msg << std::endl;
     throw(MyException(msg));
   }
 

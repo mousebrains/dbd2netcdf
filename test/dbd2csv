@@ -92,4 +92,56 @@ if ! "$CMD" -l debug -o "$TMP/debug.csv" data/00300000.dcd 2>/dev/null; then
 fi
 rm -f "$TMP/debug.csv"
 
+# Test --skipAll with single file
+echo "Testing --skipAll with single file..."
+skipall_csv=$TMP/skipAll.csv
+baseline_csv=$TMP/baseline.csv
+if ! "$CMD" -o "$baseline_csv" test.sbd; then
+  echo "Failed baseline CSV generation"
+  rm -f "$baseline_csv"
+  exit 1
+fi
+if ! "$CMD" -A -o "$skipall_csv" test.sbd; then
+  echo "Failed to execute $CMD with --skipAll"
+  rm -f "$skipall_csv" "$baseline_csv"
+  exit 1
+fi
+# baseline has header + 94 data lines; skipAll should have header + 93
+baseline_lines=$(wc -l < "$baseline_csv" | tr -d ' ')
+skipall_lines=$(wc -l < "$skipall_csv" | tr -d ' ')
+expected_lines=$((baseline_lines - 1))
+if [ "$skipall_lines" != "$expected_lines" ]; then
+  echo "skipAll CSV line count mismatch: expected $expected_lines, got $skipall_lines"
+  rm -f "$skipall_csv" "$baseline_csv"
+  exit 1
+fi
+rm -f "$skipall_csv" "$baseline_csv"
+
+# Test mutual exclusion
+echo "Testing mutual exclusion of --skipFirst and --skipAll..."
+if "$CMD" -s -A -o /dev/null test.sbd 2>/dev/null; then
+  echo "Should have failed with both --skipFirst and --skipAll"
+  exit 1
+fi
+
+# Test --sort header_time
+echo "Testing --sort header_time..."
+sorthdr_csv=$TMP/sort_hdr.csv
+if ! "$CMD" --sort header_time -o "$sorthdr_csv" test.sbd test.tbd; then
+  echo "Failed to execute $CMD with --sort header_time"
+  rm -f "$sorthdr_csv"
+  exit 1
+fi
+rm -f "$sorthdr_csv"
+
+# Test --sort lexicographic
+echo "Testing --sort lexicographic..."
+sortlex_csv=$TMP/sort_lex.csv
+if ! "$CMD" --sort lexicographic -o "$sortlex_csv" test.sbd test.tbd; then
+  echo "Failed to execute $CMD with --sort lexicographic"
+  rm -f "$sortlex_csv"
+  exit 1
+fi
+rm -f "$sortlex_csv"
+
 exit 0

@@ -99,6 +99,8 @@ public:
   void putVar(const int varId, const size_t indices[], const size_t len, const uint32_t value);
   void putVar(const int varId, const size_t indices[], const size_t len, const int32_t value);
 
+  void putGlobalAtt(const std::string& name, const std::string& value);
+
   static std::string typeToStr(const nc_type t);
 }; // NetCDF
 

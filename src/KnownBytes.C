@@ -48,7 +48,9 @@ KnownBytes::KnownBytes(std::istream& is)
   static_assert(sizeof(double) == 8, "sizeof(double) != 8");
 
   if (tag != 's') {
-    throw(MyException("Error known bytes cycle tag(%c) != 's'"));
+    std::ostringstream oss;
+    oss << "Error known bytes cycle tag(0x" << std::hex << (tag & 0xff) << ") != 's'";
+    throw MyException(oss.str());
   }
 
 
@@ -92,8 +94,9 @@ KnownBytes::read8(std::istream& is) const
   int8_t val;
 
   if (!is.read(reinterpret_cast<char*>(&val), 1)) {
+    const int saved_errno = errno;
     std::ostringstream oss;
-    oss << "Error reading a byte, " << strerror(errno);
+    oss << "Error reading a byte, " << strerror(saved_errno);
     throw MyException(oss.str());
   }
 
@@ -105,9 +108,10 @@ KnownBytes::read16(std::istream& is) const
 {
   int16_t val;
 
-  if (!is.read(reinterpret_cast<char*>(&val), 2)) {
+  if (!is.read(reinterpret_cast<char*>(&val), 2) || is.gcount() != 2) {
+    const int saved_errno = errno;
     std::ostringstream oss;
-    oss << "Error reading two bytes, " << strerror(errno);
+    oss << "Error reading two bytes, " << strerror(saved_errno);
     throw MyException(oss.str());
   }
 
@@ -117,42 +121,47 @@ KnownBytes::read16(std::istream& is) const
 float
 KnownBytes::read32(std::istream& is) const
 {
-  union uVal {
-    float fnum;
-    int32_t inum;
-  } val;
+  char buf[4];
 
-  if (!is.read(reinterpret_cast<char*>(&val), 4)) {
+  if (!is.read(buf, 4) || is.gcount() != 4) {
+    const int saved_errno = errno;
     std::ostringstream oss;
-    oss << "Error reading four bytes, " << strerror(errno);
+    oss << "Error reading four bytes, " << strerror(saved_errno);
     throw MyException(oss.str());
   }
 
+  int32_t inum;
+  std::memcpy(&inum, buf, 4);
   if (mFlip)
-    val.inum = ntohl(val.inum);
+    inum = ntohl(inum);
 
-  return val.fnum;
+  float fnum;
+  std::memcpy(&fnum, &inum, 4);
+  return fnum;
 }
 
 double
 KnownBytes::read64(std::istream& is) const
 {
-  union uVal {
-    double fnum;
-    int32_t i32[2];
-  } val;
+  char buf[8];
 
-  if (!is.read(reinterpret_cast<char*>(&val), 8)) {
+  if (!is.read(buf, 8) || is.gcount() != 8) {
+    const int saved_errno = errno;
     std::ostringstream oss;
-    oss << "Error reading eight bytes, " << strerror(errno);
+    oss << "Error reading eight bytes, " << strerror(saved_errno);
     throw MyException(oss.str());
   }
 
+  int32_t i32[2];
+  std::memcpy(i32, buf, 8);
+
   if (mFlip) {
-    const int32_t itmp(ntohl(val.i32[0]));
-    val.i32[0] = ntohl(val.i32[1]);
-    val.i32[1] = itmp;
+    const int32_t itmp(ntohl(i32[0]));
+    i32[0] = ntohl(i32[1]);
+    i32[1] = itmp;
   }
 
-  return val.fnum;
+  double fnum;
+  std::memcpy(&fnum, i32, 8);
+  return fnum;
 }

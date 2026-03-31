@@ -143,9 +143,9 @@ private:
   bool readAndCheckByte(std::istream& is, const int expectedValue, const bool qThrow = true);
   uint8_t readByte(std::istream& is, const bool qThrow = true);
   uint16_t readUInt16(std::istream& is, const bool qThrow = true);
-  int16_t readInt16(std::istream& is, const bool qThrow = true) {return (int16_t) readUInt16(is, qThrow);}
+  int16_t readInt16(std::istream& is, const bool qThrow = true) {return static_cast<int16_t>(readUInt16(is, qThrow));}
   uint32_t readUInt32(std::istream& is, const bool qThrow = true);
-  int32_t readInt32(std::istream& is, const bool qThrow = true) {return (int32_t) readUInt32(is, qThrow);}
+  int32_t readInt32(std::istream& is, const bool qThrow = true) {return static_cast<int32_t>(readUInt32(is, qThrow));}
 public:
   PD0() : mCorrelation("correlation"), mEcho("echo"), mPercentGood("percent_good"), mMaxNumberOfCells(0) {}
 
