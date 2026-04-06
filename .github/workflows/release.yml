@@ -177,6 +177,8 @@ jobs:
     name: Create Release
     needs: [validate-version, build-linux, build-macos, build-windows]
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
     - name: Checkout code
