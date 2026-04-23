@@ -80,9 +80,23 @@ doCompare() {
 }
 
 chkCMD diff --version
-chkCMD grep --version
 chkCMD tail
 
 doCompare test.pd0.netCDF test.pd0
+
+# Multi-file run: ensure pd02netCDF combines inputs without error.
+if ! "$CMD" -o "$TMP/pd0.multi.$$" test.pd0 test.pd0 ; then
+  echo "pd02netCDF failed with multiple input files"
+  exit 1
+fi
+rm -f "$TMP/pd0.multi.$$"
+
+# Error path: non-existent input should fail cleanly (CLI11 existence check).
+if "$CMD" -o "$TMP/pd0.bogus.$$" /nonexistent/does-not-exist.pd0 2>/dev/null ; then
+  echo "pd02netCDF unexpectedly accepted a non-existent input file"
+  rm -f "$TMP/pd0.bogus.$$"
+  exit 1
+fi
+rm -f "$TMP/pd0.bogus.$$"
 
 exit 0
