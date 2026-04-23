@@ -76,17 +76,17 @@ list(GET VERSION_LIST 2 dbd2netcdf_VERSION_PATCH)
 message(STATUS "dbd2netcdf version ${dbd2netcdf_VERSION_MAJOR}.${dbd2netcdf_VERSION_MINOR}.${dbd2netcdf_VERSION_PATCH}")
 set(dbd2netcdf_MAINTAINER pat@mousebrains.com) # output to config.h
 
+if (NOT CMAKE_BUILD_TYPE)
+	message(STATUS "No build type specified, defaulting to Release")
+	set(CMAKE_BUILD_TYPE Release)
+endif()
+
 add_subdirectory(src)  # Source code location
 
 # Enable testing - must be in top-level CMakeLists.txt for ctest to work
 enable_testing()
 add_subdirectory(test) # Tests
 add_subdirectory(doc)  # Documentation
-
-if (NOT CMAKE_BUILD_TYPE)
-	message(STATUS "No build type specified, defaulting to Release")
-	set(CMAKE_BUILD_TYPE Release)
-endif()
 
 # Build a CPack installer package
 
