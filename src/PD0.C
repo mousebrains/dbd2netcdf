@@ -594,7 +594,7 @@ PD0::Velocity::ncDump(NetCDF& nc,
     ptr[j] = mItems[0].mArray[j].i16;
   }
 
-  nc.putVars(mVarId, dims, cnt, ptr.data());
+  nc.putVara(mVarId, dims, cnt, ptr.data());
   // ptr automatically cleaned up on function exit
 }
 
@@ -636,7 +636,7 @@ PD0::Correlation::ncDump(NetCDF& nc,
     ptr[j] = mItems[0].mArray[j].ui8;
   }
 
-  nc.putVars(mVarId, dims, cnt, ptr.data());
+  nc.putVara(mVarId, dims, cnt, ptr.data());
   // ptr automatically cleaned up on function exit
 }
 

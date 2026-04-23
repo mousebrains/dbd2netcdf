@@ -339,7 +339,7 @@ main(int argc,
           const Data::tColumn& col(data.column(j));
           if (varSizes[j] == 8) {
             // NC_DOUBLE: NaN and inf are both representable
-            ncid.putVars(var, indexOffset, writeCount, &col[kStart]);
+            ncid.putVara(var, indexOffset, writeCount, &col[kStart]);
           } else {
             // NC_FLOAT/SHORT/BYTE: replace NaN/inf with fill value
             double fillValue = NAN;
@@ -349,7 +349,7 @@ main(int argc,
               const double v(col[kStart + k]);
               values[k] = (std::isnan(v) || std::isinf(v)) ? fillValue : v;
             }
-            ncid.putVars(var, indexOffset, writeCount, values.data());
+            ncid.putVara(var, indexOffset, writeCount, values.data());
           }
         }
 

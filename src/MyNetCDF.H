@@ -81,13 +81,13 @@ public:
   void enddef();
   void close();
 
-  void putVars(const int varId, const size_t start, const size_t count, const double data[]);
-  void putVars(const int varId, const size_t start, const size_t count, const int32_t data[]);
-  void putVars(const int varId, const size_t start, const size_t count, const uint32_t data[]);
+  void putVara(const int varId, const size_t start, const size_t count, const double data[]);
+  void putVara(const int varId, const size_t start, const size_t count, const int32_t data[]);
+  void putVara(const int varId, const size_t start, const size_t count, const uint32_t data[]);
 
-  void putVars(const int varId, const size_t indices[], const size_t count[], const double data[]);
-  void putVars(const int varId, const size_t indices[], const size_t count[], const int32_t data[]);
-  void putVars(const int varId, const size_t indices[], const size_t count[], const uint32_t data[]);
+  void putVara(const int varId, const size_t indices[], const size_t count[], const double data[]);
+  void putVara(const int varId, const size_t indices[], const size_t count[], const int32_t data[]);
+  void putVara(const int varId, const size_t indices[], const size_t count[], const uint32_t data[]);
 
   void putVar(const int varId, const size_t index, const double value);
   void putVar(const int varId, const size_t index, const int32_t value);

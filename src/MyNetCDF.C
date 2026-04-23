@@ -224,11 +224,14 @@ NetCDF::createVar(const std::string& name,
   const bool qCompress(idType != NC_STRING);
 
   if (qShuffle || qCompress) {
-    std::ostringstream oss;
-    oss << "enabling compression and shuffle(" << qShuffle << "," << mCompressionLevel
-        << ") for '" << name << "'";
-    basicOp(nc_def_var_deflate(mId, varId, qShuffle, qCompress, mCompressionLevel),
-            oss.str());
+    // Label string only materialised on failure.
+    const int ret = nc_def_var_deflate(mId, varId, qShuffle, qCompress, mCompressionLevel);
+    if (ret != 0) {
+      std::ostringstream oss;
+      oss << "enabling compression and shuffle(" << qShuffle << "," << mCompressionLevel
+          << ") for '" << name << "'";
+      basicOp(ret, oss.str());
+    }
   }
 
   if (idType == NC_BYTE) {
@@ -244,7 +247,7 @@ NetCDF::createVar(const std::string& name,
     basicOp(nc_def_var_fill(mId, varId, NC_FILL, &badValue),
             "setting fill value for '" + name + "'");
   } else if (idType == NC_DOUBLE) {
-    const double badValue(nan(""));
+    const double badValue(std::nan(""));
     basicOp(nc_def_var_fill(mId, varId, NC_FILL, &badValue),
             "setting fill value for '" + name + "'");
   }
@@ -273,34 +276,34 @@ NetCDF::close()
 }
 
 void
-NetCDF::putVars(const int varId,
+NetCDF::putVara(const int varId,
                 const size_t start,
                 const size_t count,
                 const double data[])
 {
-  putVars(varId, &start, &count, data);
+  putVara(varId, &start, &count, data);
 }
 
 void
-NetCDF::putVars(const int varId,
+NetCDF::putVara(const int varId,
                 const size_t start,
                 const size_t count,
                 const int32_t data[])
 {
-  putVars(varId, &start, &count, data);
+  putVara(varId, &start, &count, data);
 }
 
 void
-NetCDF::putVars(const int varId,
+NetCDF::putVara(const int varId,
                 const size_t start,
                 const size_t count,
                 const uint32_t data[])
 {
-  putVars(varId, &start, &count, data);
+  putVara(varId, &start, &count, data);
 }
 
 void
-NetCDF::putVars(const int varId,
+NetCDF::putVara(const int varId,
                 const size_t start[],
                 const size_t count[],
                 const double data[])
@@ -309,7 +312,7 @@ NetCDF::putVars(const int varId,
 }
 
 void
-NetCDF::putVars(const int varId,
+NetCDF::putVara(const int varId,
                 const size_t start[],
                 const size_t count[],
                 const int32_t data[])
@@ -318,7 +321,7 @@ NetCDF::putVars(const int varId,
 }
 
 void
-NetCDF::putVars(const int varId,
+NetCDF::putVara(const int varId,
                 const size_t start[],
                 const size_t count[],
                 const uint32_t data[])
