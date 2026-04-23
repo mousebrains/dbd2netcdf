@@ -94,19 +94,13 @@ Header::trim(std::string str)
 {
   const std::string whitespace(" \t\n");
 
-  std::string::size_type index(str.find_first_not_of(whitespace));
-
-  if (index != str.npos) {
-    str = str.substr(index);
+  const std::string::size_type first(str.find_first_not_of(whitespace));
+  if (first == str.npos) {
+    return std::string();
   }
 
-  index = str.find_last_not_of(whitespace);
-
-  if (index != str.npos) {
-    str = str.substr(0, index + 1);
-  }
-
-  return str;
+  const std::string::size_type last(str.find_last_not_of(whitespace));
+  return str.substr(first, last - first + 1);
 }
 
 void

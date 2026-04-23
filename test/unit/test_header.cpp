@@ -23,10 +23,10 @@ TEST_CASE("Header::trim removes whitespace", "[header]") {
         CHECK(Header::trim("\t mixed \t") == "mixed");
     }
 
-    SECTION("Empty string stays empty") {
+    SECTION("Empty and all-whitespace strings return empty") {
         CHECK(Header::trim("") == "");
-        // Note: all-whitespace strings are not trimmed to empty in this implementation
-        // CHECK(Header::trim("   ") == "");  // Actually returns "   "
+        CHECK(Header::trim("   ") == "");
+        CHECK(Header::trim("\t\n\t") == "");
     }
 
     SECTION("String without whitespace unchanged") {
