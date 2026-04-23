@@ -72,12 +72,17 @@ fallback path.
 
 ## Corpus
 
-Seed corpus files are provided in `corpus/` subdirectories:
+The canonical seed corpus lives in this directory, under `corpus/<target>/`:
 - `corpus/sensor/`: Sample sensor definition lines
 - `corpus/header/`: Sample header strings
 - `corpus/knownbytes/`: Sample 16-byte binary blocks
 - `corpus/data/`: Sensor-count byte + KnownBytes + binary records
 - `corpus/decompress/`: LZ4-framed and raw byte streams
+
+At runtime, libFuzzer writes new inputs back into whichever corpus directory
+you point it at. To avoid mutating the checked-in seeds, either point the
+fuzzer at a copy in the build tree (the CI workflow does this with
+`build/fuzz_corpus/<target>/`) or use libFuzzer's `-corpus_only` options.
 
 ## Crash Reproduction
 
