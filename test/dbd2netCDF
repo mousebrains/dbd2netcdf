@@ -233,4 +233,57 @@ if ! "$CMD" -S -o "$TMP/strict.nc" data/00300000.dcd 2>/dev/null; then
 fi
 rm -f "$TMP/strict.nc"
 
+# Test --compression levels produce valid output
+echo "Testing --compression levels..."
+for lvl in 0 5 9; do
+  compfn=$TMP/compression_$lvl.nc
+  if ! "$CMD" -z "$lvl" -o "$compfn" data/00300000.dcd 2>/dev/null; then
+    echo "Compression level $lvl failed"
+    rm -f "$compfn"
+    exit 1
+  fi
+  if ! ncdump -h "$compfn" >/dev/null 2>&1; then
+    echo "Compression level $lvl produced unreadable output"
+    rm -f "$compfn"
+    exit 1
+  fi
+  rm -f "$compfn"
+done
+
+# Test --batch-size produces valid output regardless of batching
+echo "Testing --batch-size..."
+for sz in 0 1 100; do
+  batchfn=$TMP/batch_$sz.nc
+  if ! "$CMD" --batch-size "$sz" -o "$batchfn" data/00300000.dcd 2>/dev/null; then
+    echo "Batch size $sz failed"
+    rm -f "$batchfn"
+    exit 1
+  fi
+  if ! ncdump -h "$batchfn" >/dev/null 2>&1; then
+    echo "Batch size $sz produced unreadable output"
+    rm -f "$batchfn"
+    exit 1
+  fi
+  rm -f "$batchfn"
+done
+
+# Test --sensorOutput restricts output to selected sensors
+echo "Testing --sensorOutput restricts sensors..."
+selfn=$TMP/sel.txt
+echo "m_present_time" > "$selfn"
+echo "m_depth" >> "$selfn"
+selnc=$TMP/sel.nc
+if ! "$CMD" -k "$selfn" -o "$selnc" data/00300000.dcd 2>/dev/null; then
+  echo "--sensorOutput failed"
+  rm -f "$selfn" "$selnc"
+  exit 1
+fi
+# Output should contain m_present_time (always kept) and m_depth, but not, e.g., sci_m_present_time
+if ! ncdump -h "$selnc" | grep -q "double m_present_time"; then
+  echo "--sensorOutput did not keep m_present_time"
+  rm -f "$selfn" "$selnc"
+  exit 1
+fi
+rm -f "$selfn" "$selnc"
+
 exit 0
