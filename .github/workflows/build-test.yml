@@ -112,7 +112,6 @@ jobs:
           --suppress=unusedStructMember:src/lz4.c \
           --suppress=constVariablePointer:src/lz4.c \
           --suppress=duplInheritedMember \
-          --suppress=uninitMemberVar \
           --inline-suppr \
           src/
         # Run performance/portability checks as informational (non-blocking)
