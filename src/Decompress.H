@@ -9,10 +9,7 @@
 class DecompressTWRBuf: public std::streambuf {
   std::ifstream mIS;
   const bool mqCompressed;
-  // mBuffer is an output buffer that is always written to before being read
-  // back by the streambuf machinery, so leaving it uninitialized is safe.
-  // cppcheck-suppress uninitMemberVar
-  char mBuffer[65536];
+  char mBuffer[65536]{}; // zero-init so cppcheck across versions stays happy
   const std::string mFilename;
   size_t mPos = 0; // Total decompressed bytes loaded into buffer
 public:
@@ -20,7 +17,6 @@ public:
     : mIS(fn.c_str(), std::ios::binary)
     , mqCompressed(qCompressed)
     , mFilename(fn)
-
   {}
 
   void close() {mIS.close();}
