@@ -137,6 +137,7 @@ main(int argc,
       LOG_ERROR("Error creating '{}': {}", ofn, e.what());
       std::error_code ec;
       fs::remove(tfn, ec);
+      return 1;
     }
   }
 
