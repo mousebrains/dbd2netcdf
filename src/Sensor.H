@@ -13,7 +13,8 @@ private:
   std::string mName; // Sensor name
   std::string mUnits; // Units of data
   int mSize;       // Number of bytes for this sensor
-  int mIndex;      // Index into sensor array
+  int mNaturalIndex; // Natural index: position in the full sensor list
+  int mIndex;      // Data-stream index: position in the binary data record
   bool mqAvailable; // This sensor is available in the data stream
   bool mqKeep;     // Should this sensor be output?
   bool mqCriteria; // Is this a criteria sensor to select on

@@ -30,6 +30,7 @@
 
 Sensor::Sensor(std::istream& is)
   : mSize(0)
+  , mNaturalIndex(0)
   , mIndex(0)
   , mqAvailable(false)
   , mqKeep(true)
@@ -48,6 +49,7 @@ Sensor::Sensor(std::istream& is)
 
 Sensor::Sensor(const std::string& line)
   : mSize(0)
+  , mNaturalIndex(0)
   , mIndex(0)
   , mqAvailable(false)
   , mqKeep(true)
@@ -63,9 +65,8 @@ Sensor::procLine(const std::string& line)
 
   std::string prefix;
   std::string qUsed;
-  int index;
 
-  if (!(iss >> prefix >> qUsed >> index >> mIndex >> mSize >> mName >> mUnits)) {
+  if (!(iss >> prefix >> qUsed >> mNaturalIndex >> mIndex >> mSize >> mName >> mUnits)) {
     std::ostringstream oss;
     oss << "Malformed sensor line '" << line << "'";
     throw MyException(oss.str());
@@ -114,7 +115,7 @@ Sensor::dump(std::ostream& os) const
 {
   os << "s:"
      << " " << (mqAvailable ? "T" : "F")
-     << " " << mIndex
+     << " " << mNaturalIndex
      << " " << mIndex
      << " " << mSize
      << " " << mName

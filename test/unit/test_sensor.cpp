@@ -124,6 +124,29 @@ TEST_CASE("Sensor dump output", "[sensor]") {
     CHECK(output.find("m") != std::string::npos);
 }
 
+TEST_CASE("Sensor dump round-trip preserves both indices", "[sensor]") {
+    // Natural and data-stream indices may legitimately differ in DBD files;
+    // dump/parse must preserve both.
+    Sensor original("s: T 3 7 4 m_depth m");
+
+    std::ostringstream oss;
+    original.dump(oss);
+    const std::string line = oss.str();
+
+    // Strip trailing newline so Sensor(line) gets a single record
+    const std::string trimmed = line.substr(0, line.find('\n'));
+    Sensor roundtrip(trimmed);
+
+    CHECK(roundtrip.name() == original.name());
+    CHECK(roundtrip.units() == original.units());
+    CHECK(roundtrip.size() == original.size());
+    CHECK(roundtrip.index() == original.index());
+    CHECK(roundtrip.qAvailable() == original.qAvailable());
+
+    // The dumped line should contain both distinct indices in order
+    CHECK(line.find(" 3 7 ") != std::string::npos);
+}
+
 TEST_CASE("Sensor stream output operator", "[sensor]") {
     Sensor sensor("s: T 0 7 4 m_depth m");
 
