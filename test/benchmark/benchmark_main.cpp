@@ -1,8 +1,7 @@
 // Performance benchmarks for dbd2netcdf
-// Uses Catch2's benchmarking feature
+// Uses Catch2's benchmarking feature (Catch2 v3 style: link Catch2WithMain,
+// no CATCH_CONFIG_* macros needed).
 
-#define CATCH_CONFIG_MAIN
-#define CATCH_CONFIG_ENABLE_BENCHMARKING
 #include <catch2/catch_all.hpp>
 #include "Sensor.H"
 #include "Sensors.H"

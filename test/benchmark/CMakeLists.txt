@@ -10,7 +10,7 @@ if(BUILD_BENCHMARKS)
 
     target_link_libraries(benchmarks PRIVATE
         dbd_common
-        Catch2::Catch2
+        Catch2::Catch2WithMain
     )
 
     set_target_properties(benchmarks PROPERTIES
