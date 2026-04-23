@@ -369,12 +369,13 @@ PD0::Common::dump(std::ostream& os)
     }
     for (tArray::size_type j(0), je(mItems[i].mArray.size()); j < je; ++j) {
       switch (mItems[i].mType) {
-        case dtUInt8:  os << " " << static_cast<uint16_t>(mItems[i].mArray[j].ui32); break;
-        case dtUInt16: os << " " << static_cast<uint16_t>(mItems[i].mArray[j].ui32); break;
-        case dtUInt32: os << " " << static_cast<uint32_t>(mItems[i].mArray[j].ui32); break;
-        case dtInt8:   os << " " << static_cast<int16_t>(mItems[i].mArray[j].ui32); break;
-        case dtInt16:  os << " " << static_cast<int16_t>(mItems[i].mArray[j].ui32); break;
-        case dtInt32:  os << " " << static_cast<int32_t>(mItems[i].mArray[j].ui32); break;
+        // Cast 8-bit values to 16-bit so they stream as numbers, not characters.
+        case dtUInt8:  os << " " << static_cast<uint16_t>(mItems[i].mArray[j].ui8); break;
+        case dtUInt16: os << " " << mItems[i].mArray[j].ui16; break;
+        case dtUInt32: os << " " << mItems[i].mArray[j].ui32; break;
+        case dtInt8:   os << " " << static_cast<int16_t>(mItems[i].mArray[j].i8); break;
+        case dtInt16:  os << " " << mItems[i].mArray[j].i16; break;
+        case dtInt32:  os << " " << mItems[i].mArray[j].i32; break;
       }
     }
     os << std::endl;
