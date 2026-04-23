@@ -1,3 +1,21 @@
+# Apply project-wide warning flags and silence third-party code.
+function(dbd_set_warnings target)
+  if(MSVC)
+    target_compile_options(${target} PRIVATE /W4 /WX)
+    target_compile_definitions(${target} PRIVATE _CRT_SECURE_NO_WARNINGS)
+  else()
+    target_compile_options(${target} PRIVATE -Wall -Wextra -pedantic -Werror -Wshadow
+      $<$<COMPILE_LANGUAGE:CXX>:-Wold-style-cast>)
+  endif()
+endfunction()
+
+# Silence third-party lz4.c in whichever target owns it.
+if(MSVC)
+  set_source_files_properties(lz4.c PROPERTIES COMPILE_FLAGS "/W0")
+else()
+  set_source_files_properties(lz4.c PROPERTIES COMPILE_FLAGS "-w")
+endif()
+
 # Define source file lists for reuse
 set(COMMON_SOURCES
 	SensorsMap.C
@@ -6,6 +24,7 @@ set(COMMON_SOURCES
 	Header.C
 	KnownBytes.C
 	Decompress.C
+	Data.C
 	lz4.c
 )
 
@@ -18,22 +37,11 @@ set_target_properties(dbd_common PROPERTIES
 )
 target_include_directories(dbd_common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_link_libraries(dbd_common PUBLIC spdlog::spdlog)
-
-# Compiler flags for the library
-if(MSVC)
-	target_compile_options(dbd_common PRIVATE /W4 /WX)
-	target_compile_definitions(dbd_common PRIVATE _CRT_SECURE_NO_WARNINGS)
-	set_source_files_properties(lz4.c PROPERTIES COMPILE_FLAGS "/W0")
-else()
-	target_compile_options(dbd_common PRIVATE -Wall -Wextra -pedantic -Werror -Wshadow
-		$<$<COMPILE_LANGUAGE:CXX>:-Wold-style-cast>)
-	set_source_files_properties(lz4.c PROPERTIES COMPILE_FLAGS "-w")
-endif()
+dbd_set_warnings(dbd_common)
 
 add_executable(dbd2netCDF
 	dbd2netCDF.C
 	MyNetCDF.C
-	Data.C
 )
 target_link_libraries(dbd2netCDF PRIVATE dbd_common)
 
@@ -45,7 +53,6 @@ add_executable(pd02netCDF
 
 add_executable(dbd2csv
 	dbd2csv.C
-	Data.C
 )
 target_link_libraries(dbd2csv PRIVATE dbd_common)
 
@@ -54,6 +61,8 @@ add_executable(dbdSensors
 )
 target_link_libraries(dbdSensors PRIVATE dbd_common)
 
+# decompressTWR recompiles Decompress.C and lz4.c so it can stand alone
+# without pulling in the NetCDF-dependent dbd_common transitive deps.
 add_executable(decompressTWR
 	decompressTWR.C
 	Decompress.C
@@ -69,21 +78,10 @@ set_target_properties(dbd2netCDF dbd2csv dbdSensors pd02netCDF decompressTWR
 	  CXX_EXTENSIONS OFF
 )
 
-# Set compiler flags for all targets
 set(ALL_TARGETS dbd2netCDF dbd2csv dbdSensors pd02netCDF decompressTWR)
 
 foreach(target ${ALL_TARGETS})
-  if(MSVC)
-    target_compile_options(${target} PRIVATE /W4 /WX)
-    target_compile_definitions(${target} PRIVATE _CRT_SECURE_NO_WARNINGS)
-    # Disable warnings for third-party code (lz4)
-    set_source_files_properties(lz4.c PROPERTIES COMPILE_FLAGS "/W0")
-  else()
-    target_compile_options(${target} PRIVATE -Wall -Wextra -pedantic -Werror -Wshadow
-      $<$<COMPILE_LANGUAGE:CXX>:-Wold-style-cast>)
-    # Disable -Werror for third-party code (lz4)
-    set_source_files_properties(lz4.c PROPERTIES COMPILE_FLAGS "-w")
-  endif()
+  dbd_set_warnings(${target})
   # Link CLI11 and spdlog to all targets
   target_link_libraries(${target} PRIVATE CLI11::CLI11 spdlog::spdlog)
 endforeach()
