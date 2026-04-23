@@ -23,8 +23,6 @@ public:
 
   {}
 
-  ~DecompressTWRBuf() {mIS.close();}
-
   void close() {mIS.close();}
 
   int underflow() override;
