@@ -39,7 +39,9 @@ namespace {
 Header::Header(std::istream& is, const char *fn)
 {
   size_t cnt = 0;
-  for (tRecords::size_type nLines(10); mRecords.size() < nLines;) {
+  // 14 is the typical ASCII header length in DBD files; num_ascii_tags (if
+  // present in the first 14 lines) overrides this with the exact count.
+  for (tRecords::size_type nLines(14); mRecords.size() < nLines;) {
     std::string line;
     if (!getline(is, line)) {
       break;
