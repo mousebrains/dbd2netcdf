@@ -58,10 +58,6 @@ public:
   void qKeep(const tNames& names);
   void qCriteria(const tNames& names);
 
-  typedef std::pair<size_type, bool> tItem;
-  typedef std::vector<tItem> tMap;
-  tMap mapSensors(const Sensors& others);
-
   friend std::ostream& operator << (std::ostream& os, const Sensors& sensors);
 }; // Sensors
 
