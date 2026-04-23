@@ -120,7 +120,6 @@ else()
   else()
     string(STRIP ${NCLIBDIR} NCLIBDIR)
     message(STATUS "NetCDF lib directory ${NCLIBDIR}")
-    link_directories(${NCLIBDIR})
   endif()
 
   find_library(NETCDF_LIBRARIES NAMES netcdf PATHS ${NCLIBDIR})
@@ -134,7 +133,6 @@ if(NETCDF_INCLUDE_DIRS)
   include_directories(${NETCDF_INCLUDE_DIRS})
 endif()
 
-include_directories(${dbd2netcdf_SOURCE_DIR}/bin) #  ${dbd2netcdf_SOURCE_DIR}/src)
 include_directories(${CMAKE_INSTALL_PREFIX}/include)
 
 if(APPLE)
@@ -150,24 +148,6 @@ LIST(FIND CMAKE_PLATFORM_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_PREFIX}/lib"
 IF("${isSystemDir}" STREQUAL "-1")
   SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 ENDIF("${isSystemDir}" STREQUAL "-1")
-
-get_property(_system_include_dirs GLOBAL PROPERTY INTERFACE_SYSTEM_INCLUDE_DIRECTORIES)
-message("System: ${_system_include_dirs}")
-
-include(CheckIncludeFile)
-check_include_file(execinfo.h HAVE_EXECINFO_H)
-check_include_file(unistd.h HAVE_UNISTD_H)
-
-include(CheckFunctionExists)
-check_function_exists(backtrace HAVE_BACKTRACE)
-
-include(CheckTypeSize)
-CHECK_TYPE_SIZE(int8_t HAVE_INT8_T)
-CHECK_TYPE_SIZE(int16_t HAVE_INT16_T)
-CHECK_TYPE_SIZE(int32_t HAVE_INT32_T)
-CHECK_TYPE_SIZE(mode_t HAVE_mode_T)
-CHECK_TYPE_SIZE(off_t HAVE_off_T)
-CHECK_TYPE_SIZE(size_t HAVE_size_T)
 
 # Write out config.h as derived from config.h.in
 configure_file(${dbd2netcdf_SOURCE_DIR}/src/config.h.in
