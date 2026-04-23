@@ -55,49 +55,57 @@ main(int argc,
     dbd::logger().setLevel(dbd::LogLevel::Info);
   }
 
-  const char *ofn = outputFilename.c_str();
+  try {
+    const char *ofn = outputFilename.c_str();
 
-  uint8_t nCells(0);
+    uint8_t nCells(0);
 
-  for (size_t i = 0; i < inputFiles.size(); ++i) {
-    const uint8_t mCells(PD0::maxNumberOfCells(inputFiles[i].c_str()));
-    nCells = (nCells >= mCells) ? nCells : mCells;
-  }
-
-  LOG_INFO("Maximum number of cells {}", static_cast<unsigned int>(nCells));
-
-  NetCDF nc(ofn);
-  const int hDim(nc.createDim("h"));
-
-  const int hdrFilename(nc.createVar("hdr_filename", NC_STRING, hDim, std::string()));
-  const int hdrStartIndex(nc.createVar("hdr_start_index", NC_UINT, hDim, std::string()));
-  const int hdrStopIndex(nc.createVar("hdr_stop_index", NC_UINT, hDim, std::string()));
-
-  PD0 pd0;
-  pd0.maxNumberOfCells(nCells);
-  pd0.setupNetCDFVars(nc);
-
-  nc.enddef();
-
-  size_t index(0);
-
-  for (size_t i = 0, hIndex = 0; i < inputFiles.size(); ++i, ++hIndex) {
-    const char* fn = inputFiles[i].c_str();
-    const size_t sIndex(index);
-    index = pd0.load(fn, nc, index);
-
-    if (index != sIndex) {
-      nc.putVar(hdrFilename, hIndex, fn);
-      nc.putVar(hdrStartIndex, hIndex, static_cast<unsigned int>(sIndex));
-      nc.putVar(hdrStopIndex, hIndex, static_cast<unsigned int>(index - 1));
-
-      LOG_INFO("Found {} records in {}", index - sIndex, fn);
-    } else {
-      LOG_WARN("No records found in {}", fn);
+    for (size_t i = 0; i < inputFiles.size(); ++i) {
+      const uint8_t mCells(PD0::maxNumberOfCells(inputFiles[i].c_str()));
+      nCells = (nCells >= mCells) ? nCells : mCells;
     }
-  }
 
-  nc.close();
+    LOG_INFO("Maximum number of cells {}", static_cast<unsigned int>(nCells));
+
+    NetCDF nc(ofn);
+    const int hDim(nc.createDim("h"));
+
+    const int hdrFilename(nc.createVar("hdr_filename", NC_STRING, hDim, std::string()));
+    const int hdrStartIndex(nc.createVar("hdr_start_index", NC_UINT, hDim, std::string()));
+    const int hdrStopIndex(nc.createVar("hdr_stop_index", NC_UINT, hDim, std::string()));
+
+    PD0 pd0;
+    pd0.maxNumberOfCells(nCells);
+    pd0.setupNetCDFVars(nc);
+
+    nc.enddef();
+
+    size_t index(0);
+
+    for (size_t i = 0, hIndex = 0; i < inputFiles.size(); ++i, ++hIndex) {
+      const char* fn = inputFiles[i].c_str();
+      const size_t sIndex(index);
+      index = pd0.load(fn, nc, index);
+
+      if (index != sIndex) {
+        nc.putVar(hdrFilename, hIndex, fn);
+        nc.putVar(hdrStartIndex, hIndex, static_cast<unsigned int>(sIndex));
+        nc.putVar(hdrStopIndex, hIndex, static_cast<unsigned int>(index - 1));
+
+        LOG_INFO("Found {} records in {}", index - sIndex, fn);
+      } else {
+        LOG_WARN("No records found in {}", fn);
+      }
+    }
+
+    nc.close();
+  } catch (MyException& e) {
+    LOG_CRITICAL("Fatal error: {}", e.what());
+    return(2);
+  } catch (std::exception& e) {
+    LOG_CRITICAL("Unexpected error: {}", e.what());
+    return(3);
+  }
 
   return(0);
 }

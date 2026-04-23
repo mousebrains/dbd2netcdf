@@ -23,6 +23,7 @@
 #include "MyNetCDF.H"
 #include "MyException.H"
 #include "FileInfo.H"
+#include "Logger.H"
 #include <iostream>
 #include <sstream>
 #include <cmath>
@@ -61,7 +62,15 @@ NetCDF::NetCDF(const std::string& fn, const bool qAppend)
 
 NetCDF::~NetCDF()
 {
-  close();
+  // close() calls basicOp() which can throw. A throw from a destructor during
+  // stack unwinding would terminate the program, so swallow and log instead.
+  try {
+    close();
+  } catch (const std::exception& e) {
+    LOG_ERROR("Error closing NetCDF file '{}': {}", mFilename, e.what());
+  } catch (...) {
+    LOG_ERROR("Unknown error closing NetCDF file '{}'", mFilename);
+  }
   // mCountOne automatically cleaned up via RAII
 }
 

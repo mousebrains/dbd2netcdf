@@ -225,20 +225,29 @@ main(int argc,
       return(1);
     }
     const Header hdr(is, fn);             // Load up header
-    smap.insert(is, hdr, true); // Since will move to the right position in the file
-    const Sensors& sensors(smap.find(hdr));
-    const KnownBytes kb(is);          // Get little/big endian
     Data data;
-    const size_t nBytes(fileSizes[ii]);
-
     try {
-      data.load(is, kb, sensors, qRepair, nBytes);
-    } catch (MyException& e) {
+      smap.insert(is, hdr, true); // Since will move to the right position in the file
+      const Sensors& sensors(smap.find(hdr));
+      const KnownBytes kb(is);          // Get little/big endian
+      const size_t nBytes(fileSizes[ii]);
+
+      try {
+        data.load(is, kb, sensors, qRepair, nBytes);
+      } catch (MyException& e) {
+        if (qStrict) {
+          LOG_ERROR("Error processing '{}': {}", fn, e.what());
+          return(1);
+        }
+        LOG_WARN("Error processing '{}': {}, retaining {} records", fn, e.what(), data.size());
+      }
+    } catch (MyException& e) { // Catch my exceptions, where I toss the whole file
       if (qStrict) {
         LOG_ERROR("Error processing '{}': {}", fn, e.what());
         return(1);
       }
-      LOG_WARN("Error processing '{}': {}, retaining {} records", fn, e.what(), data.size());
+      LOG_WARN("Error processing '{}': {} (skipping file)", fn, e.what());
+      continue;
     }
 
     if (data.empty()) continue;
