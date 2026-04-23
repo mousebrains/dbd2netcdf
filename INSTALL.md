@@ -88,12 +88,13 @@ sudo dnf install cmake gcc-c++ netcdf-devel hdf5-devel
 | Option | Default | Description |
 |--------|---------|-------------|
 | `CMAKE_BUILD_TYPE` | Release | Build type (Debug, Release, RelWithDebInfo) |
-| `BUILD_TESTING` | ON | Build unit tests |
 | `BUILD_FUZZ_TESTS` | OFF | Build fuzz tests (requires Clang with libFuzzer) |
+
+Unit tests build unconditionally whenever CMake is configured.
 
 Example with options:
 ```sh
-cmake -B build -DCMAKE_BUILD_TYPE=Debug -DBUILD_TESTING=ON
+cmake -B build -DCMAKE_BUILD_TYPE=Debug
 ```
 
 ## Cleaning and Rebuilding

@@ -11,8 +11,13 @@ test/pd02netCDF text eol=lf
 *.sbd binary
 *.tbd binary
 *.dbd binary
+*.ebd binary
+*.mbd binary
+*.nbd binary
 *.dcd binary
 *.scd binary
 *.tcd binary
 *.ecd binary
+*.mcd binary
+*.ncd binary
 *.pd0 binary
