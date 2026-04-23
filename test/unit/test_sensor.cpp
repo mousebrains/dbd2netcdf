@@ -98,8 +98,10 @@ TEST_CASE("Sensor value formatting", "[sensor]") {
     SECTION("4-byte (float) formatting uses medium precision") {
         Sensor sensor("s: T 0 0 4 depth m");
         std::string result = sensor.toStr(123.456789);
-        // Should use %.7g format - check for reasonable precision
-        CHECK((result == "123.4568" || result == "123.4567"));
+        // Should use %.7g format (7 significant digits). Parse and compare
+        // numerically rather than string-matching to stay libc-agnostic.
+        const double parsed = std::stod(result);
+        CHECK(parsed == Approx(123.4568).margin(0.0001));
     }
 
     SECTION("1-byte and 2-byte formatting uses integer format") {
