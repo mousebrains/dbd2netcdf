@@ -1,0 +1,85 @@
+.TH decompressTWR "March 2026" "Version 1.7.2" "USER COMMANDS"
+.SH NAME
+decompressTWR \- decompress TWR Slocum LZ4 compressed glider files
+.SH SYNOPSIS
+.B decompressTWR
+.B [\-hpvV]
+.B "[\-l level]"
+.B "[\-o directory]"
+files...
+.SH DESCRIPTION
+Teledyne Webb Research Slocum gliders can produce LZ4-compressed variants of
+the Dinkum Binary Data files, identified by filenames with a
+.B c
+in the second character of the extension (for example,
+.I .dcd, .ecd, .scd, .tcd, .mcd, .ncd).
+This tool decompresses those files back into their uncompressed equivalents
+(for example,
+.I .dbd, .ebd, .sbd, .tbd, .mbd, .nbd).
+
+Uncompressed files are copied through unchanged.
+.SH OPTIONS
+.TP
+.B \-h
+display a short help message
+.TP
+.B "\-l level, \-\-log\-level level"
+Set the logging level (trace, debug, info, warn, error, critical, off). Default: warn.
+.TP
+.B "\-o directory, \-\-output directory"
+Directory in which to write decompressed output. Defaults to the current
+directory.
+.TP
+.B \-p, \-\-pipe
+Write decompressed output to stdout instead of a file.
+.TP
+.B \-V, \-\-version
+Print out software version.
+.TP
+.B \-v, \-\-verbose
+Enable output of some diagnostic information.
+.SH EXAMPLES
+.TP
+.B
+decompressTWR -o uncompressed *.?c?
+.PP
+Decompress every file whose extension has
+.B c
+in the middle, placing the uncompressed outputs in the
+.I uncompressed
+directory.
+.TP
+.B
+decompressTWR -p glider.dcd | od -c | head
+.PP
+Decompress a single file to stdout for ad\-hoc inspection.
+.SH EXIT STATUS
+A zero return code indicates success. A non\-zero return code indicates the
+input could not be opened, the output file could not be written, or rename of
+the temporary output to its final name failed.
+.SH NOTES
+The tool writes to a uniquely-named temporary file first, then atomically
+renames it into place once the full decompression has succeeded. This avoids
+leaving partially-written files behind if the process is interrupted.
+.SH AUTHOR
+Pat Welch (pat (at) mousebrains.com)
+.SH SEE ALSO
+dbd2netCDF(1)
+dbd2csv(1)
+
+.SH COPYRIGHT NOTICE
+Copyright (C) 2023 Pat Welch
+Licenced under GPLV3.
+
+Permission is granted to make and distribute verbatim copies of this manual
+provided the copyright notice and this permission notice are preserved on all copies.
+
+Permission is granted to copy and distribute  modified  versions  of  this
+manual under the conditions for verbatim copying, provided that the entire
+resulting derived work is distributed under  the  terms  of  a  permission
+notice identical to this one.
+
+Permission  is  granted to copy and distribute translations of this manual
+into another language, under the above conditions for  modified  versions,
+except that this permission notice may be stated in a translation approved
+by the Free Software Foundation.
