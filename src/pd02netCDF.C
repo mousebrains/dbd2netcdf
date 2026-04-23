@@ -82,7 +82,8 @@ main(int argc,
 
     size_t index(0);
 
-    for (size_t i = 0, hIndex = 0; i < inputFiles.size(); ++i, ++hIndex) {
+    size_t hIndex = 0;
+    for (size_t i = 0; i < inputFiles.size(); ++i) {
       const char* fn = inputFiles[i].c_str();
       const size_t sIndex(index);
       index = pd0.load(fn, nc, index);
@@ -91,6 +92,7 @@ main(int argc,
         nc.putVar(hdrFilename, hIndex, fn);
         nc.putVar(hdrStartIndex, hIndex, static_cast<unsigned int>(sIndex));
         nc.putVar(hdrStopIndex, hIndex, static_cast<unsigned int>(index - 1));
+        ++hIndex;
 
         LOG_INFO("Found {} records in {}", index - sIndex, fn);
       } else {
