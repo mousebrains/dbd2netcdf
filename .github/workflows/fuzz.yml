@@ -44,7 +44,7 @@ jobs:
           -DBUILD_FUZZ_TESTS=ON
 
     - name: Build fuzz targets
-      run: cmake --build build --target fuzz_sensor fuzz_header fuzz_knownbytes
+      run: cmake --build build --target fuzz_sensor fuzz_header fuzz_knownbytes fuzz_data fuzz_decompress
 
     - name: Create seed corpus
       run: |
@@ -64,6 +64,15 @@ jobs:
         # Create a minimal 16-byte seed (will fail validation but exercises code paths)
         printf 'sa\x34\x12\x00\x00\xf6B\x00\x20\x9b\xbf\x1a\x9d\x9c\x41' > build/fuzz_corpus/knownbytes/seed1.bin
 
+        # Seed corpus for data fuzzing (sensor count byte + KnownBytes + records)
+        mkdir -p build/fuzz_corpus/data
+        printf '\x01sa\x34\x12\x00\x00\xf6B\x00\x20\x9b\xbf\x1a\x9d\x9c\x41' > build/fuzz_corpus/data/seed1.bin
+
+        # Seed corpus for decompress fuzzing (garbage bytes exercise error paths)
+        mkdir -p build/fuzz_corpus/decompress
+        printf '\x04\x22\x4d\x18' > build/fuzz_corpus/decompress/seed1.bin
+        echo "uncompressed data" > build/fuzz_corpus/decompress/seed2.txt
+
     - name: Run fuzz_sensor (60 seconds)
       run: |
         cd build
@@ -78,6 +87,16 @@ jobs:
       run: |
         cd build
         timeout 60 ./bin/fuzz_knownbytes fuzz_corpus/knownbytes -max_total_time=55 || true
+
+    - name: Run fuzz_data (60 seconds)
+      run: |
+        cd build
+        timeout 60 ./bin/fuzz_data fuzz_corpus/data -max_total_time=55 || true
+
+    - name: Run fuzz_decompress (60 seconds)
+      run: |
+        cd build
+        timeout 60 ./bin/fuzz_decompress fuzz_corpus/decompress -max_total_time=55 || true
 
     - name: Upload crash artifacts
       if: failure()

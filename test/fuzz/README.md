@@ -14,7 +14,7 @@ Fuzz tests are disabled by default. To build them:
 ```bash
 mkdir build && cd build
 cmake -DBUILD_FUZZ_TESTS=ON -DCMAKE_CXX_COMPILER=clang++ ..
-make fuzz_sensor fuzz_header fuzz_knownbytes
+make fuzz_sensor fuzz_header fuzz_knownbytes fuzz_data fuzz_decompress
 ```
 
 ## Running
@@ -30,6 +30,12 @@ Each fuzz target can be run with a corpus directory:
 
 # Run KnownBytes binary parser fuzzer for 60 seconds
 ./bin/fuzz_knownbytes ../test/fuzz/corpus/knownbytes -max_total_time=60
+
+# Run Data binary record parser fuzzer for 60 seconds
+./bin/fuzz_data ../test/fuzz/corpus/data -max_total_time=60
+
+# Run LZ4 decompression fuzzer for 60 seconds
+./bin/fuzz_decompress ../test/fuzz/corpus/decompress -max_total_time=60
 ```
 
 ### Common Options
@@ -56,12 +62,22 @@ Tests the KnownBytes class which handles binary byte-order detection and reading
 This is a critical parser for DBD files as it validates the 16-byte "known bytes"
 block that determines endianness for all subsequent binary data.
 
+### fuzz_data
+Tests Data::load binary record parsing against malformed input. Builds a minimal
+synthetic sensor list from the fuzz input before running the loader.
+
+### fuzz_decompress
+Tests DecompressTWRBuf against malformed LZ4 streams as well as the uncompressed
+fallback path.
+
 ## Corpus
 
 Seed corpus files are provided in `corpus/` subdirectories:
 - `corpus/sensor/`: Sample sensor definition lines
 - `corpus/header/`: Sample header strings
 - `corpus/knownbytes/`: Sample 16-byte binary blocks
+- `corpus/data/`: Sensor-count byte + KnownBytes + binary records
+- `corpus/decompress/`: LZ4-framed and raw byte streams
 
 ## Crash Reproduction
 
