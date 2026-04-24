@@ -56,7 +56,7 @@ KnownBytes::KnownBytes(std::istream& is)
 
   if (int8 != 'a') {
     std::ostringstream oss;
-    oss << "Error known bytes first byte(0x" << std::hex << static_cast<int>(int8)
+    oss << "Error known bytes first byte(0x" << std::hex << (int8 & 0xff)
         << ", '" << int8 << "') != 'a'";
     throw MyException(oss.str());
   }
