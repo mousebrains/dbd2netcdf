@@ -1,0 +1,81 @@
+#! /bin/sh
+#
+# Exercise decompressTWR on real compressed glider data and verify the
+# output is a usable uncompressed DBD file.
+#
+# Apr-2026, Pat Welch, pat@mousebrains.com
+#
+
+CMD=../bin/decompressTWR
+TMP=../tmp
+DATA=data
+
+if [ ! -x "$CMD" ] ; then
+  echo "$CMD is not executable"
+  exit 1
+fi
+
+if ! mkdir -p "$TMP" ; then
+  echo "Unable to create $TMP"
+  exit 1
+fi
+
+# Clean slate for this run so lingering files do not mask failures.
+workdir=$TMP/decompressTWR.$$
+mkdir -p "$workdir"
+trap 'rm -rf "$workdir"' EXIT
+
+# --- File-mode decompression -------------------------------------------------
+
+if ! "$CMD" -o "$workdir" "$DATA"/00300000.dcd "$DATA"/00300000.scd ; then
+  echo "decompressTWR failed on real glider data"
+  exit 1
+fi
+
+for expected in "$workdir"/00300000.dbd "$workdir"/00300000.sbd ; do
+  if [ ! -s "$expected" ] ; then
+    echo "Missing or empty expected output: $expected"
+    exit 1
+  fi
+done
+
+# Round-trip check: the uncompressed output must parse as a DBD file.
+# dbd2netCDF reads the header + records; if decompression were broken the
+# tool would exit non-zero.
+if ! ../bin/dbd2netCDF -o "$workdir/roundtrip.nc" "$workdir"/00300000.dbd 2>/dev/null ; then
+  echo "dbd2netCDF could not read decompressTWR's output (round-trip failed)"
+  exit 1
+fi
+
+# --- Pipe mode ---------------------------------------------------------------
+
+if ! "$CMD" -p "$DATA"/00300000.dcd > "$workdir/piped.dbd" ; then
+  echo "decompressTWR -p (pipe mode) failed"
+  exit 1
+fi
+
+if [ ! -s "$workdir/piped.dbd" ] ; then
+  echo "decompressTWR -p produced empty output"
+  exit 1
+fi
+
+# --- Error path: missing input -----------------------------------------------
+
+if "$CMD" -o "$workdir" "$workdir"/does-not-exist.dcd 2>/dev/null ; then
+  echo "decompressTWR unexpectedly succeeded on a missing input"
+  exit 1
+fi
+
+# --- Version and help flags --------------------------------------------------
+
+if ! "$CMD" --version >/dev/null 2>&1 ; then
+  echo "decompressTWR --version failed"
+  exit 1
+fi
+
+if ! "$CMD" --help >/dev/null 2>&1 ; then
+  echo "decompressTWR --help failed"
+  exit 1
+fi
+
+exit 0

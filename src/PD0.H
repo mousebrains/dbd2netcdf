@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 #include <set>
-#include <stdint.h>
+#include <cstdint>
 
 class NetCDF;
 

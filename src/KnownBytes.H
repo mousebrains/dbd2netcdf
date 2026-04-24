@@ -5,7 +5,7 @@
 
 #include <iosfwd>
 #include <cstddef>
-#include <stdint.h> // Use this instead of cstdint
+#include <cstdint>
 
 class KnownBytes {
 private:

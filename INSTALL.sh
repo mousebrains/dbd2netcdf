@@ -20,15 +20,21 @@ CLEAN=false
 JOBS=""
 
 usage() {
-  echo "Usage: $0 [options]"
-  echo ""
-  echo "Options:"
-  echo "  --prefix DIR   Install to DIR (skip install if omitted)"
-  echo "  --build-type T CMake build type: Release, Debug, RelWithDebInfo (default: Release)"
-  echo "  --jobs N       Parallel build jobs (default: auto-detect)"
-  echo "  --clean        Remove build directory before building"
-  echo "  -h, --help     Show this help"
-  exit 0
+  # Optional exit code (default 0)
+  code=${1:-0}
+  out=1
+  [ "$code" -ne 0 ] && out=2
+  {
+    echo "Usage: $0 [options]"
+    echo ""
+    echo "Options:"
+    echo "  --prefix DIR   Install to DIR (skip install if omitted)"
+    echo "  --build-type T CMake build type: Release, Debug, RelWithDebInfo (default: Release)"
+    echo "  --jobs N       Parallel build jobs (default: auto-detect)"
+    echo "  --clean        Remove build directory before building"
+    echo "  -h, --help     Show this help"
+  } >&"$out"
+  exit "$code"
 }
 
 while [ $# -gt 0 ]; do
@@ -37,10 +43,10 @@ while [ $# -gt 0 ]; do
     --build-type) BUILD_TYPE="$2"; shift 2 ;;
     --jobs)       JOBS="$2";       shift 2 ;;
     --clean)      CLEAN=true;      shift   ;;
-    -h|--help)    usage ;;
+    -h|--help)    usage 0 ;;
     *)
       echo "Unknown option: $1" >&2
-      usage
+      usage 1
       ;;
   esac
 done
@@ -64,11 +70,14 @@ fi
 
 # Configure
 echo "==> Configuring ($BUILD_TYPE)"
-cmake_args="-B $BUILDDIR -DCMAKE_BUILD_TYPE=$BUILD_TYPE"
 if [ -n "$PREFIX" ]; then
-  cmake_args="$cmake_args -DCMAKE_INSTALL_PREFIX=$PREFIX"
+  cmake -S "$SRCDIR" -B "$BUILDDIR" \
+        -DCMAKE_BUILD_TYPE="$BUILD_TYPE" \
+        -DCMAKE_INSTALL_PREFIX="$PREFIX"
+else
+  cmake -S "$SRCDIR" -B "$BUILDDIR" \
+        -DCMAKE_BUILD_TYPE="$BUILD_TYPE"
 fi
-cmake -S "$SRCDIR" $cmake_args
 
 # Build
 echo "==> Building (jobs=$JOBS)"

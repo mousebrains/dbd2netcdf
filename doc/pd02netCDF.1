@@ -1,0 +1,86 @@
+.TH pd02netCDF "March 2026" "Version 1.7.2" "USER COMMANDS"
+.SH NAME
+pd02netCDF \- translate Teledyne RDI
+.I "PD0"
+ADCP files into a netCDF file
+.SH SYNOPSIS
+.B pd02netCDF
+.B [\-hvV]
+.B "[\-l level]"
+.B "\-o filename"
+pd0Files...
+.SH DESCRIPTION
+Read in a set of Teledyne RDI
+.I "PD0"
+formatted ADCP data files and translate them into a single netCDF file.
+
+The tool scans every input file to find the largest number of depth cells, then
+creates netCDF variables sized to that maximum. Fixed Leader, Variable Leader,
+and velocity fields are populated from each PD0 ensemble. Header variables
+(filename, start index, stop index) track which records came from which input
+file.
+.SH OPTIONS
+.TP
+.B \-h
+display a short help message
+.TP
+.B "\-l level, \-\-log\-level level"
+Set the logging level (trace, debug, info, warn, error, critical, off). Default: warn.
+.TP
+.B "\-o filename, \-\-output filename"
+Filename of the generated netCDF output. Required.
+.TP
+.B \-V, \-\-version
+Print out software version.
+.TP
+.B \-v, \-\-verbose
+Enable output of some diagnostic information.
+.SH EXAMPLES
+.TP
+.B
+pd02netCDF -o adcp.nc *.pd0
+.PP
+Read in all the files ending in
+.I .pd0
+and output the combined data into
+.I adcp.nc.
+.SH EXIT STATUS
+.TP
+.B 0
+Success.
+.TP
+.B 2
+A
+.B MyException
+was thrown (for example a malformed PD0 record).
+.TP
+.B 3
+An unexpected
+.B std::exception
+was thrown.
+.SH NOTES
+This tool was designed to work with PD0 files produced by Teledyne RDI ADCPs
+mounted on or alongside Slocum gliders.
+.SH AUTHOR
+Pat Welch (pat (at) mousebrains.com)
+.SH SEE ALSO
+dbd2netCDF(1)
+dbd2csv(1)
+ncdump(1)
+
+.SH COPYRIGHT NOTICE
+Copyright (C) 2012 Pat Welch
+Licenced under GPLV3.
+
+Permission is granted to make and distribute verbatim copies of this manual
+provided the copyright notice and this permission notice are preserved on all copies.
+
+Permission is granted to copy and distribute  modified  versions  of  this
+manual under the conditions for verbatim copying, provided that the entire
+resulting derived work is distributed under  the  terms  of  a  permission
+notice identical to this one.
+
+Permission  is  granted to copy and distribute translations of this manual
+into another language, under the above conditions for  modified  versions,
+except that this permission notice may be stated in a translation approved
+by the Free Software Foundation.

@@ -17,7 +17,7 @@ See [INSTALL.md](INSTALL.md) for build instructions, platform-specific dependenc
 If a filename follows the TWR convention for compressed files, `*.?c?`, it will be treated as an LZ4 compressed file, and automatically decompressed.
 
 *Sample commands:*
-- `./dbd2netcdf --cache=/data/cache --output=foobar.nc *.d?d`
+- `./dbd2netCDF --cache=/data/cache --output=foobar.nc *.d?d`
 - `./dbd2csv --cache=/data/cache --output=foobar.csv *.e?d`
 - `./decompressTWR *.?c?`
 

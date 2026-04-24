@@ -46,7 +46,7 @@ Files excluded from trailing-whitespace hook (ncdump outputs trailing spaces):
 ## Fuzz Testing
 
 - Requires Clang with libFuzzer (`-DBUILD_FUZZ_TESTS=ON`)
-- Targets: `fuzz_sensor`, `fuzz_header`, `fuzz_knownbytes`
+- Targets: `fuzz_sensor`, `fuzz_header`, `fuzz_knownbytes`, `fuzz_data`, `fuzz_decompress`
 
 ## Performance Notes
 

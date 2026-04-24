@@ -32,9 +32,13 @@ if (SH_PROGRAM)
 		COMMAND ${SH_PROGRAM} ${CMAKE_CURRENT_SOURCE_DIR}/pd02netCDF
 		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
+	add_test(NAME decompressTWR
+		COMMAND ${SH_PROGRAM} ${CMAKE_CURRENT_SOURCE_DIR}/decompressTWR
+		WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+
 	# Legacy "make check" target for backwards compatibility
 	add_custom_target(check
 		COMMAND ${CMAKE_CTEST_COMMAND} --output-on-failure
-		DEPENDS dbd2netCDF dbd2csv dbdSensors pd02netCDF
+		DEPENDS dbd2netCDF dbd2csv dbdSensors pd02netCDF decompressTWR
 	)
 endif()

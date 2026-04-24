@@ -56,7 +56,6 @@ main(int argc,
   bool qAppend(false);
   bool qSkipFirstRecord(false);
   bool qSkipAllFirst(false);
-  bool qKeepFirst(false);
   bool qRepair(false);
   bool qStrict(false);
   bool qVerbose(false);
@@ -77,7 +76,6 @@ main(int argc,
   auto* skipGroup = app.add_option_group("first-record", "First record handling");
   skipGroup->add_flag("-s,--skipFirst", qSkipFirstRecord, "Skip first record in each file, but the first");
   skipGroup->add_flag("-A,--skipAll", qSkipAllFirst, "Skip first record in ALL files including the first");
-  skipGroup->add_flag("--keepFirst", qKeepFirst, "Keep first record of all files (default)");
   skipGroup->require_option(0, 1);
   app.add_flag("-r,--repair", qRepair, "Attempt to repair bad data records");
   app.add_flag("-S,--strict", qStrict, "Fail immediately on any file error (no partial results)");
@@ -341,7 +339,7 @@ main(int argc,
           const Data::tColumn& col(data.column(j));
           if (varSizes[j] == 8) {
             // NC_DOUBLE: NaN and inf are both representable
-            ncid.putVars(var, indexOffset, writeCount, &col[kStart]);
+            ncid.putVara(var, indexOffset, writeCount, &col[kStart]);
           } else {
             // NC_FLOAT/SHORT/BYTE: replace NaN/inf with fill value
             double fillValue = NAN;
@@ -351,7 +349,7 @@ main(int argc,
               const double v(col[kStart + k]);
               values[k] = (std::isnan(v) || std::isinf(v)) ? fillValue : v;
             }
-            ncid.putVars(var, indexOffset, writeCount, values.data());
+            ncid.putVara(var, indexOffset, writeCount, values.data());
           }
         }
 

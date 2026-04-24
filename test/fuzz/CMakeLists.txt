@@ -51,7 +51,7 @@ if(BUILD_FUZZ_TESTS)
     )
 
     # Fuzz target: Data binary record parsing
-    add_executable(fuzz_data fuzz_data.cpp ${dbd2netcdf_SOURCE_DIR}/src/Data.C)
+    add_executable(fuzz_data fuzz_data.cpp)
     target_link_libraries(fuzz_data PRIVATE dbd_common)
     target_compile_options(fuzz_data PRIVATE ${FUZZ_COMPILE_FLAGS})
     target_link_options(fuzz_data PRIVATE ${FUZZ_LINK_FLAGS})

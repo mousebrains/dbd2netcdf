@@ -7,10 +7,4 @@
 #define VERSION "@dbd2netcdf_VERSION_MAJOR@.@dbd2netcdf_VERSION_MINOR@.@dbd2netcdf_VERSION_PATCH@"
 #define MAINTAINER "@dbd2netcdf_MAINTAINER@"
 
-#cmakedefine HAVE_EXECINFO_H
-#cmakedefine HAVE_UNISTD_H
-#cmakedefine HAVE_NETCDF_H
-#cmakedefine HAVE_BACKTRACE
-#cmakedefine HAVE_INT8_T
-
 #endif // INC_CONFIG_H_

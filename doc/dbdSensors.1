@@ -37,7 +37,11 @@ whose sensor list has not been seen already, look in the
 .B directory
 for an appropriate sensor list file.
 
-.B "If the directory does not exist, it is created world writeable!"
+If the directory does not exist, it is created using
+.B std::filesystem::create_directories,
+which honors the current
+.B umask
+(typically producing mode 0755 with the default umask of 022).
 .TP
 .B \-h
 display a short help message

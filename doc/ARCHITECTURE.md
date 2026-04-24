@@ -147,7 +147,7 @@ Loads and stores binary data records.
 
 ```cpp
 class Data {
-    vector<vector<double>> mData;  // [record][sensor]
+    vector<vector<double>> mData;  // [sensor][record] (column-major)
 
     void load(is, kb, sensors, qRepair, nBytes);
 };
@@ -238,7 +238,10 @@ test/
 │   └── test_header.cpp
 ├── fuzz/           # libFuzzer fuzz tests
 │   ├── fuzz_sensor.cpp
-│   └── fuzz_header.cpp
+│   ├── fuzz_header.cpp
+│   ├── fuzz_knownbytes.cpp
+│   ├── fuzz_data.cpp
+│   └── fuzz_decompress.cpp
 ├── benchmark/      # Catch2 benchmarks
 │   └── benchmark_main.cpp
 └── data/           # Real test data files
@@ -263,7 +266,8 @@ When dropping support for GCC 8.x (AlmaLinux 8), consider adopting C++20 feature
 - **`std::format`**: Replace spdlog's fmt with standard formatting
 - **Ranges**: Simplify iterator-based algorithms
 
-Current minimum compiler requirements:
-- GCC 8.5+ (AlmaLinux 8)
-- Clang 16+
-- MSVC 2019+
+Current minimum compiler requirements (enforced in CMakeLists.txt):
+- GCC 8.0+
+- Clang 5.0+
+- AppleClang 9.1+
+- MSVC 19.14+ (Visual Studio 2017 15.7)

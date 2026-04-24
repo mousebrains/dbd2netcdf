@@ -53,7 +53,6 @@ main(int argc,
   std::string logLevel = "warn";
   bool qSkipFirstRecord(false);
   bool qSkipAllFirst(false);
-  bool qKeepFirst(false);
   bool qRepair(false);
   bool qStrict(false);
   bool qVerbose(false);
@@ -71,7 +70,6 @@ main(int argc,
   auto* skipGroup = app.add_option_group("first-record", "First record handling");
   skipGroup->add_flag("-s,--skipFirst", qSkipFirstRecord, "Skip first record in each file, but the first");
   skipGroup->add_flag("-A,--skipAll", qSkipAllFirst, "Skip first record in ALL files including the first");
-  skipGroup->add_flag("--keepFirst", qKeepFirst, "Keep first record of all files (default)");
   skipGroup->require_option(0, 1);
   app.add_flag("-r,--repair", qRepair, "Attempt to repair bad data records");
   app.add_flag("-S,--strict", qStrict, "Fail immediately on any file error (no partial results)");
@@ -225,25 +223,32 @@ main(int argc,
       return(1);
     }
     const Header hdr(is, fn);             // Load up header
-    smap.insert(is, hdr, true); // Since will move to the right position in the file
-    const Sensors& sensors(smap.find(hdr));
-    const KnownBytes kb(is);          // Get little/big endian
     Data data;
-    const size_t nBytes(fileSizes[ii]);
-
     try {
-      data.load(is, kb, sensors, qRepair, nBytes);
-    } catch (MyException& e) {
+      smap.insert(is, hdr, true); // Since will move to the right position in the file
+      const Sensors& sensors(smap.find(hdr));
+      const KnownBytes kb(is);          // Get little/big endian
+      const size_t nBytes(fileSizes[ii]);
+
+      try {
+        data.load(is, kb, sensors, qRepair, nBytes);
+      } catch (MyException& e) {
+        if (qStrict) {
+          LOG_ERROR("Error processing '{}': {}", fn, e.what());
+          return(1);
+        }
+        LOG_WARN("Error processing '{}': {}, retaining {} records", fn, e.what(), data.size());
+      }
+    } catch (MyException& e) { // Catch my exceptions, where I toss the whole file
       if (qStrict) {
         LOG_ERROR("Error processing '{}': {}", fn, e.what());
         return(1);
       }
-      LOG_WARN("Error processing '{}': {}, retaining {} records", fn, e.what(), data.size());
+      LOG_WARN("Error processing '{}': {} (skipping file)", fn, e.what());
+      continue;
     }
 
     if (data.empty()) continue;
-
-    data.delim(",");
 
     const size_t n(data.size());
     const size_t kStart(qSkipAllFirst ? 1 : (ii == 0 ? 0 : k0));

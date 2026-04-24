@@ -114,22 +114,30 @@ main(int argc,
       std::ofstream os(tfn.c_str(), std::ios::binary);
       if (!os) {
         LOG_ERROR("Error opening '{}': {}", tfn, strerror(errno));
-	return 1;
+        return 1;
       }
       constexpr size_t BUFFER_SIZE = 1024 * 1024;
       std::vector<char> buffer(BUFFER_SIZE);  // RAII heap allocation (1MB)
       while (is) { // Loop until EOF
-          if (is.read(buffer.data(), buffer.size()) || is.gcount()) {
-	    os.write(buffer.data(), is.gcount());
-	  }
+        if (is.read(buffer.data(), buffer.size()) || is.gcount()) {
+          os.write(buffer.data(), is.gcount());
+        }
       }
       os.close();
-      std::rename(tfn.c_str(), ofn.c_str());
+
+      std::error_code ec;
+      fs::rename(tfn, ofn, ec);
+      if (ec) {
+        LOG_ERROR("Error renaming '{}' -> '{}': {}", tfn, ofn, ec.message());
+        fs::remove(tfn, ec);
+        return 1;
+      }
       LOG_INFO("Decompressed '{}' -> '{}'", ifn, ofn);
-    } catch (int e) {
-      LOG_ERROR("Error creating '{}': {}", ofn, strerror(e));
+    } catch (const std::exception& e) {
+      LOG_ERROR("Error creating '{}': {}", ofn, e.what());
       std::error_code ec;
       fs::remove(tfn, ec);
+      return 1;
     }
   }
 
