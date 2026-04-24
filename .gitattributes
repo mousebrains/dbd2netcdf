@@ -2,6 +2,7 @@
 test/dbd2csv text eol=lf
 test/dbd2netCDF text eol=lf
 test/dbdSensors text eol=lf
+test/decompressTWR text eol=lf
 test/pd02netCDF text eol=lf
 
 # Shell scripts anywhere in the repo
