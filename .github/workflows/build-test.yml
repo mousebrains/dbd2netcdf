@@ -532,7 +532,7 @@ jobs:
       uses: ilammy/msvc-dev-cmd@v1
 
     - name: Setup Miniconda
-      uses: conda-incubator/setup-miniconda@v3
+      uses: conda-incubator/setup-miniconda@v4
       with:
         auto-update-conda: true
         python-version: '3.11'
