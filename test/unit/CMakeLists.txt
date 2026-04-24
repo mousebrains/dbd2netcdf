@@ -8,6 +8,7 @@ add_executable(unit_tests
     test_main.cpp
     test_sensor.cpp
     test_sensors.cpp
+    test_sensorsmap.cpp
     test_header.cpp
     test_knownbytes.cpp
 )
