@@ -41,14 +41,12 @@ dbd_set_warnings(dbd_common)
 
 add_executable(dbd2netCDF
 	dbd2netCDF.C
-	MyNetCDF.C
 )
 target_link_libraries(dbd2netCDF PRIVATE dbd_common)
 
 add_executable(pd02netCDF
 	pd02netCDF.C
 	PD0.C
-	MyNetCDF.C
 )
 
 add_executable(dbd2csv
@@ -126,13 +124,25 @@ else()
   endif()
 endif()
 
-# Scope NetCDF includes to the only targets that pull in netcdf.h (MyNetCDF.C).
-# On Windows the imported target netCDF::netcdf carries the include path
-# transitively via target_link_libraries, so NETCDF_INCLUDE_DIRS is empty.
+# Wrap MyNetCDF.C in a small static lib so the NetCDF dependency is scoped
+# to targets that actually need it (dbd2netCDF, pd02netCDF, unit_tests). On
+# Windows the imported target netCDF::netcdf carries include and library
+# paths transitively via target_link_libraries, so NETCDF_INCLUDE_DIRS is
+# empty there.
+add_library(dbd_netcdf STATIC MyNetCDF.C)
+set_target_properties(dbd_netcdf PROPERTIES
+	CXX_STANDARD 17
+	CXX_STANDARD_REQUIRED ON
+	CXX_EXTENSIONS OFF
+)
+target_link_libraries(dbd_netcdf PUBLIC dbd_common ${NETCDF_LIBRARIES})
 if(NETCDF_INCLUDE_DIRS)
-  target_include_directories(dbd2netCDF PRIVATE ${NETCDF_INCLUDE_DIRS})
-  target_include_directories(pd02netCDF PRIVATE ${NETCDF_INCLUDE_DIRS})
+  target_include_directories(dbd_netcdf PUBLIC ${NETCDF_INCLUDE_DIRS})
 endif()
+dbd_set_warnings(dbd_netcdf)
+
+target_link_libraries(dbd2netCDF PRIVATE dbd_netcdf)
+target_link_libraries(pd02netCDF PRIVATE dbd_netcdf)
 
 if(APPLE)
   message(STATUS "Building for macOS, ARCH: ${CMAKE_OSX_ARCHITECTURES}")
@@ -156,10 +166,6 @@ configure_file(${dbd2netcdf_SOURCE_DIR}/src/config.h.in
                ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 target_include_directories(pd02netCDF PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 target_include_directories(decompressTWR PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
-
-# Link NetCDF libraries to targets that need it
-target_link_libraries(dbd2netCDF PRIVATE ${NETCDF_LIBRARIES})
-target_link_libraries(pd02netCDF PRIVATE ${NETCDF_LIBRARIES})
 
 # Link stdc++fs for GCC 8.x (required for filesystem support)
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_LESS 9.0)
