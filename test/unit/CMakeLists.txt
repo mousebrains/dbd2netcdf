@@ -8,12 +8,15 @@ add_executable(unit_tests
     test_main.cpp
     test_sensor.cpp
     test_sensors.cpp
+    test_sensorsmap.cpp
     test_header.cpp
     test_knownbytes.cpp
+    test_data.cpp
+    test_netcdf.cpp
 )
 
 target_link_libraries(unit_tests PRIVATE
-    dbd_common
+    dbd_netcdf  # transitively pulls in dbd_common, spdlog, and netCDF
     Catch2::Catch2
 )
 

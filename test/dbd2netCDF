@@ -277,6 +277,52 @@ for sz in 0 1 100; do
   rm -f "$batchfn"
 done
 
+# Test --append extends an existing NetCDF file rather than replacing it.
+# This also exercises the schema-validation paths in
+# NetCDF::maybeCreateDim / maybeCreateVar when reopening a compatible file.
+echo "Testing --append..."
+appfn=$TMP/append.nc
+rm -f "$appfn"
+
+extract_i_len() {
+  # Pull the current length of the unlimited dimension `i` out of ncdump -h.
+  ncdump -h "$1" | sed -nE 's/.*i = UNLIMITED ; \/\/ \(([0-9]+) currently\).*/\1/p'
+}
+
+if ! "$CMD" -o "$appfn" data/00300000.dcd 2>/dev/null; then
+  echo "--append: initial create failed"
+  rm -f "$appfn"
+  exit 1
+fi
+
+n1=$(extract_i_len "$appfn")
+if [ -z "$n1" ] || [ "$n1" -eq 0 ]; then
+  echo "--append: could not determine initial data dimension length"
+  rm -f "$appfn"
+  exit 1
+fi
+
+if ! "$CMD" -a -o "$appfn" data/00300000.dcd 2>/dev/null; then
+  echo "--append to existing file failed"
+  rm -f "$appfn"
+  exit 1
+fi
+
+n2=$(extract_i_len "$appfn")
+expected=$((n1 * 2))
+if [ "$n2" != "$expected" ]; then
+  echo "--append expected data length $expected, got $n2"
+  rm -f "$appfn"
+  exit 1
+fi
+
+if ! ncdump -h "$appfn" >/dev/null 2>&1; then
+  echo "--append produced unreadable output"
+  rm -f "$appfn"
+  exit 1
+fi
+rm -f "$appfn"
+
 # Test --sensorOutput restricts output to selected sensors
 echo "Testing --sensorOutput restricts sensors..."
 selfn=$TMP/sel.txt

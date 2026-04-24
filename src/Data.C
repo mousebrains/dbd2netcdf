@@ -48,6 +48,13 @@ Data::load(std::istream& is,
   const size_t nHeader((nSensors + 3) / 4);
   std::vector<int8_t> bits(nHeader);  // RAII - automatic cleanup
   const size_t nToStore(sensors.nToStore());
+  // Guard against a zero-column load: mData[0] on line 136 would be UB
+  // otherwise. This can only happen when the caller's --output filter matches
+  // no sensors; reject early with a clear message instead of crashing.
+  if (nToStore == 0) {
+    throw MyException("No output sensors selected: the output filter removed "
+                      "every sensor. Adjust --output or the cache contents.");
+  }
   std::vector<double> prevValue(nToStore, NAN);
   size_t nRows(0);
   const size_t dSize(2 * nBytes / (nHeader + 1) + 1); // 2 is for compression

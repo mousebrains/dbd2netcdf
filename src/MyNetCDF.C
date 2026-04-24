@@ -80,7 +80,25 @@ NetCDF::maybeCreateDim(const std::string& name)
   int dimId;
   const int retval(nc_inq_dimid(mId, name.c_str(), &dimId));
   if (retval) return createDim(name);
-  // Put checks in here
+
+  // Existing dim — validate it is unlimited, matching what createDim() creates
+  // via the default path. Append and every batch past the first come through
+  // here, so a silent fixed/unlimited mismatch would corrupt output.
+  int nUnlim = 0;
+  basicOp(nc_inq_unlimdims(mId, &nUnlim, nullptr),
+          "querying unlimited dimensions of '" + name + "'");
+  std::vector<int> unlimIds(nUnlim > 0 ? static_cast<size_t>(nUnlim) : 0);
+  if (nUnlim > 0) {
+    basicOp(nc_inq_unlimdims(mId, nullptr, unlimIds.data()),
+            "listing unlimited dimensions of '" + name + "'");
+  }
+  if (std::find(unlimIds.begin(), unlimIds.end(), dimId) == unlimIds.end()) {
+    std::ostringstream oss;
+    oss << "Existing dimension '" << name << "' in '" << mFilename
+        << "' is fixed-length but the writer expects an unlimited dimension."
+        << " Remove the file or use a different output path.";
+    throw MyException(oss.str());
+  }
   return dimId;
 } // maybeCreateDim
 
@@ -127,7 +145,48 @@ NetCDF::maybeCreateVar(const std::string& name,
   int varId;
   const int retval(nc_inq_varid(mId, name.c_str(), &varId));
   if (retval) return createVar(name, idType, idDim, units);
-  // Put checks in here
+
+  // Existing variable — validate type and dimension layout match expectations.
+  // This path runs on --append and on every batch past the first, so a silent
+  // mismatch would produce either corrupt output or an opaque NetCDF error
+  // much later in the write loop.
+  nc_type existingType;
+  basicOp(nc_inq_vartype(mId, varId, &existingType),
+          "querying type of existing variable '" + name + "'");
+  if (existingType != idType) {
+    const std::string gotName(typeToStr(existingType));
+    const std::string expectedName(typeToStr(idType));
+    std::ostringstream oss;
+    oss << "Existing variable '" << name << "' in '" << mFilename
+        << "' has type " << gotName
+        << " but the writer expects " << expectedName
+        << ". The input sensor size changed between runs.";
+    throw MyException(oss.str());
+  }
+
+  int nDims = 0;
+  basicOp(nc_inq_varndims(mId, varId, &nDims),
+          "querying dimension count of existing variable '" + name + "'");
+  if (nDims != 1) {
+    std::ostringstream oss;
+    oss << "Existing variable '" << name << "' in '" << mFilename
+        << "' has " << nDims << " dimensions but the writer expects 1.";
+    throw MyException(oss.str());
+  }
+
+  int existingDim = -1;
+  basicOp(nc_inq_vardimid(mId, varId, &existingDim),
+          "querying dimension id of existing variable '" + name + "'");
+  if (existingDim != idDim) {
+    std::ostringstream oss;
+    oss << "Existing variable '" << name << "' in '" << mFilename
+        << "' is attached to dimension id " << existingDim
+        << " but the writer expects dimension id " << idDim << ".";
+    throw MyException(oss.str());
+  }
+
+  // units is informational; we do not reject on mismatch since documentation
+  // attributes evolve independently of the data schema.
   return varId;
 }
 
