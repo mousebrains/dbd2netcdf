@@ -154,10 +154,12 @@ NetCDF::maybeCreateVar(const std::string& name,
   basicOp(nc_inq_vartype(mId, varId, &existingType),
           "querying type of existing variable '" + name + "'");
   if (existingType != idType) {
+    const std::string gotName(typeToStr(existingType));
+    const std::string expectedName(typeToStr(idType));
     std::ostringstream oss;
     oss << "Existing variable '" << name << "' in '" << mFilename
-        << "' has type " << typeToStr(existingType)
-        << " but the writer expects " << typeToStr(idType)
+        << "' has type " << gotName
+        << " but the writer expects " << expectedName
         << ". The input sensor size changed between runs.";
     throw MyException(oss.str());
   }
