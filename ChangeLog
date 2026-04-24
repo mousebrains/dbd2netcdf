@@ -1,3 +1,49 @@
+Version 1.7.3
+
+Apr-2026, Bug fixes
+  - Fix Sensor cache round-trip losing the natural index
+  - Fix PD0::Common::dump printing signed values as unsigned
+  - Fix decompressTWR silently succeeding on errors and leaking temp files on
+    rename failure
+  - Fix Header::trim leaving all-whitespace strings untouched
+  - Fix NetCDF destructor throwing during stack unwinding
+  - Fix pd02netCDF lacking top-level exception handling
+  - Fix dbd2csv second-pass skipping try/catch around Header/KnownBytes
+    (dbd2netCDF already wrapped these)
+  - Fix pd02netCDF hdr_* variables leaving gaps for record-less input files
+
+Apr-2026, Build and CI
+  - Move CMAKE_BUILD_TYPE default ahead of add_subdirectory(src)
+  - Extract dbd_set_warnings() to remove duplicated warning flags
+  - Move Data.C into dbd_common (was compiled 3x)
+  - Remove non-functional CYGWIN CPack branch and its broken helpers
+  - Remove unused HAVE_* config macros and dead CMake checks
+  - Narrow cppcheck uninitMemberVar suppression to the one real site
+
+Apr-2026, Tests
+  - Add KnownBytes unit tests and decompressTWR integration test
+  - Add --compression / --batch-size / --sensorOutput integration coverage
+  - Consolidate fuzz corpus into test/fuzz/corpus/ with seeds for all 5 targets
+  - Update benchmarks to Catch2 v3 link-based main
+
+Apr-2026, Documentation
+  - Add manpages for pd02netCDF and decompressTWR
+  - Sync fuzz target inventory across CLAUDE.md, ARCHITECTURE.md, README,
+    workflow
+  - Fix column-major Data layout comment in ARCHITECTURE.md
+  - Backfill 1.7.1 and 1.7.2 ChangeLog entries
+  - Polish manpages (grammar, softened world-writeable warning, dropped
+    --keepFirst)
+
+Apr-2026, Hygiene
+  - Remove inert --keepFirst flag and qKeepFirst variable
+  - Remove undefined Sensors::mapSensors declaration and data.delim no-op
+  - Rename NetCDF::putVars -> putVara to match the nc_put_vara_* call
+  - INSTALL.sh exits 1 on unknown option and quotes cmake arguments
+  - Header nLines initial guess 10 -> 14 to match documentation
+  - std::nan("") consistency; lazy compression-label construction
+  - stdint.h -> cstdint in KnownBytes.H and PD0.H
+
 Version 1.7.2
 
 Apr-2026, Build and CI
