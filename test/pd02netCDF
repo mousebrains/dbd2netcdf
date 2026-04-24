@@ -57,14 +57,24 @@ doCompare() {
     exit 1
   fi
 
-  if ! tail -n +2 "$tmp1fn" >"$tmp2fn" ; then # Get rid of first line which contains filename
-    echo "Failed to execute tail on $tmp1fn"
+  # Strip first line (filename varies) and normalize the version string
+  # embedded in the :history attribute so bumping VERSION does not break the
+  # comparison against checked-in reference files.
+  normalize() {
+    # Portable across BSD and GNU sed (no alternation): two -e expressions.
+    tail -n +2 "$1" \
+      | sed -e 's/Created by dbd2netCDF [^"]*/Created by dbd2netCDF X.Y.Z/' \
+            -e 's/Created by pd02netCDF [^"]*/Created by pd02netCDF X.Y.Z/'
+  }
+
+  if ! normalize "$tmp1fn" >"$tmp2fn" ; then
+    echo "Failed to normalize $tmp1fn"
     rm -f "$tmpfn" "$tmp1fn" "$tmp2fn"
     exit 1
   fi
 
-  if ! tail -n +2 "$ref" >"$tmp1fn" ; then # Get rid of first line which contains filename
-    echo "Failed to execute tail on $ref"
+  if ! normalize "$ref" >"$tmp1fn" ; then
+    echo "Failed to normalize $ref"
     rm -f "$tmpfn" "$tmp1fn" "$tmp2fn"
     exit 1
   fi
