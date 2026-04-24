@@ -35,7 +35,7 @@ set_target_properties(dbd_common PROPERTIES
 	CXX_STANDARD_REQUIRED ON
 	CXX_EXTENSIONS OFF
 )
-target_include_directories(dbd_common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(dbd_common PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 target_link_libraries(dbd_common PUBLIC spdlog::spdlog)
 dbd_set_warnings(dbd_common)
 
@@ -126,12 +126,13 @@ else()
   endif()
 endif()
 
-# Add NetCDF include directories
+# Scope NetCDF includes to the only targets that pull in netcdf.h (MyNetCDF.C).
+# On Windows the imported target netCDF::netcdf carries the include path
+# transitively via target_link_libraries, so NETCDF_INCLUDE_DIRS is empty.
 if(NETCDF_INCLUDE_DIRS)
-  include_directories(${NETCDF_INCLUDE_DIRS})
+  target_include_directories(dbd2netCDF PRIVATE ${NETCDF_INCLUDE_DIRS})
+  target_include_directories(pd02netCDF PRIVATE ${NETCDF_INCLUDE_DIRS})
 endif()
-
-include_directories(${CMAKE_INSTALL_PREFIX}/include)
 
 if(APPLE)
   message(STATUS "Building for macOS, ARCH: ${CMAKE_OSX_ARCHITECTURES}")
@@ -147,9 +148,14 @@ IF("${isSystemDir}" STREQUAL "-1")
   SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 ENDIF("${isSystemDir}" STREQUAL "-1")
 
-# Write out config.h as derived from config.h.in
+# Write out config.h as derived from config.h.in, into the build tree so the
+# source tree stays clean. dbd_common's include path covers the binary dir;
+# targets that do not link dbd_common (pd02netCDF, decompressTWR) add it
+# explicitly below.
 configure_file(${dbd2netcdf_SOURCE_DIR}/src/config.h.in
-               ${dbd2netcdf_SOURCE_DIR}/src/config.h)
+               ${CMAKE_CURRENT_BINARY_DIR}/config.h)
+target_include_directories(pd02netCDF PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(decompressTWR PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 
 # Link NetCDF libraries to targets that need it
 target_link_libraries(dbd2netCDF PRIVATE ${NETCDF_LIBRARIES})

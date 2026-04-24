@@ -114,7 +114,7 @@ if (APPLE)
   set(CPACK_GENERATOR "TGZ")
   set(CPACK_OSX_PACKAGE_VERSION 10.7)
   set(CPACK_BUNDLE_NAME dbd2netcdf)
-  set(CPACK_BUNDLE_PLIST "${dbd2netcdf_SOURCE_DIR}/osx.files/Info.plist")
+  set(CPACK_BUNDLE_PLIST "${CMAKE_BINARY_DIR}/Info.plist")
   set(CPACK_BUNDLE_ICON "${dbd2netcdf_SOURCE_DIR}/pixmaps/dbd2netcdf.icns")
 # set(CPACK_PACKAGE_DEFAULT_LOCATION "/Applications/dbd2netcdf")
 # set(CPACK_PACKAGE_INSTALL_DIRECTORY dbd2netcdf ${dbd2netcdf_VERSION_MAJOR}.${dbd2netcdf_VERSION_MINOR}.${dbd2netcdf_VERSION_PATCH})
@@ -161,7 +161,7 @@ set (CPACK_SOURCE_IGNORE_FILES
 include(CPack)
 
 configure_file(${dbd2netcdf_SOURCE_DIR}/osx.files/Info.plist.in
-               ${dbd2netcdf_SOURCE_DIR}/osx.files/Info.plist)
+               ${CMAKE_BINARY_DIR}/Info.plist)
 
 # Enable dashboard scripting
 
