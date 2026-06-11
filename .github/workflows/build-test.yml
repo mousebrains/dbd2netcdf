@@ -88,7 +88,7 @@ jobs:
 
     - name: Shellcheck test scripts
       run: |
-        shellcheck -s sh test/dbd2netCDF test/dbd2csv test/dbdSensors test/pd02netCDF
+        shellcheck -s sh test/dbd2netCDF test/dbd2csv test/dbdSensors test/pd02netCDF test/decompressTWR
 
   lint-cpp:
     name: C++ Static Analysis

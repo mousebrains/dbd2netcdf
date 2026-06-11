@@ -24,7 +24,6 @@
 #include <unordered_map>
 #include <iostream>
 #include <sstream>
-#include <cstdio>
 
 const Sensors&
 SensorsMap::find(const Header& hdr)
@@ -37,9 +36,7 @@ SensorsMap::find(const Header& hdr)
       it = mMap.insert(std::make_pair(sensors.crc(), sensors)).first;
       return it->second;
     }
-    char buffer[2048];
-    snprintf(buffer, sizeof(buffer), "Known sensors do not include '%s'", hdr.crc().c_str());
-    throw(MyException(buffer));
+    throw MyException("Known sensors do not include '" + hdr.crc() + "'");
   }
 
   return it->second;
@@ -111,7 +108,7 @@ SensorsMap::setUpForData()
           }
         } else { // Not seen yet
           sensor.index(static_cast<int>(names.size()));
-          names.insert(std::make_pair(sensor.name(), static_cast<int>(names.size())));
+          names.insert(std::make_pair(sensor.name(), names.size()));
           mAllSensors.insert(sensor);
         }
       }

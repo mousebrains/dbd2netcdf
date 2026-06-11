@@ -42,7 +42,7 @@ dbd_set_warnings(dbd_common)
 add_executable(dbd2netCDF
 	dbd2netCDF.C
 )
-target_link_libraries(dbd2netCDF PRIVATE dbd_common)
+# dbd_common comes transitively through dbd_netcdf (linked below)
 
 add_executable(pd02netCDF
 	pd02netCDF.C
@@ -80,9 +80,13 @@ set(ALL_TARGETS dbd2netCDF dbd2csv dbdSensors pd02netCDF decompressTWR)
 
 foreach(target ${ALL_TARGETS})
   dbd_set_warnings(${target})
-  # Link CLI11 and spdlog to all targets
-  target_link_libraries(${target} PRIVATE CLI11::CLI11 spdlog::spdlog)
+  target_link_libraries(${target} PRIVATE CLI11::CLI11)
 endforeach()
+
+# decompressTWR does not link dbd_common, so it needs spdlog directly; the
+# other targets inherit it via dbd_common's PUBLIC link (a second direct link
+# would duplicate it on the link line and trigger ld warnings on macOS).
+target_link_libraries(decompressTWR PRIVATE spdlog::spdlog)
 
 # Find NetCDF - use different methods for different platforms
 if(WIN32 AND NOT CYGWIN)
