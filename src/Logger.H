@@ -65,6 +65,9 @@ public:
         if (!mInitialized) {
             init("dbd2netcdf");
         }
+        if (!mLogger) { // init failed; fall back so callers never deref null
+            mLogger = spdlog::default_logger();
+        }
         return mLogger;
     }
 

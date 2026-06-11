@@ -46,7 +46,8 @@ Data::load(std::istream& is,
 {
   const size_t nSensors(sensors.size());
   const size_t nHeader((nSensors + 3) / 4);
-  std::vector<int8_t> bits(nHeader);  // RAII - automatic cleanup
+  // unsigned so extracting 2-bit state codes below is well-defined shifting
+  std::vector<uint8_t> bits(nHeader);
   const size_t nToStore(sensors.nToStore());
   // Guard against a zero-column load: mData[0] on line 136 would be UB
   // otherwise. This can only happen when the caller's --output filter matches
@@ -155,6 +156,8 @@ Data::load(std::istream& is,
         throw(MyException(oss.str()));
       }
       const size_t offBits(6 - ((i & 0x3) << 1));
+      // 2-bit state code per sensor: 0 = not sampled this cycle (no bytes
+      // follow), 1 = repeat previous value, 2 = new value follows, 3 = unused
       const unsigned int code((bits[offIndex] >> offBits) & 0x03);
       if (code == 1) { // Repeat previous value
         const Sensor& sensor(sensors[i]);

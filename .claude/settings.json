@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cmake:*)",
+      "Bash(ctest:*)",
+      "Bash(./INSTALL.sh:*)",
+      "Bash(ncdump:*)",
+      "Bash(shellcheck:*)",
+      "Bash(cppcheck:*)",
+      "Bash(xxd:*)",
+      "Bash(mkdir:*)",
+      "Bash(pre-commit run:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git checkout:*)",
+      "Bash(git fetch:*)",
+      "Bash(git stash:*)",
+      "Bash(bin/:*)",
+      "Bash(./bin/:*)",
+      "Bash(../bin/:*)",
+      "Bash(./build/bin/:*)"
+    ]
+  }
+}

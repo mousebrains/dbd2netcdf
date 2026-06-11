@@ -38,12 +38,9 @@
 Sensors::Sensors(std::istream& is,
                  const Header& hdr)
   : mCRC(hdr.crc())
-  , mLength(0)
   , mnToStore(0)
 {
   if (!hdr.qFactored()) {
-    const std::streampos spos(is.tellg());
-
     for (int i(0), nSensors(hdr.nSensors()); i < nSensors; ++i) {
       const Sensor sensor(is);
       if (sensor.qAvailable()) {
@@ -51,7 +48,6 @@ Sensors::Sensors(std::istream& is,
       }
     }
 
-    mLength = is.tellg() - spos;
     mnToStore = mSensors.size();
   }
 }

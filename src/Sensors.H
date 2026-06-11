@@ -16,13 +16,12 @@ private:
   tSensors mSensors;
 
   std::string mCRC; // sensor block CRC, as given by the header
-  size_t mLength; // number of bytes in file the sensor block occupies
   size_t mnToStore; // Number of entries to store in data arry
 
   std::string mkFilename(const std::string& dir) const;
   std::string crcLower() const;
 public:
-  Sensors() : mLength(0), mnToStore(0) {}
+  Sensors() : mnToStore(0) {}
 
   Sensors(std::istream& is, const Header& hdr);
 
@@ -30,7 +29,6 @@ public:
   bool load(const std::string& dir, const Header& hdr);
 
   const std::string& crc() const {return mCRC;}
-  size_t length() const {return mLength;}
   size_t nToStore() const {return mnToStore;}
   void nToStore(const size_t i) {mnToStore = i;}
 
