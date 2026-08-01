@@ -41,6 +41,31 @@ Aug-2026, Tests
     sensor_list_crc path validation
   - Regenerate test.pd0.netCDF: ensemble_number and bt_range are now uint
 
+Version 1.7.4
+
+Apr-2026, Bug fixes
+  - Validate the schema when reopening NetCDF dimensions and variables.
+    --append and every batch past the first silently accepted a
+    schema-incompatible existing file, producing either corrupt output or an
+    opaque NetCDF error much later in the write loop
+  - Reject a zero-column Data::load up front instead of reading mData[0] out
+    of an empty vector, reachable when --output filtered away every sensor
+
+Apr-2026, Build and CI
+  - Extract MyNetCDF into a dbd_netcdf static library so the NetCDF wrapper
+    can be unit tested without duplicating NetCDF discovery
+  - Generate config.h and Info.plist into the build tree rather than the
+    source tree, and scope the NetCDF include path per target instead of
+    globally
+  - Replace ilammy/msvc-dev-cmd with TheMrMilchmann/setup-msvc-dev v4.0.0,
+    dropping the Node 20 deprecation warning on every Windows run
+  - Bump setup-miniconda to v4 for Node.js 24 support
+
+Apr-2026, Tests
+  - Cover SensorsMap conflict paths and --append mode
+  - Cover the Data::load zero-column guard and NetCDF schema validation
+  - Hoist typeToStr calls to close a coverage gap
+
 Version 1.7.3
 
 Apr-2026, Bug fixes
