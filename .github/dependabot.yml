@@ -1,0 +1,30 @@
+# Dependabot configuration.
+#
+# Scope: GitHub Actions only. The FetchContent dependencies in CMakeLists.txt
+# (CLI11, spdlog, Catch2) are not a Dependabot ecosystem; they are tracked by
+# .github/workflows/dependency-check.yml, which opens an issue when a newer
+# release is tagged. The vendored lz4 sources in src/ are updated by hand.
+
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    # "/" covers every workflow under .github/workflows/.
+    directory: /
+    # Monthly, matching the cadence of the CMake dependency check. Dependabot
+    # ignores "day" for a monthly interval, so it is omitted.
+    schedule:
+      interval: monthly
+      time: "09:00"
+      timezone: Etc/UTC
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: ci
+    groups:
+      # Minor and patch bumps are batched into one PR; major bumps arrive as
+      # separate PRs so each behavior change can be reviewed against CI alone.
+      actions-minor-patch:
+        patterns:
+          - "*"
+        update-types:
+          - minor
+          - patch
