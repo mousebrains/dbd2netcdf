@@ -73,7 +73,10 @@ PD0::loadBlock(std::istream& is)
   buffer[2] = nBytes & 0xff;
   buffer[3] = (nBytes >> 8) & 0xff;
 
-  is.read(&buffer[4], nBytes - 4);
+  // buffer.data() + 4, not &buffer[4]: when nBytes == 4 the latter is
+  // operator[](size()), which aborts a hardened build. A one-past-the-end
+  // pointer with a zero count is well defined.
+  is.read(buffer.data() + 4, static_cast<std::streamsize>(nBytes - 4));
 
   if (!is) {
     const std::string reason(is.eof() ? "end-of-file" : (is.fail() ? "fail" : "bad"));
@@ -104,6 +107,19 @@ PD0::loadBlock(std::istream& is)
 
   const std::string data(buffer.data(), nBytes);
   // buffer automatically cleaned up on function exit
+
+  // Clear every section before dispatching this ensemble's data types. The
+  // clear() calls in the by-filename load() run once per FILE, so without this
+  // an ensemble that omits a data type would keep the previous ensemble's
+  // values and re-emit them as if they were newly measured.
+  mFixed.clear();
+  mVariable.clear();
+  mVelocity.clear();
+  mCorrelation.clear();
+  mEcho.clear();
+  mPercentGood.clear();
+  mBottomTrack.clear();
+  mVMDAS.clear();
 
   std::istringstream iss(data, std::ios_base::in | std::ios_base::binary);
   iss.seekg(5, std::ios::beg);
@@ -296,6 +312,26 @@ PD0::readAndCheckByte(std::istream& is,
   return false;
 }
 
+void
+PD0::Common::promoteMeldTargets()
+{
+  for (const auto& item : mItems) {
+    if (item.mMeld < 0) continue;
+    const auto meld(static_cast<tItems::size_type>(item.mMeld));
+    if (meld >= mItems.size()) continue;
+    // Only mOutType changes. mType stays the wire width, otherwise load()
+    // would read 4 bytes where the file carries 2 and desynchronize the record.
+    switch (mItems[meld].mType) {
+      case dtUInt8:
+      case dtUInt16: mItems[meld].mOutType = dtUInt32; break;
+      case dtInt8:
+      case dtInt16:  mItems[meld].mOutType = dtInt32;  break;
+      case dtUInt32:
+      case dtInt32:  break; // already wide enough
+    }
+  }
+}
+
 bool
 PD0::Common::load(std::istream& is,
                   PD0& pd0,
@@ -403,7 +439,7 @@ PD0::setupNetCDFVars(NetCDF& nc)
 int
 PD0::Common::Item::ncType() const
 {
-  switch(mType) {
+  switch(mOutType) {
     case dtUInt8:   return NC_UBYTE;
     case dtInt8:   return NC_BYTE;
     case dtUInt16: return NC_USHORT;
@@ -447,7 +483,7 @@ PD0::Common::ncDump(NetCDF& nc,
       continue;
 
     if (mItems[i].mArray.size() == 1) {
-      switch (mItems[i].mType) {
+      switch (mItems[i].mOutType) {
         case dtUInt8:  nc.putVar(mItems[i].mVarId, index, mItems[i].mArray[0].ui8); break;
         case dtInt8:   nc.putVar(mItems[i].mVarId, index, mItems[i].mArray[0].i8); break;
         case dtUInt16: nc.putVar(mItems[i].mVarId, index, mItems[i].mArray[0].ui16); break;
@@ -458,7 +494,7 @@ PD0::Common::ncDump(NetCDF& nc,
     } else {
       for (tArray::size_type j(0), je(mItems[i].mArray.size()); j < je; ++j) {
         const size_t dims[2] = {index, j};
-        switch (mItems[i].mType) {
+        switch (mItems[i].mOutType) {
           case dtUInt8:  nc.putVar(mItems[i].mVarId, dims, 2, mItems[i].mArray[j].ui8); break;
           case dtInt8:   nc.putVar(mItems[i].mVarId, dims, 2, mItems[i].mArray[j].i8); break;
           case dtUInt16: nc.putVar(mItems[i].mVarId, dims, 2, mItems[i].mArray[j].ui16); break;
@@ -553,6 +589,8 @@ PD0::Variable::Variable()
   mItems.push_back(Item("pressure", dtUInt32, "decapascals"));
   mItems.push_back(Item("pressure_variance", dtUInt32, "decapascals"));
   mItems.push_back(Item("var_spare1", dtUInt32));
+
+  promoteMeldTargets();
 }
 
 bool
@@ -665,7 +703,11 @@ PD0::BottomTrack::BottomTrack()
   mItems.push_back(Item("bt_max_depth", dtUInt16, "decimeter"));
   mItems.push_back(Item("bt_rssi_amp", dtUInt8, 4));
   mItems.push_back(Item("bt_gain", dtUInt8));
-  mItems.push_back(Item("bt_range_msb", dtUInt8, 4, 9));
+  // Melds into index 8 (bt_range), not 9 (bt_velocity): bt_range_msb carries
+  // the high byte of the bottom-track range per the PD0 spec.
+  mItems.push_back(Item("bt_range_msb", dtUInt8, 4, 8));
+
+  promoteMeldTargets();
 }
 
 bool
@@ -727,7 +769,13 @@ PD0::maxNumberOfCells(const std::string& fn)
     const unsigned int hi1 = is.get() & 0xff;
     const std::streamoff nBytes(lo1 | (hi1 << 8));
     is.get(); // spare
-    const size_t nTypes(is.get());
+    // is.get() returns int and yields EOF (-1) on a truncated file. Converting
+    // that straight to size_t gives SIZE_MAX, and the vector below then throws
+    // std::length_error, aborting the whole conversion instead of just ending
+    // the prescan at the truncated ensemble.
+    const int rawTypes(is.get());
+    if (rawTypes == std::char_traits<char>::eof()) break;
+    const size_t nTypes(static_cast<size_t>(rawTypes & 0xff));
     std::vector<std::streamoff> offsets(nTypes, 0);
     for (size_t i(0); i < nTypes; ++i) {
       const unsigned int lo = is.get() & 0xff;
@@ -742,7 +790,11 @@ PD0::maxNumberOfCells(const std::string& fn)
       const size_t hdr(hdrLo | (hdrHi << 8));
       if (hdr == 0x0000) { // Fixed
         is.seekg(7, std::ios::cur); // Move to number of cells
-        const uint8_t nCells(static_cast<uint8_t>(is.get()));
+        // Guard EOF explicitly: casting is.get()'s -1 to uint8_t yields 255,
+        // which would inflate the NetCDF j dimension and fabricate cells.
+        const int rawCells(is.get());
+        if (rawCells == std::char_traits<char>::eof()) break;
+        const uint8_t nCells(static_cast<uint8_t>(rawCells & 0xff));
         maxnCells = (maxnCells > nCells) ? maxnCells : nCells;
         break; // Go to next block
       }

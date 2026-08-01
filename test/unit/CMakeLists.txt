@@ -13,6 +13,7 @@ add_executable(unit_tests
     test_knownbytes.cpp
     test_data.cpp
     test_netcdf.cpp
+    test_review_regressions.cpp
 )
 
 target_link_libraries(unit_tests PRIVATE

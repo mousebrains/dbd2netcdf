@@ -29,24 +29,34 @@ int DecompressTWRBuf::underflow() {
   // We are only called if the buffer has been consumed
 
   if (mqCompressed) { // Working with compressed files, so load an lz4 block
-    unsigned char sz[2]; // For length of this frame
-    if (!this->mIS.read(reinterpret_cast<char*>(sz), sizeof(sz)) || (this->mIS.gcount() != 2)) { // EOF
-      return std::char_traits<char>::eof();
+    // Loop because a block is allowed to decompress to zero bytes. Returning a
+    // character with an empty get area would break the streambuf contract:
+    // uflow() would gbump(1) past egptr() and every later read would run off
+    // the end of mBuffer.
+    for (;;) {
+      unsigned char sz[2]; // For length of this frame
+      if (!this->mIS.read(reinterpret_cast<char*>(sz), sizeof(sz)) || (this->mIS.gcount() != 2)) { // EOF
+        return std::char_traits<char>::eof();
+      }
+      const size_t n((sz[0] << 8) | sz[1]); // unsigned Big endian
+      std::vector<char> frame(n);  // RAII heap allocation instead of VLA
+      if (!this->mIS.read(frame.data(), n)) { // EOF
+        return std::char_traits<char>::eof();
+      }
+      const int j(LZ4_decompress_safe(frame.data(), this->mBuffer, static_cast<int>(n), sizeof(this->mBuffer)));
+      if (j < 0) { // LZ4 decompression error
+        LOG_ERROR("LZ4 decompression failed (error {}) in {} (block size {})",
+                  j, this->mFilename, n);
+        return std::char_traits<char>::eof();
+      }
+      const size_t decompressedSize(static_cast<size_t>(j));
+      if (decompressedSize == 0) { // Empty block, try the next one
+        continue;
+      }
+      this->setg(this->mBuffer, this->mBuffer, this->mBuffer + decompressedSize);
+      this->mPos += decompressedSize;
+      break;
     }
-    const size_t n((sz[0] << 8) | sz[1]); // unsigned Big endian
-    std::vector<char> frame(n);  // RAII heap allocation instead of VLA
-    if (!this->mIS.read(frame.data(), n)) { // EOF
-      return std::char_traits<char>::eof();
-    }
-    const int j(LZ4_decompress_safe(frame.data(), this->mBuffer, static_cast<int>(n), sizeof(this->mBuffer)));
-    if (j < 0) { // LZ4 decompression error
-      LOG_ERROR("LZ4 decompression failed (error {}) in {} (block size {})",
-                j, this->mFilename, n);
-      return std::char_traits<char>::eof();
-    }
-    const size_t decompressedSize(static_cast<size_t>(j));
-    this->setg(this->mBuffer, this->mBuffer, this->mBuffer + decompressedSize);
-    this->mPos += decompressedSize;
   } else { // Not compressed
     if (this->mIS.read(this->mBuffer, sizeof(this->mBuffer)) || this->mIS.gcount()) {
       const auto n = this->mIS.gcount();

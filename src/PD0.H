@@ -41,7 +41,11 @@ private:
     struct Item {
       std::string mName;
       std::string mUnits;
-      DataTypes mType;
+      DataTypes mType;    // Wire format: how many bytes load() reads
+      DataTypes mOutType; // Storage format: which union member is written out.
+                          // Differs from mType only for a meld target, where
+                          // load() reads the narrow field but the meld then
+                          // widens the value in place.
       int mMeld;
       tArray mArray;
       int mVarId;
@@ -49,16 +53,21 @@ private:
       Item(const std::string& name, const DataTypes t,
            const size_t length = 1, const int meld = -1,
            const std::string& units = std::string())
-        : mName(name), mUnits(units), mType(t), mMeld(meld), mArray(length), mVarId(-1) {}
+        : mName(name), mUnits(units), mType(t), mOutType(t), mMeld(meld), mArray(length), mVarId(-1) {}
 
       Item(const std::string& name, const DataTypes t, const std::string& units)
-        : mName(name), mUnits(units), mType(t), mMeld(-1), mArray(1), mVarId(-1) {}
+        : mName(name), mUnits(units), mType(t), mOutType(t), mMeld(-1), mArray(1), mVarId(-1) {}
 
       int ncType() const;
     }; // Item
 
     typedef std::vector<Item> tItems;
     tItems mItems;
+
+    // A meld reconstructs a 24-bit value into the target's 32-bit union member.
+    // Widen each meld target's declared type to match, so ncType() and ncDump()
+    // do not read the value back through a 16-bit member and drop the MSB.
+    void promoteMeldTargets();
   public:
     Common() : mqSet(false) {}
     operator bool() const {return mqSet;}

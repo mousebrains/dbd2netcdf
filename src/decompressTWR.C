@@ -125,6 +125,17 @@ main(int argc,
       }
       os.close();
 
+      // Check the output stream before publishing. A short write (disk full,
+      // quota, I/O error) leaves a truncated temp file that would otherwise be
+      // renamed over the destination and reported as a success. close() also
+      // flushes, so it must be checked after, not before.
+      if (!os) {
+        LOG_ERROR("Error writing '{}': {}", tfn, strerror(errno));
+        std::error_code rmec;
+        fs::remove(tfn, rmec);
+        return 1;
+      }
+
       std::error_code ec;
       fs::rename(tfn, ofn, ec);
       if (ec) {

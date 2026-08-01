@@ -194,7 +194,14 @@ main(int argc,
 
   smap.qKeep(toKeep);
   smap.qCriteria(criteria);
-  smap.setUpForData(); // Get a common list of sensors
+  try {
+    smap.setUpForData(); // Get a common list of sensors
+  } catch (const MyException& e) {
+    // Throws when two files disagree on a sensor's size. Outside a try block
+    // this escaped main and terminated with SIGABRT instead of exiting cleanly.
+    LOG_ERROR("{}", e.what());
+    return 1;
+  }
 
   typedef std::vector<int> tVars;
   tVars vars(smap.allSensors().nToStore());

@@ -41,7 +41,12 @@ Header::Header(std::istream& is, const char *fn)
   size_t cnt = 0;
   // 14 is the typical ASCII header length in DBD files; num_ascii_tags (if
   // present in the first 14 lines) overrides this with the exact count.
-  for (tRecords::size_type nLines(14); mRecords.size() < nLines;) {
+  //
+  // Bound the loop on lines consumed, not on mRecords.size(). mRecords is a
+  // std::map, so a duplicate key does not grow it -- a header repeating a key
+  // would never reach nLines and would keep consuming lines past the ASCII
+  // header into the binary sensor block.
+  for (tRecords::size_type nLines(14); cnt < nLines;) {
     std::string line;
     if (!getline(is, line)) {
       break;
@@ -94,7 +99,10 @@ Header::findInt(const std::string& key) const
 std::string
 Header::trim(std::string str)
 {
-  const std::string whitespace(" \t\n");
+  // '\r' included so a CRLF header does not leave a trailing carriage return on
+  // every value. sensor_list_crc is one of those values and becomes the sensor
+  // cache filename, so the stray byte would fork the cache per line ending.
+  const std::string whitespace(" \t\n\r");
 
   const std::string::size_type first(str.find_first_not_of(whitespace));
   if (first == str.npos) {

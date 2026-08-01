@@ -1,3 +1,46 @@
+Version 1.7.4
+
+Aug-2026, Dependencies
+  - Update CLI11 to v2.7.1
+  - Add Dependabot config for GitHub Actions; keep codeql-action on @v4
+  - Update checkout to v7, cache to v6, codecov-action to v7,
+    setup-msvc-dev to v4.1.0, action-gh-release to v3.0.2
+
+Aug-2026, Bug fixes from adversarial code review
+  - Validate sensor indices before using them as mData[] subscripts; a cache
+    file could drive an out-of-bounds write
+  - Fix DecompressTWRBuf::underflow returning a character with an empty get
+    area on a zero-length LZ4 block, running the get pointer off the buffer
+  - Make DecompressTWR reflect the underlying open failure, so the seven
+    `if (!is)` checks across the tools stop being dead code
+  - Reject sensor_list_crc values that are not plain alphanumeric CRCs; they
+    were used unsanitized as a cache path, and an absolute value escaped the
+    -C directory entirely
+  - Fail instead of skipping a corrupt sensor cache line; sensor positions are
+    positional, so skipping one shifted every later sensor
+  - Bound the Header parse loop on lines consumed rather than mRecords.size();
+    a duplicate key made it read past the ASCII header into the binary block
+  - Treat '\r' as whitespace in Header::trim and Sensors::loadNames, so CRLF
+    files stop forking the sensor cache and silently matching no sensors
+  - Fix bt_range_msb melding into bt_velocity instead of bt_range
+  - Emit melded 24-bit values at full width instead of truncating to 16 bits,
+    without changing the wire read width
+  - Reset PD0 section state per ensemble rather than per file; an ensemble
+    missing a data type re-emitted the previous ensemble's values
+  - Guard the EOF return of is.get() in the PD0 prescan; it produced a
+    SIZE_MAX allocation and a fabricated 255-cell dimension
+  - Use buffer.data() + 4 rather than &buffer[4] for a 4-byte PD0 ensemble
+  - Check the output stream before renaming in decompressTWR; a short write
+    was published as a complete file with exit status 0
+  - Wrap setUpForData() in a try block in all three DBD tools; a sensor-size
+    conflict aborted with SIGABRT instead of exiting cleanly
+  - Normalize inf to NaN consistently for new and repeated readings
+
+Aug-2026, Tests
+  - Add regression tests for Header CRLF/duplicate-key handling and for
+    sensor_list_crc path validation
+  - Regenerate test.pd0.netCDF: ensemble_number and bt_range are now uint
+
 Version 1.7.3
 
 Apr-2026, Bug fixes

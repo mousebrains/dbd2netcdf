@@ -21,6 +21,10 @@ private:
   std::string mkFilename(const std::string& dir) const;
   std::string crcLower() const;
 public:
+  // crcLower(), validated as a safe path component. Public so the rejection of
+  // traversal and absolute-path CRCs is directly testable.
+  std::string safeCRC() const;
+
   Sensors() : mnToStore(0) {}
 
   Sensors(std::istream& is, const Header& hdr);
