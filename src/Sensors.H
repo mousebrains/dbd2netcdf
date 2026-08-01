@@ -18,12 +18,13 @@ private:
   std::string mCRC; // sensor block CRC, as given by the header
   size_t mnToStore; // Number of entries to store in data arry
 
-  std::string mkFilename(const std::string& dir) const;
   std::string crcLower() const;
 public:
-  // crcLower(), validated as a safe path component. Public so the rejection of
-  // traversal and absolute-path CRCs is directly testable.
+  // Both public so the cache-path handling is directly testable: safeCRC() for
+  // the rejection of traversal and absolute-path CRCs, mkFilename() to pin that
+  // the rejection is actually wired into the path that builds the filename.
   std::string safeCRC() const;
+  std::string mkFilename(const std::string& dir) const;
 
   Sensors() : mnToStore(0) {}
 
