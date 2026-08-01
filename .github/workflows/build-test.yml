@@ -41,7 +41,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
 
     - name: Install dependencies
       run: |
@@ -79,7 +79,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
 
     - name: Install shellcheck
       run: |
@@ -96,7 +96,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
 
     - name: Install cppcheck
       run: |
@@ -126,7 +126,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
 
     - name: Install dependencies
       run: |
@@ -151,7 +151,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
 
     - name: Install dependencies
       run: |
@@ -181,7 +181,7 @@ jobs:
         lcov --list coverage.info
 
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v6
+      uses: codecov/codecov-action@v7
       with:
         files: coverage.info
         token: ${{ secrets.CODECOV_TOKEN }}
@@ -194,7 +194,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
 
     - name: Install dependencies
       run: |
@@ -229,7 +229,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
 
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v4
@@ -260,7 +260,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
 
     - name: Install dependencies
       run: |
@@ -305,10 +305,10 @@ jobs:
       shell: cmd
 
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
 
     - name: Cache Cygwin
-      uses: actions/cache@v5
+      uses: actions/cache@v6
       with:
         path: D:\cygwin
         key: cygwin-v6-${{ hashFiles('.github/workflows/build-test.yml') }}
@@ -435,7 +435,7 @@ jobs:
         dnf install -y git
 
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
 
     - name: Install dependencies
       run: |
@@ -484,7 +484,7 @@ jobs:
         dnf install -y git
 
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
 
     - name: Install dependencies
       run: |
@@ -526,7 +526,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
 
     - name: Setup MSVC
       # TheMrMilchmann/setup-msvc-dev is a drop-in replacement for
