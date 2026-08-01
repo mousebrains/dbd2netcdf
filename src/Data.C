@@ -27,6 +27,25 @@
 #include <cmath>
 #include <vector>
 
+namespace {
+  // Sensor indices are normalized into [0, nColumns) by SensorsMap::setUpForData,
+  // but a Sensors group can also be built straight from a .cac cache file whose
+  // index fields are file content. Those indices reach mData[] as subscripts, so
+  // validate before use rather than trusting the invariant: Sensor::index() is
+  // signed, and a negative value would convert to a huge size_t.
+  size_t checkedIndex(const Sensor& sensor, const size_t nColumns, std::istream& is) {
+    const auto raw(sensor.index());
+    if ((raw < 0) || (static_cast<size_t>(raw) >= nColumns)) {
+      std::ostringstream oss;
+      oss << "Sensor '" << sensor.name() << "' has out-of-range index " << raw
+          << ", not in [0, " << nColumns << ") at offset " << is.tellg()
+          << ". The sensor cache and the data file disagree on the sensor list.";
+      throw(MyException(oss.str()));
+    }
+    return static_cast<size_t>(raw);
+  }
+}
+
 Data::Data(std::istream& is,
            const KnownBytes& kb,
            const Sensors& sensors,
@@ -161,7 +180,7 @@ Data::load(std::istream& is,
       const unsigned int code((bits[offIndex] >> offBits) & 0x03);
       if (code == 1) { // Repeat previous value
         const Sensor& sensor(sensors[i]);
-        const size_t index(sensor.index());
+        const size_t index(checkedIndex(sensor, mData.size(), is));
         qKeep |= sensor.qCriteria();
         if (sensor.qKeep()) {
           const double prev = prevValue[index];
@@ -169,11 +188,13 @@ Data::load(std::istream& is,
         }
       } else if (code == 2) { // New Value
         const Sensor& sensor(sensors[i]);
-        const size_t index(sensor.index());
+        const size_t index(checkedIndex(sensor, mData.size(), is));
         const double value(sensor.read(is, kb));
         qKeep |= sensor.qCriteria();
         if (sensor.qKeep()) {
-          mData[index][nRows] = value;
+          // Normalize inf the same way the repeat branch above does, so one
+          // physical reading does not emit inf when fresh and NaN when repeated.
+          mData[index][nRows] = std::isinf(value) ? NAN : value;
           prevValue[index] = value;
         }
       }

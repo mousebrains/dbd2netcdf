@@ -48,7 +48,7 @@ variables:
 	ubyte fixed_spare2(i) ;
 	ubyte fixed_spare3(i) ;
 	uint system_serial_number(i) ;
-	ushort ensemble_number(i) ;
+	uint ensemble_number(i) ;
 	ubyte rtc_year(i) ;
 	ubyte rtc_month(i) ;
 	ubyte rtc_day(i) ;
@@ -114,7 +114,7 @@ variables:
 	ushort bt_error_velocity_maximum(i) ;
 		bt_error_velocity_maximum:units = "mm/s" ;
 	uint bt_reserved_0(i) ;
-	ushort bt_range(i, k4) ;
+	uint bt_range(i, k4) ;
 		bt_range:units = "cm" ;
 	short bt_velocity(i, k4) ;
 		bt_velocity:_FillValue = -32768s ;

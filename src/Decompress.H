@@ -21,6 +21,8 @@ public:
 
   void close() {mIS.close();}
 
+  bool qOpen() const {return static_cast<bool>(mIS);}
+
   int underflow() override;
 
 protected:
@@ -36,7 +38,14 @@ public:
     : std::ios(0)
     , std::istream(&mBuf)
     , mBuf(fn, qCompressed)
-  {}
+  {
+    // std::istream state does not otherwise reflect the underlying open()
+    // failure until the first read, so `if (!is)` right after construction
+    // would wrongly report success on a missing or unreadable file.
+    if (!mBuf.qOpen()) {
+      this->setstate(std::ios::failbit);
+    }
+  }
 };
 
 bool qCompressed(const std::string& fn); // Check if filename like *.?[Cc]?

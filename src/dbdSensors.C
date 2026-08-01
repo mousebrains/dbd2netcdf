@@ -134,7 +134,14 @@ main(int argc,
     }
   }
 
-  smap.setUpForData();
+  try {
+    smap.setUpForData();
+  } catch (const MyException& e) {
+    // Throws when two files disagree on a sensor's size. Outside a try block
+    // this escaped main and terminated with SIGABRT instead of exiting cleanly.
+    LOG_ERROR("{}", e.what());
+    return 1;
+  }
 
   *osp << smap.allSensors();
 

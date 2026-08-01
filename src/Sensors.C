@@ -63,7 +63,9 @@ Sensors::loadNames(const char *fn,
     throw MyException(oss.str());
   }
 
-  const std::string whiteSpace(", \t\n");
+  // '\r' included so a CRLF sensor list does not yield names with a trailing
+  // carriage return, which match nothing and silently produce zero records.
+  const std::string whiteSpace(", \t\n\r");
 
   for (std::string line; getline(is, line);) {
     for (std::string::size_type i(0), e(line.size()); i < e; ) {
@@ -115,6 +117,35 @@ Sensors::crcLower() const
 }
 
 std::string
+Sensors::safeCRC() const
+{
+  // sensor_list_crc is ASCII header content from a third-party file and is used
+  // to build a path under the -C cache directory. Left unsanitized, "../.."
+  // escapes that directory and an absolute value is worse still: fs::path's
+  // operator/ REPLACES the base path when the right-hand side is absolute, so
+  // "sensor_list_crc: /tmp/x" would write straight to /tmp/x.cac.
+  // Real values are hex CRCs, so restrict to an alphanumeric basename.
+  const std::string codigo(crcLower());
+
+  bool qValid(!codigo.empty());
+  for (const char c : codigo) {
+    if (!std::isalnum(static_cast<unsigned char>(c))) {
+      qValid = false;
+      break;
+    }
+  }
+
+  if (!qValid) {
+    std::ostringstream oss;
+    oss << "Refusing to use sensor_list_crc '" << crc()
+        << "' as a cache filename: expected an alphanumeric CRC";
+    throw MyException(oss.str());
+  }
+
+  return codigo;
+}
+
+std::string
 Sensors::mkFilename(const std::string& dir) const
 {
   const fs::path dirPath(dir);
@@ -125,7 +156,7 @@ Sensors::mkFilename(const std::string& dir) const
     throw MyException(oss.str());
   }
 
-  const std::string crc = crcLower();
+  const std::string crc = safeCRC();
 
   for (const auto& entry : fs::directory_iterator(dirPath)) {
     if (!entry.is_regular_file()) continue;
@@ -259,7 +290,14 @@ Sensors::load(const std::string& dir,
         mSensors.push_back(sensor);
       }
     } catch (const MyException& e) {
-      LOG_WARN("Skipping corrupt cache line in '{}': {}", filename, e.what());
+      // Sensor positions in this list are positional: they index the per-cycle
+      // state bitmap in Data::load. Skipping a corrupt line shifts every later
+      // sensor by one, which decodes the whole file into the wrong columns and
+      // emits plausible-looking garbage. Fail loudly instead.
+      std::ostringstream oss;
+      oss << "Corrupt sensor cache '" << filename << "': " << e.what()
+          << ". Delete it so it can be rebuilt from the source file.";
+      throw MyException(oss.str());
     }
   }
 
