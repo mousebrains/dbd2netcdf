@@ -34,9 +34,9 @@ Files excluded from trailing-whitespace hook (ncdump outputs trailing spaces):
 
 ## Dependencies (via FetchContent)
 
-- CLI11 v2.6.2
+- CLI11 v2.7.1
 - spdlog v1.17.0
-- Catch2 v3.15.1
+- Catch2 v3.15.3
 
 ## Test Data
 
