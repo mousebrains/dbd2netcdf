@@ -134,8 +134,8 @@ jobs:
     - name: Setup MSVC
       # TheMrMilchmann/setup-msvc-dev is a drop-in replacement for
       # ilammy/msvc-dev-cmd@v1, which still targets Node 20 and triggers a
-      # deprecation warning on every Windows run. v4.0.0 runs on Node 24.
-      uses: TheMrMilchmann/setup-msvc-dev@v4.0.0
+      # deprecation warning on every Windows run. This action runs on Node 24.
+      uses: TheMrMilchmann/setup-msvc-dev@v4.1.0
       with:
         arch: x64
 
@@ -199,7 +199,7 @@ jobs:
       run: ls -lhR artifacts/
 
     - name: Create GitHub Release
-      uses: softprops/action-gh-release@v3.0.0
+      uses: softprops/action-gh-release@v3.0.2
       with:
         name: v${{ needs.validate-version.outputs.version }}
         body: |
