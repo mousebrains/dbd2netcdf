@@ -232,7 +232,7 @@ jobs:
       uses: actions/checkout@v7
 
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@v4
+      uses: github/codeql-action/init@v4.37.3
       with:
         languages: cpp
 
@@ -247,7 +247,7 @@ jobs:
         cmake --build build
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v4
+      uses: github/codeql-action/analyze@v4.37.3
 
   build-macos:
     name: macOS - ${{ matrix.os }}
@@ -532,7 +532,7 @@ jobs:
       # TheMrMilchmann/setup-msvc-dev is a drop-in replacement for
       # ilammy/msvc-dev-cmd@v1, which still targets Node 20 and triggers a
       # deprecation warning on every Windows run. v4.0.0 runs on Node 24.
-      uses: TheMrMilchmann/setup-msvc-dev@v4.0.0
+      uses: TheMrMilchmann/setup-msvc-dev@v4.1.0
       with:
         arch: x64
 
