@@ -11,6 +11,29 @@ if(CMAKE_SOURCE_DIR STREQUAL CMAKE_BINARY_DIR)
     "Remove CMakeCache.txt and CMakeFiles/ if they were created.")
 endif()
 
+# config.h used to be generated into src/. It is now generated into the binary
+# directory, but the migration never deleted the old copies, and a leftover is
+# invisible: it is gitignored, so git status stays clean, git pull will not
+# remove it, and even `git clean -fd` leaves it (that needs -x).
+#
+# It is also not inert. Every tool does #include "config.h", and a quoted
+# include resolves relative to the including file's own directory before any
+# -I path, so a stale src/config.h wins over the generated one no matter what
+# CMake configures. The build then silently bakes in an old VERSION: observed
+# on a deployment still reporting 1.7.2 from a correctly-updated 1.7.5 tree,
+# where the leftover had been shadowing every build for four months.
+#
+# The in-source-build check above cannot catch this, because the file is a
+# relic of a build that ran before that check existed.
+if(EXISTS "${CMAKE_SOURCE_DIR}/src/config.h")
+  message(FATAL_ERROR
+    "Stale generated header: ${CMAKE_SOURCE_DIR}/src/config.h\n"
+    "It shadows the generated config.h and would compile an outdated VERSION "
+    "into every tool.\n"
+    "It is safe to delete -- it is generated, untracked, and no longer used:\n"
+    "  rm ${CMAKE_SOURCE_DIR}/src/config.h")
+endif()
+
 project(dbd2netcdf LANGUAGES CXX C)
 
 # Fetch CLI11 for cross-platform command-line parsing
