@@ -1,3 +1,17 @@
+Unreleased
+
+  Add entries here as changes land. At release time, rename this heading to
+  "Version X.Y.Z", bump VERSION to match, and tag. The release workflow
+  requires a "Version X.Y.Z" section matching the tag and publishes it as the
+  release notes, so an unrenamed or missing section fails the release rather
+  than shipping silently.
+
+Aug-2026, Build and CI
+  - Fail configure when a stale in-source src/config.h is present. Generated
+    files moved to the build tree in 1.7.4, but leftovers were never deleted,
+    and a quoted #include finds src/config.h before the generated one -- so an
+    outdated VERSION was compiled into every tool while the build looked clean
+
 Version 1.7.5
 
 Aug-2026, Dependencies

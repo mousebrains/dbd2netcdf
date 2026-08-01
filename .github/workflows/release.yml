@@ -36,6 +36,18 @@ jobs:
         fi
         echo "version=$TAG_VERSION" >> $GITHUB_OUTPUT
 
+    - name: Require a ChangeLog section for this version
+      run: |
+        # v1.7.4 shipped with no ChangeLog section and the gap went unnoticed
+        # for four months. Gate the release on the section existing, so the
+        # "Unreleased" heading has to be renamed before a tag can ship.
+        if ! grep -qx "Version ${{ steps.get-version.outputs.version }}" ChangeLog; then
+          echo "ERROR: ChangeLog has no 'Version ${{ steps.get-version.outputs.version }}' section."
+          echo "Rename the 'Unreleased' heading to 'Version ${{ steps.get-version.outputs.version }}' and re-tag."
+          exit 1
+        fi
+        echo "Found ChangeLog section for ${{ steps.get-version.outputs.version }}"
+
   build-linux:
     name: Linux
     needs: validate-version
@@ -198,33 +210,64 @@ jobs:
     - name: List release artifacts
       run: ls -lhR artifacts/
 
+    - name: Build release notes from the ChangeLog
+      env:
+        VERSION: ${{ needs.validate-version.outputs.version }}
+      run: |
+        # Extract this version's ChangeLog section: everything between its
+        # heading and the next "Version " heading, with surrounding blank
+        # lines trimmed. validate-version already proved the heading exists.
+        awk -v ver="Version $VERSION" '
+          $0 == ver             { inside = 1; next }
+          inside && /^Version / { exit }
+          inside && NF          { started = 1 }
+          inside && started     { lines[++n] = $0; if (NF) last = n }
+          END                   { for (i = 1; i <= last; i++) print lines[i] }
+        ' ChangeLog > changes.txt
+
+        if [ ! -s changes.txt ]; then
+          echo "ERROR: ChangeLog section for $VERSION is empty"
+          exit 1
+        fi
+
+        # The whole body is built here rather than split between body_path and
+        # body: action-gh-release prefers body_path when both are set, and its
+        # append_body option appends to an existing release, not to body.
+        {
+          echo "## dbd2netcdf v$VERSION"
+          echo
+          echo "### Changes"
+          echo
+          echo '```'
+          cat changes.txt
+          echo '```'
+          echo
+          echo "### Downloads"
+          echo
+          echo "| Platform | File |"
+          echo "|----------|------|"
+          echo "| Linux x86_64 | \`dbd2netcdf-$VERSION-Linux-x86_64.tar.gz\` |"
+          echo "| macOS ARM (Apple Silicon) | \`dbd2netcdf-$VERSION-Darwin-arm64.tar.gz\` |"
+          echo "| Windows x64 | \`dbd2netcdf-$VERSION-win64.zip\` |"
+          echo "| Source (tar.gz) | \`dbd2netcdf-$VERSION-Source.tar.gz\` |"
+          echo "| Source (zip) | \`dbd2netcdf-$VERSION-Source.zip\` |"
+          echo
+          echo "> **Note:** Linux and macOS binaries require system-installed NetCDF and HDF5 libraries."
+          echo "> Install via \`apt-get install libnetcdf-dev\` (Debian/Ubuntu) or \`brew install netcdf\` (macOS)."
+          echo
+          echo "### Installation"
+          echo
+          echo "See [README.md](https://github.com/mousebrains/dbd2netcdf#readme) for build instructions."
+        } > notes.md
+
+        echo "--- release notes ---"
+        cat notes.md
+
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v3.0.2
       with:
         name: v${{ needs.validate-version.outputs.version }}
-        body: |
-          ## dbd2netcdf v${{ needs.validate-version.outputs.version }}
-
-          ### Downloads
-
-          | Platform | File |
-          |----------|------|
-          | Linux x86_64 | `dbd2netcdf-${{ needs.validate-version.outputs.version }}-Linux-x86_64.tar.gz` |
-          | macOS ARM (Apple Silicon) | `dbd2netcdf-${{ needs.validate-version.outputs.version }}-Darwin-arm64.tar.gz` |
-          | Windows x64 | `dbd2netcdf-${{ needs.validate-version.outputs.version }}-win64.zip` |
-          | Source (tar.gz) | `dbd2netcdf-${{ needs.validate-version.outputs.version }}-Source.tar.gz` |
-          | Source (zip) | `dbd2netcdf-${{ needs.validate-version.outputs.version }}-Source.zip` |
-
-          > **Note:** Linux and macOS binaries require system-installed NetCDF and HDF5 libraries.
-          > Install via `apt-get install libnetcdf-dev` (Debian/Ubuntu) or `brew install netcdf` (macOS).
-
-          ### Installation
-
-          See [README.md](https://github.com/mousebrains/dbd2netcdf#readme) for build instructions.
-
-          ### Changes
-
-          See commit history for changes since the last release.
+        body_path: notes.md
         files: artifacts/*
         draft: false
         prerelease: false
