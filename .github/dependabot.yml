@@ -19,6 +19,18 @@ updates:
     open-pull-requests-limit: 5
     commit-message:
       prefix: ci
+    ignore:
+      # codeql-action is pinned to the floating major tag "@v4" on purpose, so
+      # that CodeQL bundle and security-query updates land automatically. Its
+      # latest *release* is tagged codeql-bundle-vX.Y.Z rather than vX.Y.Z,
+      # which defeats Dependabot's usual "leave bare major tags alone" rule:
+      # it proposed rewriting "@v4" to the exact "@v4.37.3", which was a
+      # downgrade (@v4 already resolved to v4.37.4) and would have frozen the
+      # bundle. Ignore minor/patch here; a real v5 still comes through.
+      - dependency-name: github/codeql-action*
+        update-types:
+          - version-update:semver-minor
+          - version-update:semver-patch
     groups:
       # Minor and patch bumps are batched into one PR; major bumps arrive as
       # separate PRs so each behavior change can be reviewed against CI alone.
