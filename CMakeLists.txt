@@ -41,7 +41,7 @@ include(FetchContent)
 FetchContent_Declare(
   cli11
   GIT_REPOSITORY https://github.com/CLIUtils/CLI11.git
-  GIT_TAG        v2.7.1
+  GIT_TAG        v2.7.2
 )
 
 # Fetch spdlog for structured logging

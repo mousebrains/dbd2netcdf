@@ -6,6 +6,9 @@ Unreleased
   release notes, so an unrenamed or missing section fails the release rather
   than shipping silently.
 
+Aug-2026, Dependencies
+  - Update CLI11 to v2.7.2
+
 Aug-2026, Build and CI
   - Fail configure when a stale in-source src/config.h is present. Generated
     files moved to the build tree in 1.7.4, but leftovers were never deleted,
