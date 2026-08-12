@@ -1,0 +1,37 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it using the metadata from this file."
+title: "dbd2netcdf: Convert Slocum glider Dinkum Binary Data files to NetCDF and CSV"
+abstract: >-
+  Command-line tools for translating the Dinkum Binary Data (DBD) files produced
+  by Teledyne Webb Research Slocum gliders into NetCDF or CSV. Handles the full
+  DBD family (dbd/ebd/sbd/tbd/mbd) together with their LZ4-compressed *.?c?
+  variants, and shares a sensor cache across files so multi-file deployments
+  convert in a single pass.
+type: software
+authors:
+  - family-names: Welch
+    given-names: Pat
+    email: pat@mousebrains.com
+    orcid: "https://orcid.org/0000-0002-3483-982X"
+version: 1.7.6
+date-released: 2026-08-12
+license: GPL-3.0-or-later
+repository-code: "https://github.com/mousebrains/dbd2netcdf"
+url: "https://github.com/mousebrains/dbd2netcdf"
+keywords:
+  - oceanography
+  - Slocum glider
+  - Teledyne Webb Research
+  - Dinkum Binary Data
+  - DBD
+  - NetCDF
+  - autonomous underwater vehicle
+  - ocean observing
+# Uncomment and fill in once Zenodo has archived a release. The concept
+# (all-versions) DOI always resolves to the latest release; the per-version DOI
+# pins one release. Both appear on the Zenodo record page.
+# doi: 10.5281/zenodo.XXXXXXXX
+# identifiers:
+#   - type: doi
+#     value: 10.5281/zenodo.YYYYYYYY
+#     description: Version DOI for v1.7.6

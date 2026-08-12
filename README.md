@@ -7,6 +7,11 @@
 [![License: GPL v3](https://img.shields.io/github/license/mousebrains/dbd2netcdf)](https://github.com/mousebrains/dbd2netcdf/blob/master/License.txt)
 [![C++17](https://img.shields.io/badge/C%2B%2B-17-blue.svg)](https://en.cppreference.com/w/cpp/17)
 [![Platform](https://img.shields.io/badge/platform-linux%20%7C%20macOS%20%7C%20windows-lightgrey)]()
+<!-- Once Zenodo archives a release, replace XXXXXXXX with the concept
+     (all-versions) DOI suffix and uncomment:
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.XXXXXXXX.svg)](https://doi.org/10.5281/zenodo.XXXXXXXX)
+-->
+
 
 This software is designed to translate a set of Dinkum Binary Data files into
 a netCDF file. See [Architecture Documentation](doc/ARCHITECTURE.md) for technical details.
@@ -26,3 +31,11 @@ If a filename follows the TWR convention for compressed files, `*.?c?`, it will 
 - Ubuntu 18.04, 20.04, 22.04, 24.04, 24.10 (Intel and ARM)
 - AlmaLinux 8, Rocky Linux 9
 - Cygwin, WSL
+
+## Citation
+
+If you use this software in published work, please cite it. Citation metadata
+lives in [`CITATION.cff`](CITATION.cff) — GitHub renders a **"Cite this
+repository"** button from it (BibTeX/APA export). Each tagged release is
+archived on Zenodo with a DOI; cite the **concept (all-versions) DOI** so the
+reference always resolves to the latest release.

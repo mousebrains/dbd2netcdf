@@ -1,0 +1,20 @@
+{
+  "title": "dbd2netcdf: Convert Slocum glider Dinkum Binary Data files to NetCDF and CSV",
+  "description": "Command-line tools for translating the Dinkum Binary Data (DBD) files produced by Teledyne Webb Research Slocum gliders into NetCDF or CSV. Handles the full DBD family (dbd/ebd/sbd/tbd/mbd) together with their LZ4-compressed *.?c? variants, and shares a sensor cache across files so multi-file deployments convert in a single pass.",
+  "upload_type": "software",
+  "access_right": "open",
+  "license": "GPL-3.0-or-later",
+  "creators": [
+    { "name": "Welch, Pat", "orcid": "0000-0002-3483-982X" }
+  ],
+  "keywords": [
+    "oceanography",
+    "Slocum glider",
+    "Teledyne Webb Research",
+    "Dinkum Binary Data",
+    "DBD",
+    "NetCDF",
+    "autonomous underwater vehicle",
+    "ocean observing"
+  ]
+}

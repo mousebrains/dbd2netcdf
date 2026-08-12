@@ -6,6 +6,12 @@ Unreleased
   release notes, so an unrenamed or missing section fails the release rather
   than shipping silently.
 
+Version 1.7.6
+
+Aug-2026, Citation and archiving
+  - Add CITATION.cff and .zenodo.json, so GitHub renders a "Cite this
+    repository" button and each tagged release is archived on Zenodo with a DOI
+
 Aug-2026, Dependencies
   - Update CLI11 to v2.7.2
 
