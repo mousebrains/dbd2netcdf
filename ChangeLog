@@ -6,6 +6,13 @@ Unreleased
   release notes, so an unrenamed or missing section fails the release rather
   than shipping silently.
 
+Aug-2026, Packaging
+  - Name binary packages with the architecture as well as the OS
+    (dbd2netcdf-X.Y.Z-Linux-x86_64, -Darwin-arm64). The v1.7.6 release notes
+    advertised those names, but CPack stopped at the system name, so two of the
+    five download rows pointed at files that were never produced. Windows and
+    the source packages are unchanged
+
 Version 1.7.6
 
 Aug-2026, Citation and archiving

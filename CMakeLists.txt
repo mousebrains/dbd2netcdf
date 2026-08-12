@@ -167,6 +167,32 @@ else (APPLE)
   message(STATUS "Unrecognized system to creat packaging for")
 endif (APPLE)
 
+# Name binary packages after the architecture as well as the OS. CPack's
+# default stops at the system name (dbd2netcdf-1.7.6-Darwin.tar.gz), which
+# cannot tell an Intel build from an ARM one -- and the release notes have
+# always advertised the arch-suffixed names, so two of the five download links
+# pointed at files that were never produced. Windows is left alone, where
+# CPACK_SYSTEM_NAME is already win64 and encodes the architecture.
+#
+# The version and system name are spelled out rather than reused from
+# CPACK_PACKAGE_VERSION/CPACK_SYSTEM_NAME because the CPack module only defines
+# those at include(CPack) time, which happens below this.
+if (NOT WIN32)
+  if (APPLE AND CMAKE_OSX_ARCHITECTURES)
+    # An explicit or universal build: join "arm64;x86_64" into "arm64-x86_64".
+    string(REPLACE ";" "-" dbd2netcdf_PACKAGE_ARCH "${CMAKE_OSX_ARCHITECTURES}")
+  else ()
+    # A plain build leaves CMAKE_OSX_ARCHITECTURES empty, so use the host.
+    set(dbd2netcdf_PACKAGE_ARCH "${CMAKE_SYSTEM_PROCESSOR}")
+  endif ()
+
+  if (dbd2netcdf_PACKAGE_ARCH)
+    set(CPACK_PACKAGE_FILE_NAME
+        "${PROJECT_NAME}-${dbd2netcdf_VERSION_MAJOR}.${dbd2netcdf_VERSION_MINOR}.${dbd2netcdf_VERSION_PATCH}-${CMAKE_SYSTEM_NAME}-${dbd2netcdf_PACKAGE_ARCH}")
+    message(STATUS "Binary package name: ${CPACK_PACKAGE_FILE_NAME}")
+  endif ()
+endif ()
+
 # Create packaging for the source
 
 set (CPACK_SOURCE_IGNORE_FILES
