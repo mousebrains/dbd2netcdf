@@ -222,6 +222,13 @@ jobs:
   codeql:
     name: CodeQL Security Analysis
     runs-on: ubuntu-latest
+    # This job runs 7-9 minutes normally. Without an explicit limit it inherits
+    # the 360-minute default, and a hung run looks identical to a slow one: a
+    # v1.7.6 release-candidate run stalled in "Build for CodeQL" for 48 minutes,
+    # uploaded no logs, and recorded no step conclusions before the runner was
+    # reaped. 20 minutes leaves ~2x headroom over the observed spread while
+    # turning the next stall into a prompt, legible failure.
+    timeout-minutes: 20
     permissions:
       security-events: write
       actions: read
