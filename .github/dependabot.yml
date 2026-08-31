@@ -2,8 +2,10 @@
 #
 # Scope: GitHub Actions only. The FetchContent dependencies in CMakeLists.txt
 # (CLI11, spdlog, Catch2) are not a Dependabot ecosystem; they are tracked by
-# .github/workflows/dependency-check.yml, which opens an issue when a newer
-# release is tagged. The vendored lz4 sources in src/ are updated by hand.
+# .github/workflows/dependency-check.yml, which rewrites the GIT_TAGs, builds
+# and tests the result, and opens a pull request only if that passes -- the
+# same "batch the routine bumps, let CI speak for them" arrangement as the
+# groups below. The vendored lz4 sources in src/ are updated by hand.
 
 version: 2
 updates:
