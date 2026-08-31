@@ -269,13 +269,17 @@ jobs:
       uses: github/codeql-action/init@v4
       with:
         languages: cpp
-        # Declared explicitly: left undefined, the action reports "Cannot build
-        # an overlay database because build-mode is set to 'undefined'" and
-        # falls back to a full database anyway. "manual" is what the steps below
-        # actually do -- build between init and analyze. The alternative,
-        # build-mode: none, would skip the build and finish faster, but analyses
-        # a build-less extraction of a C++ parser, which is the wrong trade for
-        # the one job whose purpose is finding memory bugs.
+        # "manual" is what the steps below actually do: build between init
+        # and analyze. Declaring it does NOT silence the overlay-database
+        # warning -- the action emits that for any mode except "none", so the
+        # message merely changes from 'undefined' to 'manual'. It is kept
+        # because stating the mode is right, not as a fix for the annotation.
+        #
+        # Overlay databases are an incremental-analysis speedup that requires
+        # build-mode: none, i.e. build-less extraction. For the one job whose
+        # purpose is finding memory bugs in a C++ parser, a full build buys
+        # better dataflow than the annotation is worth. The warning stays on
+        # purpose; switch to "none" only if that trade is reconsidered.
         build-mode: manual
 
     - name: Install dependencies

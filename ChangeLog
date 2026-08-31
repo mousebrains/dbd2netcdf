@@ -61,8 +61,10 @@ Aug-2026, Continuous integration
     steps instead of two copies that could drift
   - Declare contents: read at the top of the build and fuzz workflows
   - Declare CodeQL's build-mode as manual, which is what the job already does.
-    Left undefined it logged "Cannot build an overlay database because
-    build-mode is set to 'undefined'" on every run
+    This does not silence the overlay-database warning -- the action emits it
+    for any mode but "none" -- so the message changes rather than disappears.
+    Overlay databases need build-less extraction, and a full build buys better
+    dataflow on a C++ parser than the annotation costs
   - Untap aws/tap before installing Homebrew packages. The runner image
     preinstalls it, nothing here uses it, and Homebrew's whole-tap trust
     warning was surfacing as a check annotation on both macOS jobs
