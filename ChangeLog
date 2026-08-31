@@ -16,6 +16,59 @@ Aug-2026, Packaging
 Aug-2026, Dependencies
   - Update Catch2 to v3.16.0
 
+Aug-2026, macOS
+  - Build the release on macos-15 rather than macos-latest. Nothing sets
+    CMAKE_OSX_DEPLOYMENT_TARGET, so clang stamps the host's version as the
+    binary's minimum; when the macos-latest alias moved to macOS 26, every
+    published Darwin package silently began refusing to launch on anything
+    older -- verified with vtool, a 26 host yields "minos 26.0". Building on
+    the oldest supported release yields minos 15.0, which runs on 15 and 26
+  - State the tested macOS versions as 15.x and 26.x on Apple Silicon. The
+    README advertised 13.x, 14.x and 15.x on Intel and ARM, none of which CI
+    covered and none of which the released binary would start on
+
+Aug-2026, Continuous integration
+  - Build against rockylinux/rockylinux:9. The Docker Official Image
+    rockylinux:9 was last published 2024-05-30 -- Rocky cannot push updates
+    there -- so the Rocky job spent over two years validating an image no Rocky
+    user runs, and could not have seen a toolchain or library regression
+    shipped since
+  - Fuzz on pull requests that touch src/**. The five targets exist to guard
+    Sensor, Header, KnownBytes, Data and Decompress, but the trigger listed
+    only test/fuzz/**, so a change to any of those parsers ran no fuzzing and
+    waited for the Sunday sweep. Pull requests get a short pass over the
+    checked-in corpus; the weekly run keeps the long search
+  - Fail the fuzz job when a target produces an artifact. Every target ended in
+    "|| true", so the run step always succeeded and the "if: failure()" upload
+    could never fire: libFuzzer could write a crash- file and the job would
+    still go green, discarding the reproducer
+  - Stop running the same macOS image twice. The matrix was
+    [macos-latest, macos-26], from when macos-26 was beta and macos-latest
+    meant macos-15; once 26 went GA both entries resolved to macos-26-arm64 --
+    verified identical image and compiler -- so half the macOS budget bought
+    nothing and coverage of the previous release disappeared. Now [macos-15,
+    macos-26], both named explicitly
+  - Pin the oldest-compiler jobs to ubuntu-24.04. gcc-9 and clang-16 come from
+    that release's archive rather than the runner image, so they would stop
+    being installable when ubuntu-latest moves to 26.04, silently taking the
+    oldest-supported coverage with them. The newest-compiler jobs still float
+  - Give every job a timeout-minutes, sized at about 3x its observed median.
+    Only CodeQL had one; the other twelve inherited the 360-minute default,
+    which is the failure mode a 48-minute stall demonstrated before v1.7.6
+  - Key the Cygwin cache on the package list rather than on the whole workflow
+    file, so an unrelated edit no longer forces a cold install of the slowest
+    job in the matrix, and share one package list between the setup and retry
+    steps instead of two copies that could drift
+  - Declare contents: read at the top of the build and fuzz workflows
+  - Declare CodeQL's build-mode as manual, which is what the job already does.
+    This does not silence the overlay-database warning -- the action emits it
+    for any mode but "none" -- so the message changes rather than disappears.
+    Overlay databases need build-less extraction, and a full build buys better
+    dataflow on a C++ parser than the annotation costs
+  - Untap aws/tap before installing Homebrew packages. The runner image
+    preinstalls it, nothing here uses it, and Homebrew's whole-tap trust
+    warning was surfacing as a check annotation on both macOS jobs
+
 Aug-2026, Build and CI
   - The monthly dependency check now opens a pull request instead of an issue.
     It rewrites the FetchContent GIT_TAGs, builds and runs the test suite
