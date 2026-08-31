@@ -90,6 +90,9 @@ jobs:
       run: |
         shellcheck -s sh test/dbd2netCDF test/dbd2csv test/dbdSensors test/pd02netCDF test/decompressTWR
 
+    - name: Test the dependency bump script
+      run: python3 .github/scripts/test_bump_fetchcontent.py
+
   lint-cpp:
     name: C++ Static Analysis
     runs-on: ubuntu-latest

@@ -74,6 +74,9 @@ jobs:
         # must also come from a real user for the pull_request event to fire.
         token: ${{ secrets.DEPS_PAT || secrets.GITHUB_TOKEN }}
 
+    - name: Test the bump script
+      run: python3 .github/scripts/test_bump_fetchcontent.py
+
     - name: Rewrite GIT_TAGs to the latest releases
       id: bump
       run: python3 .github/scripts/bump_fetchcontent.py

@@ -42,8 +42,21 @@ Bumped automatically: `.github/workflows/dependency-check.yml` runs on the first
 Monday of each month, rewrites the `GIT_TAG` values via
 `.github/scripts/bump_fetchcontent.py`, builds and runs `ctest` against them,
 and opens a pull request on the `deps/fetchcontent` branch only if that passes.
-A bump that breaks the build files an issue instead. The version list above is
-rewritten by that script, so keep the `- <Name> <tag>` shape.
+A bump that breaks the build files an issue instead.
+
+That script also rewrites two prose files, so keep their shapes intact:
+
+- the version list above, matched as `- <Name> <tag>`
+- the ChangeLog's `Unreleased` section, where it maintains a
+  `<Mon>-<YYYY>, Dependencies` block. One bullet per dependency, not per bump:
+  a pin moved twice between releases has its existing bullet rewritten rather
+  than duplicated, so the section reads as the net change the release ships.
+  If a release cut has renamed `Unreleased` away, it recreates the heading.
+
+`.github/scripts/test_bump_fetchcontent.py` covers the ChangeLog rewriting --
+the one part that can fail quietly, since a bad `GIT_TAG` is caught by the build
+the workflow runs anyway. It runs in the Shellcheck job on every PR and again
+before the monthly bump.
 
 ### The `DEPS_PAT` secret
 
