@@ -36,7 +36,53 @@ Files excluded from trailing-whitespace hook (ncdump outputs trailing spaces):
 
 - CLI11 v2.7.2
 - spdlog v1.17.0
-- Catch2 v3.15.3
+- Catch2 v3.16.0
+
+Bumped automatically: `.github/workflows/dependency-check.yml` runs on the first
+Monday of each month, rewrites the `GIT_TAG` values via
+`.github/scripts/bump_fetchcontent.py`, builds and runs `ctest` against them,
+and opens a pull request on the `deps/fetchcontent` branch only if that passes.
+A bump that breaks the build files an issue instead.
+
+That script also rewrites two prose files, so keep their shapes intact:
+
+- the version list above, matched as `- <Name> <tag>`
+- the ChangeLog's `Unreleased` section, where it maintains a
+  `<Mon>-<YYYY>, Dependencies` block. One bullet per dependency, not per bump:
+  a pin moved twice between releases has its existing bullet rewritten rather
+  than duplicated, so the section reads as the net change the release ships.
+  If a release cut has renamed `Unreleased` away, it recreates the heading.
+
+`.github/scripts/test_bump_fetchcontent.py` covers the ChangeLog rewriting --
+the one part that can fail quietly, since a bad `GIT_TAG` is caught by the build
+the workflow runs anyway. It runs in the Shellcheck job on every PR and again
+before the monthly bump.
+
+### The `DEPS_PAT` secret
+
+GitHub does not start workflow runs for events raised with `GITHUB_TOKEN`, so a
+dependency PR opened with the default token arrives with **no checks at all**.
+`DEPS_PAT` is a fine-grained personal access token used for the branch push and
+the `gh pr create`, which makes the PR look like it came from a person and lets
+`build-test.yml`'s `pull_request` trigger fire — full compiler matrix, CodeQL
+and coverage on the bump before it merges.
+
+Create it at Settings -> Developer settings -> Personal access tokens ->
+Fine-grained tokens:
+
+- **Repository access**: Only select repositories -> `dbd2netcdf`
+- **Repository permissions**: Contents: Read and write; Pull requests: Read and
+  write; Issues: Read and write (Metadata: Read is added automatically)
+
+Then store it:
+
+```sh
+gh secret set DEPS_PAT --repo mousebrains/dbd2netcdf
+```
+
+Fine-grained tokens expire. When it does, the workflow does not break: it falls
+back to `GITHUB_TOKEN`, still opens the PR, and emits a `::warning::` saying the
+matrix will not run. That warning is the signal to reissue the token.
 
 ## Test Data
 

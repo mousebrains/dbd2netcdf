@@ -2,72 +2,142 @@ name: Dependency Update Check
 
 on:
   schedule:
-    # First Monday of each month at 09:00 UTC
-    - cron: '0 9 1-7 * 1'
+    # 09:00 UTC every Monday; the "first Monday of the month" half is enforced
+    # by the gate job below, because cron cannot express it. When both the
+    # day-of-month and day-of-week fields are restricted, cron ORs them, so
+    # the earlier '0 9 1-7 * 1' meant "days 1-7 OR every Monday" -- 11 runs in
+    # August 2026, not one. Each run closed and recreated the issue, so a
+    # single pending release churned through a new issue number every few days.
+    - cron: '0 9 * * 1'
   workflow_dispatch:
 
+permissions: {}
+
 jobs:
-  check-dependencies:
-    name: Check for new releases
+  gate:
+    name: First Monday gate
     runs-on: ubuntu-latest
+    outputs:
+      proceed: ${{ steps.check.outputs.proceed }}
+    steps:
+    - name: Is this the first Monday of the month?
+      id: check
+      run: |
+        # workflow_dispatch always proceeds; the gate only filters the weekly cron.
+        if [ "${{ github.event_name }}" != "schedule" ] || [ "$(date -u +%-d)" -le 7 ]; then
+          echo "proceed=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "proceed=false" >> "$GITHUB_OUTPUT"
+          echo "Day $(date -u +%-d) is not in the first week; skipping."
+        fi
+
+  update-dependencies:
+    name: Check, build and propose updates
+    runs-on: ubuntu-latest
+    needs: gate
+    if: needs.gate.outputs.proceed == 'true'
     permissions:
+      contents: write
+      pull-requests: write
       issues: write
 
+    env:
+      # DEPS_PAT is a fine-grained PAT with Contents/Pull requests/Issues write
+      # on this repository only. It exists solely so the proposed bump gets real
+      # CI: GitHub deliberately does not start workflow runs for events raised
+      # with GITHUB_TOKEN, so a PR opened with the default token shows no checks
+      # at all. Pushing the branch and opening the PR as a real user makes
+      # build-test.yml's pull_request trigger fire, giving the bump the full
+      # compiler matrix, CodeQL and coverage before it is merged.
+      #
+      # The fallback keeps the workflow working when the secret is absent or has
+      # expired -- the PR is still opened and still carries this job's own build,
+      # it just arrives without the matrix. The step below says so out loud.
+      GH_TOKEN: ${{ secrets.DEPS_PAT || secrets.GITHUB_TOKEN }}
+      BRANCH: deps/fetchcontent
+
     steps:
+    - name: Note whether the pull request will get CI
+      env:
+        HAS_PAT: ${{ secrets.DEPS_PAT != '' }}
+      run: |
+        if [ "$HAS_PAT" = "true" ]; then
+          echo "DEPS_PAT is set; the pull request will run the full CI matrix."
+        else
+          echo "::warning::DEPS_PAT is not set or has expired. A pull request opened with GITHUB_TOKEN does not trigger build-test.yml, so it will show no checks; the bump is still validated by this job's own build. See CLAUDE.md for how to reissue the token."
+        fi
+
     - name: Checkout code
       uses: actions/checkout@v7
+      with:
+        # Persist the PAT as the push credential, not GITHUB_TOKEN: the push
+        # must also come from a real user for the pull_request event to fire.
+        token: ${{ secrets.DEPS_PAT || secrets.GITHUB_TOKEN }}
 
-    - name: Check for dependency updates
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Test the bump script
+      run: python3 .github/scripts/test_bump_fetchcontent.py
+
+    - name: Rewrite GIT_TAGs to the latest releases
+      id: bump
+      run: python3 .github/scripts/bump_fetchcontent.py
+
+    - name: Install build dependencies
+      if: steps.bump.outputs.has_updates == 'true'
       run: |
-        updates=""
+        sudo apt-get update
+        sudo apt-get install -y cmake libnetcdf-dev libhdf5-dev netcdf-bin
 
-        # Extract FetchContent dependencies from CMakeLists.txt.
-        # Each block has GIT_REPOSITORY and GIT_TAG on consecutive lines.
-        parse_deps() {
-          local cmake="CMakeLists.txt"
-          local name repo tag
-          while IFS= read -r line; do
-            if [[ "$line" =~ GIT_REPOSITORY[[:space:]]+https://github.com/(.+)\.git ]]; then
-              repo="${BASH_REMATCH[1]}"
-              name="${repo##*/}"
-            elif [[ "$line" =~ GIT_TAG[[:space:]]+(.*) ]]; then
-              tag="${BASH_REMATCH[1]}"
-              if [ -n "$repo" ]; then
-                check_release "$name" "$repo" "$tag"
-              fi
-              repo="" name="" tag=""
-            fi
-          done < "$cmake"
-        }
+    - name: Configure, build and test against the new versions
+      id: validate
+      if: steps.bump.outputs.has_updates == 'true'
+      continue-on-error: true
+      run: |
+        cmake -B build -DCMAKE_BUILD_TYPE=Release
+        cmake --build build --config Release
+        cd build
+        ctest --output-on-failure
 
-        check_release() {
-          local name="$1" repo="$2" current="$3"
-          local latest
-          latest=$(gh api "repos/${repo}/releases/latest" --jq '.tag_name' 2>/dev/null) || return
-          if [ -n "$latest" ] && [ "$latest" != "$current" ]; then
-            updates="${updates}- **${name}**: ${current} -> ${latest} (https://github.com/${repo}/releases/tag/${latest})\n"
-          else
-            echo "${name}: ${current} is up to date"
-          fi
-        }
+    - name: Open or update the pull request
+      if: steps.bump.outputs.has_updates == 'true' && steps.validate.outcome == 'success'
+      run: |
+        git config user.name  "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        git checkout -B "$BRANCH"
+        git commit -am "$(cat "$RUNNER_TEMP"/bump-commit.txt)"
+        # Force-push: the branch is a rolling proposal rebuilt from master each
+        # run, not an accumulating history.
+        git push --force origin "$BRANCH"
 
-        parse_deps
-
-        if [ -z "$updates" ]; then
-          echo "All dependencies are up to date."
-          exit 0
-        fi
-
-        title="Dependency updates available"
-
-        # Close any existing open issue with the same title
-        existing=$(gh issue list --state open --search "\"${title}\" in:title" --json number --jq '.[0].number' 2>/dev/null)
+        title=$(head -1 "$RUNNER_TEMP"/bump-commit.txt)
+        existing=$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number')
         if [ -n "$existing" ]; then
-          gh issue close "$existing" --comment "Superseded by new check."
+          gh pr edit "$existing" --title "$title" --body-file "$RUNNER_TEMP"/bump-pr.md
+          echo "Updated PR #${existing}"
+        else
+          if ! gh pr create --title "$title" --body-file "$RUNNER_TEMP"/bump-pr.md --label dependencies; then
+            gh issue create --title "Dependency updates available" \
+              --label dependencies \
+              --body "$(printf 'Could not open a pull request automatically -- most likely `DEPS_PAT` has expired or lost its **Pull requests: write** permission. Reissue it, or merge the branch [`%s`](%s/tree/%s) by hand.\n\n%s\n' \
+                "$BRANCH" "${{ github.server_url }}/${{ github.repository }}" "$BRANCH" "$(cat "$RUNNER_TEMP"/bump-pr.md)")"
+            exit 1
+          fi
         fi
 
-        printf -v body "The following FetchContent dependencies in \`CMakeLists.txt\` have newer releases:\n\n%b\nTo update, change the \`GIT_TAG\` in \`CMakeLists.txt\`, build, and run the full test suite." "$updates"
+        # Retire the issue-era reports; the PR supersedes them.
+        for n in $(gh issue list --state open --search '"Dependency updates available" in:title' --json number --jq '.[].number'); do
+          gh issue close "$n" --comment "Superseded by the automated dependency pull request."
+        done
 
-        gh issue create --title "$title" --body "$body" --label "enhancement"
+    - name: Report a failing update
+      if: steps.bump.outputs.has_updates == 'true' && steps.validate.outcome == 'failure'
+      run: |
+        title="Dependency update fails to build"
+        body=$(printf 'The monthly dependency check bumped the `GIT_TAG` values below, but the tree no longer builds or the test suite fails, so no pull request was opened.\n\n%s\n\n[Failing run](%s/%s/actions/runs/%s)\n' \
+          "$(cat "$RUNNER_TEMP"/bump-pr.md)" "${{ github.server_url }}" "${{ github.repository }}" "${{ github.run_id }}")
+        existing=$(gh issue list --state open --search "\"${title}\" in:title" --json number --jq '.[0].number')
+        if [ -n "$existing" ]; then
+          gh issue edit "$existing" --body "$body"
+        else
+          gh issue create --title "$title" --body "$body" --label dependencies,bug
+        fi
+        exit 1

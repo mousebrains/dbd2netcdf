@@ -13,6 +13,27 @@ Aug-2026, Packaging
     five download rows pointed at files that were never produced. Windows and
     the source packages are unchanged
 
+Aug-2026, Dependencies
+  - Update Catch2 to v3.16.0
+
+Aug-2026, Build and CI
+  - The monthly dependency check now opens a pull request instead of an issue.
+    It rewrites the FetchContent GIT_TAGs, builds and runs the test suite
+    against them, and proposes the result only if that passes; a bump that
+    breaks the build files an issue instead. It refuses any tag that is not
+    strictly newer, since GitHub's "latest release" is the most recently
+    published one, which a backport on an older line can walk backwards
+  - The dependency check maintains its own ChangeLog entry, adding a dated
+    Dependencies block under Unreleased for each bump it proposes, so an
+    automated update no longer skips the convention a hand-written one follows
+  - Fix the dependency check firing weekly rather than monthly. The cron
+    '0 9 1-7 * 1' was commented "first Monday of each month", but cron ORs the
+    day-of-month and day-of-week fields when both are restricted, so it meant
+    "days 1-7 or every Monday" -- 11 runs in August 2026. Combined with
+    close-and-recreate, one pending release churned through a new issue number
+    every few days. Cron cannot express "first Monday", so the schedule is now
+    every Monday with a job that exits unless the day of the month is 7 or less
+
 Version 1.7.6
 
 Aug-2026, Citation and archiving
