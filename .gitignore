@@ -20,3 +20,7 @@ dbd2netcdf-?.?.?-*
 tpw.nc
 tmp
 test/unit/*.cmake
+
+# Python bytecode (the CI helper scripts under .github/scripts/)
+__pycache__/
+*.py[cod]

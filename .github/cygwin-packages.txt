@@ -1,0 +1,13 @@
+cmake
+gcc-core
+gcc-g++
+make
+netcdf
+libnetcdf-devel
+hdf5
+libhdf5-devel
+diffutils
+coreutils
+grep
+file
+tar

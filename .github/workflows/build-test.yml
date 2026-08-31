@@ -7,6 +7,11 @@ on:
     branches: [ master, main ]
   workflow_dispatch:
 
+# Read-only by default. The codeql job raises its own permissions; nothing
+# else here writes to the repository.
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -15,26 +20,38 @@ jobs:
   # Streamlined compiler testing: oldest + newest for each compiler family
   build-linux:
     name: Linux - ${{ matrix.name }}
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
+        # The runner is per-entry on purpose. gcc-9 and clang-16 are not in the
+        # runner image (which carries GCC 12-14 and Clang 16-18); they come from
+        # the Ubuntu archive, so the floor jobs only work as long as the archive
+        # is noble's. When ubuntu-latest moves to 26.04 those packages are
+        # unlikely to survive, and the oldest-supported coverage would vanish
+        # without failing anything. Pin the floor, float the ceiling: the whole
+        # point of the newest entries is to meet new compilers early.
         include:
-          # GCC: oldest supported (9) and newest (14)
+          # GCC: oldest supported (9) and newest available (14)
           - name: GCC 9 (oldest)
+            runner: ubuntu-24.04
             cc: gcc-9
             cxx: g++-9
             install: gcc-9 g++-9
           - name: GCC 14 (newest)
+            runner: ubuntu-latest
             cc: gcc-14
             cxx: g++-14
             install: gcc-14 g++-14
-          # Clang: oldest supported (16) and newest (19)
+          # Clang: oldest supported (16) and newest available (19)
           - name: Clang 16 (oldest)
+            runner: ubuntu-24.04
             cc: clang-16
             cxx: clang++-16
             install: clang-16
           - name: Clang 19 (newest)
+            runner: ubuntu-latest
             cc: clang-19
             cxx: clang++-19
             install: clang-19
@@ -73,9 +90,12 @@ jobs:
         cd build
         ctest --output-on-failure
 
-  lint-shell:
-    name: Shellcheck
+  lint-scripts:
+    # Renamed from lint-shell/"Shellcheck": it also runs the dependency bump
+    # script's tests, so the old name understated what a failure here means.
+    name: Scripts
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
     - name: Checkout code
@@ -96,6 +116,7 @@ jobs:
   lint-cpp:
     name: C++ Static Analysis
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
     - name: Checkout code
@@ -126,6 +147,7 @@ jobs:
   lint-clang-tidy:
     name: clang-tidy
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
     - name: Checkout code
@@ -151,6 +173,7 @@ jobs:
   coverage:
     name: Code Coverage
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
     - name: Checkout code
@@ -194,6 +217,7 @@ jobs:
   build-asan:
     name: AddressSanitizer
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
     - name: Checkout code
@@ -262,11 +286,17 @@ jobs:
   build-macos:
     name: macOS - ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
     strategy:
       fail-fast: false
       matrix:
-        # macos-latest (currently macos-15) and beta (macos-26)
-        os: [macos-latest, macos-26]
+        # Both labels named explicitly. This was [macos-latest, macos-26], from
+        # when macos-26 was the beta and macos-latest still meant macos-15. When
+        # 26 went GA the alias moved onto it and both entries began running the
+        # same image -- verified identical: macos-26-arm64 / 20260728.0273 /
+        # Apple clang 21.0.0 in both jobs. Half the macOS budget bought nothing
+        # and coverage of the previous release silently disappeared.
+        os: [macos-15, macos-26]
 
     steps:
     - name: Checkout code
@@ -301,8 +331,12 @@ jobs:
         ctest --output-on-failure
 
   build-cygwin:
+    # 45 rather than the ~30 the 14.2-minute median implies: these samples all
+    # hit the Cygwin cache, and a cold install is materially slower. This is the
+    # job that most needed a bound and had none.
     name: Cygwin - windows-latest
     runs-on: windows-latest
+    timeout-minutes: 45
     env:
       CYGWIN: winsymlinks:native
     defaults:
@@ -317,51 +351,38 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v7
 
+    - name: Read the Cygwin package list
+      id: cygwin-packages
+      shell: bash
+      run: echo "list=$(paste -sd, .github/cygwin-packages.txt)" >> "$GITHUB_OUTPUT"
+
     - name: Cache Cygwin
       uses: actions/cache@v6
       with:
         path: D:\cygwin
-        key: cygwin-v6-${{ hashFiles('.github/workflows/build-test.yml') }}
-        restore-keys: cygwin-v6-
+        # Keyed on the package list, not on this whole workflow file. The old
+        # key was hashFiles('.github/workflows/build-test.yml'), so every edit
+        # to any job here -- including this one -- threw away the cache for the
+        # slowest job in the matrix (~14 min warm) and forced a cold install.
+        key: cygwin-v7-${{ hashFiles('.github/cygwin-packages.txt') }}
+        restore-keys: cygwin-v7-
 
     - name: Set up Cygwin
       uses: cygwin/cygwin-install-action@v6
       id: cygwin-setup
       continue-on-error: true
       with:
-        packages: |
-          cmake
-          gcc-core
-          gcc-g++
-          make
-          netcdf
-          libnetcdf-devel
-          hdf5
-          libhdf5-devel
-          diffutils
-          coreutils
-          grep
-          file
-          tar
+        # Single source of truth, shared with the retry below. The two steps
+        # previously carried separate copies of the same thirteen packages,
+        # which could drift so that a retry installed something the first
+        # attempt did not.
+        packages: ${{ steps.cygwin-packages.outputs.list }}
 
     - name: Retry Cygwin setup on failure
       if: steps.cygwin-setup.outcome == 'failure'
       uses: cygwin/cygwin-install-action@v6
       with:
-        packages: |
-          cmake
-          gcc-core
-          gcc-g++
-          make
-          netcdf
-          libnetcdf-devel
-          hdf5
-          libhdf5-devel
-          diffutils
-          coreutils
-          grep
-          file
-          tar
+        packages: ${{ steps.cygwin-packages.outputs.list }}
 
     - name: Prepare Cygwin workspace
       shell: D:\cygwin\bin\bash.exe --login -o igncr -eo pipefail '{0}'
@@ -436,6 +457,7 @@ jobs:
   build-alma:
     name: AlmaLinux 8 (GCC 8.5)
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     container:
       image: almalinux:8
 
@@ -485,8 +507,15 @@ jobs:
   build-rocky:
     name: Rocky Linux 9
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     container:
-      image: rockylinux:9
+      # rockylinux/rockylinux, not the Docker Official Image "rockylinux". The
+      # official one carries a notice that Rocky cannot publish updates there,
+      # and library/rockylinux:9 was last pushed 2024-05-30 -- so this job spent
+      # over two years validating against an image Rocky users do not run, and
+      # would not have seen a toolchain or library regression shipped since.
+      # almalinux:8 is still current (last pushed 2026-06-02) and stays put.
+      image: rockylinux/rockylinux:9
 
     steps:
     - name: Install git (required for checkout)
@@ -528,6 +557,7 @@ jobs:
   build-windows:
     name: Windows (MSVC)
     runs-on: windows-latest
+    timeout-minutes: 15
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     defaults:

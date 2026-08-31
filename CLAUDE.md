@@ -21,10 +21,24 @@ When adding new code, watch for these MSVC warnings (treated as errors with /WX)
 ## CI Configuration
 
 - **Linux**: GCC 9+14, Clang 16+19 (oldest/newest strategy)
-- **macOS**: macos-latest + macos-26 (beta)
+- **macOS**: macos-15 + macos-26
 - **Containers**: AlmaLinux 8 (GCC 8.5), Rocky Linux 9
 - **Windows**: MSVC via conda-forge for NetCDF
-- **Fuzz testing**: Weekly via `.github/workflows/fuzz.yml`
+- **Fuzz testing**: Weekly, plus PRs touching `src/**` or `test/fuzz/**`
+
+Runner labels: the **oldest**-compiler jobs pin `ubuntu-24.04` because `gcc-9`
+and `clang-16` come from that release's archive, not the runner image; the
+**newest** ones use `ubuntu-latest` so they meet new compilers early. Name both
+halves of a version matrix explicitly -- `[macos-latest, macos-26]` silently
+collapsed to one image once 26 went GA.
+
+Container images: `rockylinux/rockylinux:9`, not the Docker Official Image
+`rockylinux:9`, which Rocky can no longer publish updates to (last pushed
+2024-05-30). `almalinux:8` is still current.
+
+Every job sets `timeout-minutes`, sized at roughly 3x its observed median so a
+hang fails promptly instead of running to the 360-minute default. Cygwin is the
+outlier at ~14 minutes warm; everything else is under 7.
 
 ## Pre-commit Hooks
 

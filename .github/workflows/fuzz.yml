@@ -6,11 +6,21 @@ on:
     - cron: '0 0 * * 0'
   # Allow manual trigger
   workflow_dispatch:
-  # Run on PRs that modify fuzz tests
+  # Run on PRs that touch the fuzzers or the parsers they exercise. The paths
+  # used to be test/fuzz/** and this file alone, which meant the five targets
+  # never ran against a change to the code they exist to guard: editing
+  # Sensor.C, Header.C, KnownBytes.C, Data.C or Decompress.C triggered no
+  # fuzzing at all and the regression waited for Sunday. src/** is broad on
+  # purpose -- the targets link the library, so any of it can reach them.
   pull_request:
     paths:
+      - 'src/**'
       - 'test/fuzz/**'
+      - 'CMakeLists.txt'
       - '.github/workflows/fuzz.yml'
+
+permissions:
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -20,6 +30,14 @@ jobs:
   fuzz:
     name: libFuzzer
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      # Now that pull requests trigger this, a full weekly-length sweep on every
+      # src/** change would add ~5 minutes to each one. Pull requests get a
+      # short pass over the checked-in corpus -- enough to catch a target that
+      # crashes on a known-good seed, which is the regression worth blocking a
+      # merge on -- and the Sunday run keeps the long search.
+      FUZZ_SECONDS: ${{ github.event_name == 'pull_request' && '15' || '55' }}
 
     steps:
     - name: Checkout code
@@ -57,30 +75,35 @@ jobs:
           fi
         done
 
-    - name: Run fuzz_sensor (60 seconds)
+    - name: Run the fuzz targets
+      # Each target was its own copy-pasted step with the duration hard-coded in
+      # two places (timeout and -max_total_time), which is how they drift.
       run: |
         cd build
-        timeout 60 ./bin/fuzz_sensor fuzz_corpus/sensor -max_total_time=55 || true
+        for target in sensor header knownbytes data decompress; do
+          echo "=== fuzz_$target (${FUZZ_SECONDS}s) ==="
+          # Keep going after a find so one bad target does not hide the others;
+          # the check below decides the job's fate.
+          timeout "$((FUZZ_SECONDS + 5))" \
+            "./bin/fuzz_$target" "fuzz_corpus/$target" \
+            -max_total_time="$FUZZ_SECONDS" || true
+        done
 
-    - name: Run fuzz_header (60 seconds)
+    - name: Fail if any target produced an artifact
+      # Every target ends in "|| true", so the run step always succeeded and
+      # "if: failure()" on the upload below could never fire: libFuzzer could
+      # write a crash- file and the job would still go green, discarding the
+      # reproducer. Fuzzing that cannot report a find is decoration -- and it
+      # matters more now that pull requests trigger this workflow.
       run: |
         cd build
-        timeout 60 ./bin/fuzz_header fuzz_corpus/header -max_total_time=55 || true
-
-    - name: Run fuzz_knownbytes (60 seconds)
-      run: |
-        cd build
-        timeout 60 ./bin/fuzz_knownbytes fuzz_corpus/knownbytes -max_total_time=55 || true
-
-    - name: Run fuzz_data (60 seconds)
-      run: |
-        cd build
-        timeout 60 ./bin/fuzz_data fuzz_corpus/data -max_total_time=55 || true
-
-    - name: Run fuzz_decompress (60 seconds)
-      run: |
-        cd build
-        timeout 60 ./bin/fuzz_decompress fuzz_corpus/decompress -max_total_time=55 || true
+        found=$(ls crash-* leak-* timeout-* oom-* 2>/dev/null || true)
+        if [ -n "$found" ]; then
+          echo "::error::Fuzzing produced artifacts:"
+          echo "$found"
+          exit 1
+        fi
+        echo "No crash, leak, timeout or OOM artifacts."
 
     - name: Upload crash artifacts
       if: failure()
@@ -91,4 +114,5 @@ jobs:
           build/crash-*
           build/leak-*
           build/timeout-*
+          build/oom-*
         retention-days: 30
