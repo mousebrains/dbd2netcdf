@@ -95,7 +95,18 @@ jobs:
   build-macos:
     name: macOS
     needs: validate-version
-    runs-on: macos-latest
+    # Build on the OLDEST supported macOS, not the newest. Nothing sets
+    # CMAKE_OSX_DEPLOYMENT_TARGET, so clang stamps the binary with the host's
+    # version as its minimum: built on macos-latest, which became macOS 26 when
+    # the alias moved, every published Darwin package silently began refusing to
+    # launch on anything older. Verified with vtool: a 26 host produces
+    # "minos 26.0". Building on 15 yields minos 15.0, which runs on 15 and 26.
+    #
+    # Pinning the runner rather than overriding the deployment target on
+    # purpose: an override would leave the CI macos-26 job linking 26-era
+    # Homebrew bottles at a 15.0 target, which is how you earn a stream of
+    # "built for newer macOS version" linker warnings.
+    runs-on: macos-15
 
     steps:
     - name: Checkout code
@@ -103,6 +114,10 @@ jobs:
 
     - name: Install dependencies
       run: |
+        # The runner image preinstalls aws/tap, which Homebrew now warns about
+        # on every invocation because whole-tap trust is required. We use
+        # nothing from it, and the warning becomes a check annotation.
+        brew untap aws/tap 2>/dev/null || true
         for pkg in cmake netcdf hdf5; do
           brew list $pkg &>/dev/null || brew install $pkg
         done

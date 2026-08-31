@@ -21,7 +21,7 @@ When adding new code, watch for these MSVC warnings (treated as errors with /WX)
 ## CI Configuration
 
 - **Linux**: GCC 9+14, Clang 16+19 (oldest/newest strategy)
-- **macOS**: macos-15 + macos-26
+- **macOS**: macos-15 + macos-26 (Apple Silicon; no Intel coverage)
 - **Containers**: AlmaLinux 8 (GCC 8.5), Rocky Linux 9
 - **Windows**: MSVC via conda-forge for NetCDF
 - **Fuzz testing**: Weekly, plus PRs touching `src/**` or `test/fuzz/**`
@@ -31,6 +31,11 @@ and `clang-16` come from that release's archive, not the runner image; the
 **newest** ones use `ubuntu-latest` so they meet new compilers early. Name both
 halves of a version matrix explicitly -- `[macos-latest, macos-26]` silently
 collapsed to one image once 26 went GA.
+
+Releases build macOS on `macos-15`, the oldest supported release, not on
+`macos-latest`. No `CMAKE_OSX_DEPLOYMENT_TARGET` is set, so the binary's minimum
+OS is whatever host built it -- check with `vtool -show-build <binary>`. Building
+on the newest macOS silently makes the published package unusable on older ones.
 
 Container images: `rockylinux/rockylinux:9`, not the Docker Official Image
 `rockylinux:9`, which Rocky can no longer publish updates to (last pushed

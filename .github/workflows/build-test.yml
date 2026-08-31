@@ -269,6 +269,14 @@ jobs:
       uses: github/codeql-action/init@v4
       with:
         languages: cpp
+        # Declared explicitly: left undefined, the action reports "Cannot build
+        # an overlay database because build-mode is set to 'undefined'" and
+        # falls back to a full database anyway. "manual" is what the steps below
+        # actually do -- build between init and analyze. The alternative,
+        # build-mode: none, would skip the build and finish faster, but analyses
+        # a build-less extraction of a C++ parser, which is the wrong trade for
+        # the one job whose purpose is finding memory bugs.
+        build-mode: manual
 
     - name: Install dependencies
       run: |
@@ -304,6 +312,10 @@ jobs:
 
     - name: Install dependencies
       run: |
+        # The runner image preinstalls aws/tap, which Homebrew now warns about
+        # on every invocation because whole-tap trust is required. We use
+        # nothing from it, and the warning becomes a check annotation.
+        brew untap aws/tap 2>/dev/null || true
         for pkg in cmake netcdf hdf5; do
           brew list $pkg &>/dev/null || brew install $pkg
         done

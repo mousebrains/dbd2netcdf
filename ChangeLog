@@ -16,6 +16,17 @@ Aug-2026, Packaging
 Aug-2026, Dependencies
   - Update Catch2 to v3.16.0
 
+Aug-2026, macOS
+  - Build the release on macos-15 rather than macos-latest. Nothing sets
+    CMAKE_OSX_DEPLOYMENT_TARGET, so clang stamps the host's version as the
+    binary's minimum; when the macos-latest alias moved to macOS 26, every
+    published Darwin package silently began refusing to launch on anything
+    older -- verified with vtool, a 26 host yields "minos 26.0". Building on
+    the oldest supported release yields minos 15.0, which runs on 15 and 26
+  - State the tested macOS versions as 15.x and 26.x on Apple Silicon. The
+    README advertised 13.x, 14.x and 15.x on Intel and ARM, none of which CI
+    covered and none of which the released binary would start on
+
 Aug-2026, Continuous integration
   - Build against rockylinux/rockylinux:9. The Docker Official Image
     rockylinux:9 was last published 2024-05-30 -- Rocky cannot push updates
@@ -49,6 +60,12 @@ Aug-2026, Continuous integration
     job in the matrix, and share one package list between the setup and retry
     steps instead of two copies that could drift
   - Declare contents: read at the top of the build and fuzz workflows
+  - Declare CodeQL's build-mode as manual, which is what the job already does.
+    Left undefined it logged "Cannot build an overlay database because
+    build-mode is set to 'undefined'" on every run
+  - Untap aws/tap before installing Homebrew packages. The runner image
+    preinstalls it, nothing here uses it, and Homebrew's whole-tap trust
+    warning was surfacing as a check annotation on both macOS jobs
 
 Aug-2026, Build and CI
   - The monthly dependency check now opens a pull request instead of an issue.
