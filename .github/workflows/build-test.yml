@@ -384,7 +384,7 @@ jobs:
         restore-keys: cygwin-v7-
 
     - name: Set up Cygwin
-      uses: cygwin/cygwin-install-action@v6
+      uses: cygwin/cygwin-install-action@v7
       id: cygwin-setup
       continue-on-error: true
       with:
@@ -396,7 +396,7 @@ jobs:
 
     - name: Retry Cygwin setup on failure
       if: steps.cygwin-setup.outcome == 'failure'
-      uses: cygwin/cygwin-install-action@v6
+      uses: cygwin/cygwin-install-action@v7
       with:
         packages: ${{ steps.cygwin-packages.outputs.list }}
 
