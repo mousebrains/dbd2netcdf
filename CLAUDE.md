@@ -55,7 +55,7 @@ Files excluded from trailing-whitespace hook (ncdump outputs trailing spaces):
 
 - CLI11 v2.7.2
 - spdlog v1.17.0
-- Catch2 v3.16.0
+- Catch2 v3.16.1
 
 Bumped automatically: `.github/workflows/dependency-check.yml` runs on the first
 Monday of each month, rewrites the `GIT_TAG` values via

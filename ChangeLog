@@ -14,7 +14,7 @@ Aug-2026, Packaging
     the source packages are unchanged
 
 Aug-2026, Dependencies
-  - Update Catch2 to v3.16.0
+  - Update Catch2 to v3.16.1
 
 Aug-2026, macOS
   - Build the release on macos-15 rather than macos-latest. Nothing sets
